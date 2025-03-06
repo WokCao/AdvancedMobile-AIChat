@@ -1,3 +1,4 @@
+import 'package:ai_chat/widgets/chat_history_screen.dart';
 import 'package:ai_chat/widgets/login_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const LoginPage(),
+      home: const ChatHistoryPage(),
     );
   }
 }
