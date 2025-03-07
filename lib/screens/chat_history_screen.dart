@@ -44,7 +44,7 @@ class ChatHistoryPage extends StatelessWidget {
                 Expanded(
                   child: ListView(
                     children: [
-                      ChatItem(content: "Xin chao tat ca cac ban", time: "3 days ago"),
+                      ChatItem(content: "Xin chao tat ca cac ban", time: "3 days ago", isCurrent: true,),
                       ChatItem(content: "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện của tất cả các màn hình trong để tài + navigation/routing. Nhóm sinh viên tạo branch mock-ui và code trên branch này.", time: "3 days ago"),
                       ChatItem(content: "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện của tất cả các màn hình trong để tài + navigation/routing. Nhóm sinh viên tạo branch mock-ui và code trên branch này.", time: "3 days ago"),
                       ChatItem(content: "Xin chao tat ca cac ban", time: "3 days ago"),
