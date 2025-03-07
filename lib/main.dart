@@ -1,5 +1,5 @@
-import 'package:ai_chat/widgets/chat_history_screen.dart';
-import 'package:ai_chat/widgets/login_screen.dart';
+import 'package:ai_chat/screens//chat_history_screen.dart';
+import 'package:ai_chat/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
