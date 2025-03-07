@@ -1,5 +1,6 @@
 import 'package:ai_chat/screens/auth/register_screen.dart';
 import 'package:ai_chat/screens/auth/login_screen.dart';
+import 'package:ai_chat/screens/home_screen.dart';
 import 'package:ai_chat/screens/chat_history_screen.dart';
 import 'package:ai_chat/screens/prompt_sample_screen.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
+        '/home': (context) => const HomeScreen(),
       },
     );
   }

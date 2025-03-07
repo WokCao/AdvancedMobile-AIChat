@@ -25,6 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate() && _acceptTerms) {
       // Handle registration
+      Navigator.pushNamed(context, '/home');
     } else if (!_acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please accept the terms and conditions')),

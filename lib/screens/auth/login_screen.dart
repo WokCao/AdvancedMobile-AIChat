@@ -22,6 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       // Handle login
+      Navigator.pushNamed(context, '/home');
     }
   }
 
