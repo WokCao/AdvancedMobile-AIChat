@@ -1,5 +1,6 @@
-import 'package:ai_chat/screens//chat_history_screen.dart';
-import 'package:ai_chat/screens/login_screen.dart';
+import 'package:ai_chat/screens/auth/register_screen.dart';
+import 'package:ai_chat/screens/auth/login_screen.dart';
+import 'package:ai_chat/screens/chat_history_screen.dart';
 import 'package:ai_chat/screens/prompt_sample_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -13,13 +14,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Your AI',
+      title: 'ChatGem AI',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const PromptSamplePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+      },
     );
   }
 }
-
