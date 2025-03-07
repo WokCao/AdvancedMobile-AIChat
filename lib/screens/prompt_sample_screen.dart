@@ -148,8 +148,12 @@ class PromptSamplePage extends StatelessWidget {
                 Expanded(
                   child: ListView(
                     children: [
+                      PromptItem(title: "Testing", description: "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện của tất cả các màn hình trong để tài + navigation/routing. Nhóm sinh viên tạo branch mock-ui và code trên branch này.",),
+                      PromptItem(title: "Testing", description: "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện",),
                       PromptItem(title: "Testing", description: "doing something",),
+                      PromptItem(title: "Testing", description: "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện",),
                       PromptItem(title: "Testing", description: "doing something",),
+                      PromptItem(title: "Testing", description: "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện",),
                       PromptItem(title: "Testing", description: "doing something",)
                     ],
                   ),
