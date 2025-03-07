@@ -1,8 +1,8 @@
 import 'package:ai_chat/widgets/chat_item.dart';
 import 'package:flutter/material.dart';
 
-class ChatHistoryPage extends StatelessWidget {
-  const ChatHistoryPage({super.key});
+class ChatHistoryScreen extends StatelessWidget {
+  const ChatHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

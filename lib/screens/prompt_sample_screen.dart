@@ -1,8 +1,8 @@
 import 'package:ai_chat/widgets/prompt_item.dart';
 import 'package:flutter/material.dart';
 
-class PromptSamplePage extends StatelessWidget {
-  const PromptSamplePage({super.key});
+class PromptSampleScreen extends StatelessWidget {
+  const PromptSampleScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
