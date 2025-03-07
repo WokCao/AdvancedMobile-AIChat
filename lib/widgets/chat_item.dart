@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class ChatItem extends StatefulWidget {
   final String content;
   final String time;
+  final bool isCurrent;
 
-  const ChatItem({super.key, required this.content, required this.time});
+  const ChatItem({super.key, required this.content, required this.time, this.isCurrent = false});
 
   @override
   State<ChatItem> createState() => _ChatItemState();
@@ -22,7 +23,7 @@ class _ChatItemState extends State<ChatItem> {
       onExit: (_) => setState(() => isHovered = false),
       cursor: SystemMouseCursors.click,
       child: Container(
-        padding: EdgeInsets.all(10.0),
+        padding: EdgeInsets.fromLTRB(10.0, 10.0, 25.0, 10.0),
         decoration: BoxDecoration(
           color: isHovered ? Colors.purple[50] : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
@@ -32,11 +33,27 @@ class _ChatItemState extends State<ChatItem> {
           children: [
             Container(
               padding: EdgeInsets.only(right: 150.0),
-              child: Text(
-                widget.content,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: Row(
+                children: [
+                  if (widget.isCurrent)
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 5.0),
+                      margin: EdgeInsets.only(right: 5.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                        color: Colors.black,
+                      ),
+                      child: Text("Current Chat", style: TextStyle(color: Colors.yellow)),
+                    ),
+                  Expanded(
+                      child: Text(
+                        widget.content,
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  )
+                ],
+              )
             ),
             SizedBox(height: 5),
             Row(
@@ -58,7 +75,7 @@ class _ChatItemState extends State<ChatItem> {
                         child: Icon(
                           Icons.edit,
                           color: isEditHovered ? Colors.blue : Colors.grey,
-                          size: 20,
+                          size: 25,
                         ),
                       ),
                     ),
@@ -72,7 +89,7 @@ class _ChatItemState extends State<ChatItem> {
                         child: Icon(
                           Icons.delete_forever,
                           color: isDeleteHovered ? Colors.red : Colors.red[200],
-                          size: 20,
+                          size: 25,
                         ),
                       ),
                     ),
