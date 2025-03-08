@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/app_sidebar.dart';
+import '../widgets/selector_menu.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +14,56 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _textController = TextEditingController();
   bool _isInputFocused = false;
 
+  // AI Models data
+  final List<Map<String, dynamic>> _modelData = [
+    {
+      'name': 'GPT-4o mini',
+      'icon': Icons.auto_awesome,
+      'description': "OpenAI's latest model, great for most everyday tasks",
+      'tokenCount': 'Cost 1 Tokens',
+      'iconColor': Colors.blue,
+    },
+    {
+      'name': 'GPT-4o',
+      'icon': Icons.auto_awesome_outlined,
+      'iconColor': Colors.purple,
+    },
+    {
+      'name': 'Gemini 1.5 Flash',
+      'icon': Icons.flash_on,
+      'iconColor': Colors.amber,
+    },
+    {
+      'name': 'Gemini 1.5 Pro',
+      'icon': Icons.workspace_premium,
+      'iconColor': Colors.black,
+    },
+    {
+      'name': 'Claude 3 Haiku',
+      'icon': Icons.psychology,
+      'iconColor': Colors.orange,
+    },
+    {
+      'name': 'Claude 3 Sonnet',
+      'icon': Icons.psychology_outlined,
+      'iconColor': Colors.brown,
+    },
+    {
+      'name': 'Deepseek Chat',
+      'icon': Icons.chat_bubble_outline,
+      'iconColor': Colors.blue,
+    },
+  ];
+
+  late String _selectedModel;
+  final GlobalKey _modelSelectorKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedModel = _modelData[0]['name'];
+  }
+
   void _toggleSidebar() {
     setState(() {
       _isSidebarVisible = !_isSidebarVisible;
@@ -23,6 +74,52 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _isSidebarVisible = false;
     });
+  }
+
+  void _showModelSelector() {
+    // Convert model data to selector items
+    final items = _modelData.map((model) {
+      return SelectorItem<String>(
+        title: model['name'],
+        leading: Icon(
+          model['icon'],
+          size: 20,
+          color: model['iconColor'],
+        ),
+        subtitle: model['description'],
+        trailing: model['tokenCount'],
+        value: model['name'],
+      );
+    }).toList();
+
+    // Get the position of the button
+    final RenderBox? renderBox = _modelSelectorKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final size = renderBox.size;
+    final offset = renderBox.localToGlobal(Offset.zero);
+
+    // Show the menu above the button
+    SelectorMenuHelper.showMenu<String>(
+      context: context,
+      items: items,
+      selectedValue: _selectedModel,
+      onItemSelected: (value) {
+        setState(() {
+          _selectedModel = value;
+        });
+      },
+      title: 'Base AI Models',
+      offset: Offset(offset.dx + 16, offset.dy - 400), // Position above the button
+    );
+  }
+
+  // Get the current model data
+  Map<String, dynamic> get _currentModel {
+    return _modelData.firstWhere(
+          (model) => model['name'] == _selectedModel,
+      orElse: () => _modelData[0],
+    );
   }
 
   @override
@@ -58,6 +155,47 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.grey,
                       fontSize: 16,
                     ),
+                  ),
+                ),
+              ),
+
+              // Model selector
+              Container(
+                key: _modelSelectorKey,
+                margin: const EdgeInsets.only(left: 16.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.purple.shade50,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: InkWell(
+                  onTap: _showModelSelector,
+                  borderRadius: BorderRadius.circular(24),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _currentModel['icon'],
+                        size: 20,
+                        color: _currentModel['iconColor'],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _currentModel['name'],
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.expand_more,
+                        size: 20,
+                      ),
+                    ],
                   ),
                 ),
               ),
