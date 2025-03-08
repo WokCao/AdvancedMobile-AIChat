@@ -20,11 +20,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.purple,
         useMaterial3: true,
       ),
-      initialRoute: '/',
+      initialRoute: '/prompts',
       routes: {
         '/': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeScreen(),
+        '/history': (context) => const ChatHistoryScreen(),
+        '/prompts': (context) => const PromptSampleScreen()
       },
     );
   }
