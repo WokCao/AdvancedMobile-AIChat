@@ -1,47 +1,15 @@
 import 'package:flutter/material.dart';
 
-class EditChatTitle extends StatefulWidget {
-  final String title;
-  final String initialValue;
-  final int maxLength;
-  final Function(String) onSave;
-
-  const EditChatTitle({
-    super.key,
-    required this.title,
-    this.initialValue = '',
-    this.maxLength = 80,
-    required this.onSave,
-  });
+class RemoveChat extends StatefulWidget {
+  const RemoveChat({super.key});
 
   @override
-  State<EditChatTitle> createState() => _EditChatTitle();
+  State<RemoveChat> createState() => _RemoveChatState();
 }
 
-class _EditChatTitle extends State<EditChatTitle> {
-  late TextEditingController _textController;
-  int _currentLength = 0;
-  bool isSaveHovered = false;
+class _RemoveChatState extends State<RemoveChat> {
+  bool isDeleteHovered = false;
   bool isCancelHovered = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _textController = TextEditingController(text: widget.initialValue);
-    _currentLength = widget.initialValue.length;
-
-    _textController.addListener(() {
-      setState(() {
-        _currentLength = _textController.text.length;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _textController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +46,7 @@ class _EditChatTitle extends State<EditChatTitle> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.title,
+                "Remove Conversation",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -99,44 +67,7 @@ class _EditChatTitle extends State<EditChatTitle> {
             ],
           ),
           const SizedBox(height: 16),
-
-          // Input field with character count
-          TextField(
-            controller: _textController,
-            maxLength: widget.maxLength,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: Colors.purpleAccent,
-                  width: 1.0,
-                ),
-              ),
-              counterText: '',
-              suffixIcon: Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Align(
-                  widthFactor: 1.2,
-                  heightFactor: 1.0,
-                  child: Text(
-                    '$_currentLength/${widget.maxLength}',
-                    style: TextStyle(
-                      color:
-                          _currentLength >= widget.maxLength
-                              ? Colors.red
-                              : Colors.grey,
-                    ),
-                  ),
-                ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
-              ),
-            ),
-            maxLines: 1,
-            autofocus: true,
-          ),
+          const Text("Are you sure you want to delete this conversation?"),
           const SizedBox(height: 24),
           // Action buttons
           Row(
@@ -179,37 +110,24 @@ class _EditChatTitle extends State<EditChatTitle> {
                 ),
               ),
               const SizedBox(width: 4),
-
               // Save button
               MouseRegion(
                 cursor: SystemMouseCursors.click,
-                onEnter: (_) => (setState(() => isSaveHovered = true)),
-                onExit: (_) => (setState(() => isSaveHovered = false)),
+                onEnter: (_) => (setState(() => isDeleteHovered = true)),
+                onExit: (_) => (setState(() => isDeleteHovered = false)),
                 child: GestureDetector(
                   onTap: () {
-                    widget.onSave(_textController.text);
                     Navigator.of(context).pop();
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.purple.shade200),
-                      gradient: LinearGradient(
-                        colors: [
-                          isSaveHovered
-                              ? Colors.pink.shade400
-                              : Colors.pink.shade300,
-                          isSaveHovered
-                              ? Colors.purple.shade400
-                              : Colors.purple.shade300,
-                        ],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
+                      border: Border.all(color: Colors.red.shade200),
+                      color: isDeleteHovered ? Colors.red.shade600 : Colors.red.shade400
                     ),
                     child: const Text(
-                      'Save',
+                      'Delete',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

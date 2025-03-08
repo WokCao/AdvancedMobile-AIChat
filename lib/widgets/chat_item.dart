@@ -1,4 +1,5 @@
 import 'package:ai_chat/widgets/edit_chat_title.dart';
+import 'package:ai_chat/widgets/remove_chat.dart';
 import 'package:flutter/material.dart';
 
 class ChatItem extends StatefulWidget {
@@ -37,6 +38,15 @@ class _ChatItemState extends State<ChatItem> {
           },
         );
       },
+    );
+  }
+
+  void _showDeleteChat(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return RemoveChat();
+      }
     );
   }
 
@@ -117,15 +127,20 @@ class _ChatItemState extends State<ChatItem> {
                     SizedBox(width: 10),
                     Tooltip(
                       message: "Delete",
-                      child: MouseRegion(
-                        cursor:
-                            SystemMouseCursors.click, // Change cursor on hover
-                        onEnter: (_) => setState(() => isDeleteHovered = true),
-                        onExit: (_) => setState(() => isDeleteHovered = false),
-                        child: Icon(
-                          Icons.delete_forever,
-                          color: isDeleteHovered ? Colors.red : Colors.grey,
-                          size: 25,
+                      child: GestureDetector(
+                        onTap: () {
+                          _showDeleteChat(context);
+                        },
+                        child: MouseRegion(
+                          cursor:
+                          SystemMouseCursors.click, // Change cursor on hover
+                          onEnter: (_) => setState(() => isDeleteHovered = true),
+                          onExit: (_) => setState(() => isDeleteHovered = false),
+                          child: Icon(
+                            Icons.delete_forever,
+                            color: isDeleteHovered ? Colors.red : Colors.grey,
+                            size: 25,
+                          ),
                         ),
                       ),
                     ),
