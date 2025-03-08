@@ -10,7 +10,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isSidebarVisible = false;
-  int _selectedIndex = 0;
+  final TextEditingController _textController = TextEditingController();
 
   void _toggleSidebar() {
     setState(() {
@@ -24,18 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _selectMenuItem(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  String _getMenuItemTitle(int index) {
-    switch (index) {
-      case 0: return 'Chat';
-      case 1: return 'Bots';
-      default: return 'Unknown';
-    }
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
   }
 
   @override
@@ -44,25 +36,114 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           // Main content
-          SafeArea(
-            child: Container(
-              padding: EdgeInsets.all(10.0),
-              child: IconButton(
-                icon: const Icon(Icons.menu),
-                iconSize: 30,
-                onPressed: _toggleSidebar,
-                tooltip: 'Toggle sidebar',
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: EdgeInsets.all(5.0),
+                child: IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: _toggleSidebar,
+                  tooltip: 'Toggle sidebar',
+                ),
               ),
-            ),
+              
+              // Empty space for content
+              const Expanded(
+                child: Center(
+                  child: Text(
+                    'No messages yet',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Bottom input section
+              Container(
+                margin: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+                decoration: BoxDecoration(
+                  color: Colors.purple.shade50,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(8.0)
+                ),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      // Input row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _textController,
+                              decoration: InputDecoration(
+                                hintText: 'Ask me anything, press \' for prompts...',
+                                hintStyle: TextStyle(color: Colors.grey),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: BorderSide.none,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
+                              ),
+                              maxLines: null,
+                              textCapitalization: TextCapitalization.sentences,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Buttons row
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.attach_file),
+                              iconSize: 20,
+                              onPressed: () {},
+                              tooltip: 'Attach file',
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.send),
+                              iconSize: 20,
+                              onPressed: () {
+                                if (_textController.text.trim().isNotEmpty) {
+                                  // Handle send message
+                                  _textController.clear();
+                                }
+                              },
+                              tooltip: 'Send message',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
 
           // Floating Sidebar
           AppSidebar(
-            isExpanded: true, // Always expanded in this modal style
+            isExpanded: true,
             isVisible: _isSidebarVisible,
-            selectedIndex: _selectedIndex,
-            onItemSelected: _selectMenuItem,
-            onToggleExpanded: () {}, // Not used in this implementation
+            selectedIndex: 0,
+            onItemSelected: (_) {},
+            onToggleExpanded: () {},
             onClose: _closeSidebar,
           ),
         ],
