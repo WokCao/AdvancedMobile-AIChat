@@ -310,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: TextField(
                                 controller: _textController,
                                 decoration: InputDecoration(
-                                  hintText: 'Ask me anything, press \' for prompts...',
+                                  hintText: 'Ask me anything, press \'/\' for prompts...',
                                   hintStyle: TextStyle(color: Colors.grey),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(24),
