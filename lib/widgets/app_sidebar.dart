@@ -27,7 +27,7 @@ class AppSidebar extends StatelessWidget {
 
     final menuItems = [
       {'icon': Icons.message, 'title': 'Chat'},
-      {'icon': Icons.smart_toy, 'title': 'Bots'},
+      {'icon': Icons.smart_toy_outlined, 'title': 'BOT'},
     ];
 
     return Material(
@@ -63,31 +63,31 @@ class AppSidebar extends StatelessWidget {
                 children: [
                   // App Name Section
                   Container(
-                    padding: const EdgeInsets.all(16.0),
-                    color: Colors.purple[700],
+                    padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 10.0),
                     child: Row(
                       children: [
                         const Icon(
-                          Icons.dashboard,
-                          size: 24,
-                          color: Colors.white,
+                          Icons.diamond,
+                          size: 28,
+                          color: Colors.purple,
                         ),
                         const SizedBox(width: 12),
                         const Text(
                           'Dashboard',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Colors.purple,
                           ),
                         ),
                         const Spacer(),
                         // Close button
                         IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white),
+                          icon: const Icon(Icons.close, color: Colors.grey),
                           onPressed: onClose,
                           tooltip: 'Close sidebar',
                         ),
+                        const SizedBox(width: 8),
                       ],
                     ),
                   ),
@@ -136,7 +136,7 @@ class AppSidebar extends StatelessWidget {
 
                   // Footer
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.only(top: 16, bottom: 16, left: 16, right: 10),
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
                       border: Border(
