@@ -19,39 +19,51 @@ class _HomeScreenState extends State<HomeScreen> {
     {
       'name': 'GPT-4o mini',
       'icon': Icons.auto_awesome,
-      'description': "OpenAI's latest model, great for most everyday tasks",
-      'tokenCount': 'Cost 1 Tokens',
       'iconColor': Colors.blue,
+      'description': "OpenAI's latest model, very fast and great for most everyday tasks.",
+      'tokenCount': 'Cost 1 Token',
     },
     {
       'name': 'GPT-4o',
       'icon': Icons.auto_awesome_outlined,
       'iconColor': Colors.purple,
+      'description': "Most capable model, best for complex tasks while maintaining quality.",
+      'tokenCount': 'Cost 5 Tokens',
     },
     {
       'name': 'Gemini 1.5 Flash',
       'icon': Icons.flash_on,
       'iconColor': Colors.amber,
+      'description': "Google's latest model, optimized for narrower or high-frequency tasks where the speed of the model's response time matters the most.",
+      'tokenCount': 'Cost 1 Token',
     },
     {
       'name': 'Gemini 1.5 Pro',
       'icon': Icons.workspace_premium,
       'iconColor': Colors.black,
+      'description': "Google's next-generation model, best for complex tasks requiring advanced reasoning.",
+      'tokenCount': 'Cost 5 Tokens',
     },
     {
       'name': 'Claude 3 Haiku',
       'icon': Icons.psychology,
       'iconColor': Colors.orange,
+      'description': "Anthropic's most compact model, designed for near-instant responsiveness and seamless AI experiences that mimic human interactions.",
+      'tokenCount': 'Cost 1 Token',
     },
     {
       'name': 'Claude 3 Sonnet',
       'icon': Icons.psychology_outlined,
       'iconColor': Colors.brown,
+      'description': "Anthropic's most intelligent model to date between intelligence and speed, ideal for a wide range of tasks.",
+      'tokenCount': 'Cost 3 Tokens',
     },
     {
       'name': 'Deepseek Chat',
       'icon': Icons.chat_bubble_outline,
       'iconColor': Colors.blue,
+      'description': "Deepseek's model, address tasks requiring logical inference, mathematical problem-solving, and real-time decision-making.",
+      'tokenCount': 'Cost 1 Token',
     },
   ];
 
@@ -110,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       },
       title: 'Base AI Models',
-      offset: Offset(offset.dx + 16, offset.dy - 400), // Position above the button
+      offset: Offset(offset.dx + 16, offset.dy - 370), // Position above the button
     );
   }
 
