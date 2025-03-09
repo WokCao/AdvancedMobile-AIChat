@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.purple,
         useMaterial3: true,
       ),
-      initialRoute: '/history',
+      initialRoute: '/',
       routes: {
         '/': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),

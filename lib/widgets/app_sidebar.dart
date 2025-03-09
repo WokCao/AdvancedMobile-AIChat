@@ -27,7 +27,7 @@ class AppSidebar extends StatelessWidget {
 
     final menuItems = [
       {'icon': Icons.message, 'title': 'Chat'},
-      {'icon': Icons.person, 'title': 'Bots'},
+      {'icon': Icons.smart_toy, 'title': 'Bots'},
     ];
 
     return Material(

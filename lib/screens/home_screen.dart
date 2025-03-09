@@ -159,45 +159,112 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              // Model selector
-              Container(
-                key: _modelSelectorKey,
-                margin: const EdgeInsets.only(left: 16.0),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.purple.shade50,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: InkWell(
-                  onTap: _showModelSelector,
-                  borderRadius: BorderRadius.circular(24),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _currentModel['icon'],
-                        size: 20,
-                        color: _currentModel['iconColor'],
+              Row(
+                children: [
+                  // AI model selector
+                  Container(
+                    key: _modelSelectorKey,
+                    margin: const EdgeInsets.only(left: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.shade50,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: InkWell(
+                      onTap: _showModelSelector,
+                      borderRadius: BorderRadius.circular(24),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _currentModel['icon'],
+                            size: 20,
+                            color: _currentModel['iconColor'],
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _currentModel['name'],
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.expand_more,
+                            size: 20,
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _currentModel['name'],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(
-                        Icons.expand_more,
-                        size: 20,
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  // Create bot button
+                  Container(
+                    margin: const EdgeInsets.only(left: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.purple.shade200, Colors.purple.shade300], // Gradient colors
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: InkWell(
+                      /// Add onTap here
+                      onTap: () {},
+                      borderRadius: BorderRadius.circular(24),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                              Icons.smart_toy_outlined,
+                              color: Colors.white,
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                              Icons.add,
+                              color: Colors.white
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  IconButton(
+                    icon: const Icon(Icons.history),
+                    iconSize: 32,
+                    onPressed: () {},
+                    tooltip: 'Chat history',
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    margin: const EdgeInsets.only(right: 16.0),
+                    padding: const EdgeInsets.all(0.0),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.shade300,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30.0),
+                        topRight: Radius.circular(30.0),
+                        bottomRight: Radius.circular(30.0)
+                      ),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.add),
+                      color: Colors.white,
+                      onPressed: () {},
+                      tooltip: 'New chat',
+                    )
+                  ),
+                ],
               ),
 
               // Bottom input section
