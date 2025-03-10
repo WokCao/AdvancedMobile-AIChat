@@ -100,6 +100,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                     controller: _nameController,
                     decoration: InputDecoration(
                       hintText: 'Enter a name for your bot...',
+                      hintStyle: TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -141,6 +142,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                     controller: _instructionsController,
                     decoration: InputDecoration(
                       hintText: 'Enter instructions for the bot...',
+                      hintStyle: TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
