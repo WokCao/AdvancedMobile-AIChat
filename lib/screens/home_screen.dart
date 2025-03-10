@@ -258,6 +258,24 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _handleEditMessage(String id, String newMessage) {
+    setState(() {
+      final index = _messages.indexWhere((message) => message.id == id);
+      if (index != -1) {
+        // Create a new message with the updated text
+        final oldMessage = _messages[index];
+        _messages[index] = ChatMessage(
+          id: oldMessage.id,
+          message: newMessage,
+          type: oldMessage.type,
+          senderName: oldMessage.senderName,
+          senderIcon: oldMessage.senderIcon,
+          iconColor: oldMessage.iconColor,
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
     _textController.dispose();
@@ -302,9 +320,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         final message = _messages[index];
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: 32), // Adds a gap below each item
+                          padding: const EdgeInsets.only(bottom: 16), // Adds a gap below each item
                           child: ChatMessageWidget(
                             message: message,
+                            onEditMessage: _handleEditMessage,
                           ),
                         );
                       },
