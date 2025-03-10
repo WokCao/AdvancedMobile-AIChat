@@ -183,7 +183,7 @@ class _AddPrompt extends State<AddPrompt> {
                     ),
                     hintText:
                         "e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]",
-                    hintStyle: TextStyle(fontSize: 14, color: Colors.grey,),
+                    hintStyle: TextStyle(fontSize: 14, color: Colors.grey, height: 1.3),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 12,
