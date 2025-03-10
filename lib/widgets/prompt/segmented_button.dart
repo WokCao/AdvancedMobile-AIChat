@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 enum Prompt { public, personal }
 
 class SegmentedButtonWidget extends StatefulWidget {
-  const SegmentedButtonWidget({super.key});
+  final Function(Prompt) promptCallback ;
+  const SegmentedButtonWidget({super.key, required this.promptCallback});
 
   @override
   State<SegmentedButtonWidget> createState() => _SegmentedButtonWidget();
@@ -17,16 +18,16 @@ class _SegmentedButtonWidget extends State<SegmentedButtonWidget> {
     return SegmentedButton<Prompt>(
       showSelectedIcon: false,
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-              (Set<MaterialState> states) {
-            if (states.contains(MaterialState.selected)){
+        backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+              (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)){
               return Colors.purple.shade200;
             }
             return null;
           },
         ),
-        foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-              (Set<MaterialState> states) {
+        foregroundColor: WidgetStateProperty.resolveWith<Color?>(
+              (Set<WidgetState> states) {
             return Colors.black;
           },
         ),
@@ -47,6 +48,7 @@ class _SegmentedButtonWidget extends State<SegmentedButtonWidget> {
       onSelectionChanged: (Set<Prompt> newSelection) {
         setState(() {
           prompt = newSelection.first;
+          widget.promptCallback(prompt);
         });
       },
     );

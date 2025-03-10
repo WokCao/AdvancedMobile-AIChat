@@ -3,10 +3,26 @@ import 'package:ai_chat/widgets/prompt/prompt_item.dart';
 import 'package:ai_chat/widgets/prompt/segmented_button.dart';
 import 'package:flutter/material.dart';
 
-class PromptSampleScreen extends StatelessWidget {
+import '../widgets/prompt/personal_prompt_item.dart';
+
+class PromptSampleScreen extends StatefulWidget {
   const PromptSampleScreen({super.key});
 
-  void _showAddPrompt(BuildContext context) {
+  @override
+  State<PromptSampleScreen> createState() => _PromptSampleScreenState();
+}
+
+class _PromptSampleScreenState extends State<PromptSampleScreen> {
+  bool isHovered = false;
+  Prompt prompt = Prompt.public;
+
+  void _promptCallback(Prompt selectedPrompt) {
+    setState(() {
+      prompt = selectedPrompt;
+    });
+  }
+
+  void _showAddPrompt() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -41,10 +57,11 @@ class PromptSampleScreen extends StatelessWidget {
                       Tooltip(
                         message: "Add Prompt",
                         child: GestureDetector(
-                          onTap: () { _showAddPrompt(context); },
+                          onTap: _showAddPrompt,
                           child: MouseRegion(
                             cursor: SystemMouseCursors.click,
-                            // onEnter & onExit to change color
+                            onEnter: (_) => setState(() => isHovered = true),
+                            onExit: (_) => setState(() => isHovered = false),
                             child: Container(
                               padding: EdgeInsets.all(3.0),
                               decoration: BoxDecoration(
@@ -60,7 +77,8 @@ class PromptSampleScreen extends StatelessWidget {
                               ),
                               child: Icon(
                                 Icons.add,
-                                color: Colors.white70,
+                                color:
+                                    isHovered ? Colors.white : Colors.white70,
                                 size: 20,
                               ),
                             ),
@@ -88,7 +106,7 @@ class PromptSampleScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 20),
-              SegmentedButtonWidget(),
+              SegmentedButtonWidget(promptCallback: _promptCallback),
               SizedBox(height: 20),
               Row(
                 children: [
@@ -119,62 +137,46 @@ class PromptSampleScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 10),
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.grey.shade300,
-                          width: 1,
+                  if (prompt == Prompt.public)
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.grey.shade300,
+                            width: 1,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.star_border,
+                          color: Colors.grey.shade500,
+                          size: 25,
                         ),
                       ),
-                      child: Icon(
-                        Icons.star_border,
-                        color: Colors.grey.shade500,
-                        size: 25,
-                      ),
                     ),
-                  ),
                 ],
               ),
               SizedBox(height: 10),
               Expanded(
                 child: ListView(
                   children: [
-                    PromptItem(
-                      title: "Testing",
-                      description:
-                          "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện của tất cả các màn hình trong để tài + navigation/routing. Nhóm sinh viên tạo branch mock-ui và code trên branch này.",
-                    ),
-                    PromptItem(
-                      title: "Testing",
-                      description:
-                          "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện",
-                    ),
-                    PromptItem(
-                      title: "Testing",
-                      description: "doing something",
-                    ),
-                    PromptItem(
-                      title: "Testing",
-                      description:
-                          "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện",
-                    ),
-                    PromptItem(
-                      title: "Testing",
-                      description: "doing something",
-                    ),
-                    PromptItem(
-                      title: "Testing",
-                      description:
-                          "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện",
-                    ),
-                    PromptItem(
-                      title: "Testing",
-                      description: "doing something",
-                    ),
+                    ...(prompt == Prompt.public
+                        ? List.generate(
+                          7,
+                          (index) => PromptItem(
+                            name: "Testing",
+                            description: "This is a sample prompt description.",
+                          ),
+                        )
+                        : List.generate(
+                          2,
+                          (index) => PersonalPromptItem(
+                            name: "Testing",
+                            prompt: "This is a sample prompt description.",
+                          ),
+                        )),
                   ],
                 ),
               ),

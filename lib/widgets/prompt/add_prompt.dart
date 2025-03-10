@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 
 class AddPrompt extends StatefulWidget {
-  const AddPrompt({super.key});
+  final String name;
+  final String prompt;
+  const AddPrompt({super.key, this.name = "", this.prompt = ""});
 
   @override
   State<AddPrompt> createState() => _AddPrompt();
 }
 
 class _AddPrompt extends State<AddPrompt> {
-  bool isSaveHovered = false;
+  bool isCreateHovered = false;
   bool isCancelHovered = false;
   int _currentLength = 0;
   late final TextEditingController _textController;
+  late final TextEditingController _promptTextController;
 
   @override
   void initState() {
-    _textController = TextEditingController(text: "");
+    _textController = TextEditingController(text: widget.name);
+    _promptTextController = TextEditingController(text: widget.prompt);
     _textController.addListener(() {
       setState(() {
         _currentLength = _textController.text.length;
@@ -27,6 +31,7 @@ class _AddPrompt extends State<AddPrompt> {
   @override
   void dispose() {
     _textController.dispose();
+    _promptTextController.dispose();
     super.dispose();
   }
 
@@ -65,7 +70,7 @@ class _AddPrompt extends State<AddPrompt> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "New Prompt",
+                widget.name.isEmpty ? "New Prompt" : "Update Prompt",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -167,6 +172,7 @@ class _AddPrompt extends State<AddPrompt> {
                 ),
                 SizedBox(height: 10),
                 TextField(
+                  controller: _promptTextController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -190,24 +196,6 @@ class _AddPrompt extends State<AddPrompt> {
               ],
             ),
           ),
-          // TextField(
-          //   decoration: InputDecoration(
-          //     border: OutlineInputBorder(
-          //       borderRadius: BorderRadius.circular(8),
-          //       borderSide: const BorderSide(
-          //         color: Colors.purpleAccent,
-          //         width: 1.0,
-          //       ),
-          //     ),
-          //     counterText: '',
-          //     contentPadding: const EdgeInsets.symmetric(
-          //       horizontal: 12,
-          //       vertical: 12,
-          //     ),
-          //   ),
-          //   maxLines: 1,
-          //   autofocus: true,
-          // ),
           const SizedBox(height: 24),
           // Action buttons
           Row(
@@ -253,8 +241,8 @@ class _AddPrompt extends State<AddPrompt> {
               // Save button
               MouseRegion(
                 cursor: SystemMouseCursors.click,
-                onEnter: (_) => (setState(() => isSaveHovered = true)),
-                onExit: (_) => (setState(() => isSaveHovered = false)),
+                onEnter: (_) => (setState(() => isCreateHovered = true)),
+                onExit: (_) => (setState(() => isCreateHovered = false)),
                 child: GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
@@ -266,10 +254,10 @@ class _AddPrompt extends State<AddPrompt> {
                       border: Border.all(color: Colors.purple.shade200),
                       gradient: LinearGradient(
                         colors: [
-                          isSaveHovered
+                          isCreateHovered
                               ? Colors.pink.shade400
                               : Colors.pink.shade300,
-                          isSaveHovered
+                          isCreateHovered
                               ? Colors.purple.shade400
                               : Colors.purple.shade300,
                         ],
