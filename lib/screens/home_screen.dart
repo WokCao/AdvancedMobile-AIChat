@@ -143,11 +143,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late String _selectedModel;
   final GlobalKey _modelSelectorKey = GlobalKey();
+  final GlobalKey _promptSelectorKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     _selectedModel = _modelData[0]['name'];
+    _textController.addListener(_handleTextChange);
 
     // Scroll to bottom after initial render
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -197,7 +199,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final RenderBox? renderBox = _modelSelectorKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
-    final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
 
     // Show the menu above the button
@@ -215,12 +216,49 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showPromptSelector() {
+    // Selector items
+    final items = [
+      SelectorItem<String>(title: 'Grammar corrector'),
+      SelectorItem<String>(title: 'Learn Code FAST!'),
+      SelectorItem<String>(title: 'Story generator'),
+      SelectorItem<String>(title: 'Essay improver'),
+      SelectorItem<String>(title: 'Pro tips generator'),
+      SelectorItem<String>(title: 'Resume Editing'),
+    ];
+
+    // Get the position of the input
+    final RenderBox? renderBox = _promptSelectorKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final offset = renderBox.localToGlobal(Offset.zero);
+
+    // Show the menu above the input
+    SelectorMenuHelper.showMenu<String>(
+      context: context,
+      items: items,
+      selectedValue: '',
+      onItemSelected: (value) {
+        // Handle item selected
+      },
+      title: 'Suggested Prompts',
+      offset: Offset(offset.dx + 16, offset.dy - 300), // Position above the input
+    );
+  }
+
   // Get the current model data
   Map<String, dynamic> get _currentModel {
     return _modelData.firstWhere(
           (model) => model['name'] == _selectedModel,
       orElse: () => _modelData[0],
     );
+  }
+
+  void _handleTextChange() {
+    final text = _textController.text;
+    if (text.startsWith('/')) {
+      _showPromptSelector();
+    }
   }
 
   void _handleSendMessage() {
@@ -450,6 +488,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Bottom input section
               MouseRegion(
+                key: _promptSelectorKey,
                 onEnter: (_) => setState(() => _isInputFocused = true),
                 onExit: (_) => setState(() => _isInputFocused = false),
                 child: Container(

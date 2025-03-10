@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
-/// A generic item for the selector menu
+// A generic item for the selector menu
 class SelectorItem<T> {
   final String title;
   final Widget? leading;
   final String? subtitle;
   final String? trailing;
-  final T value;
+  final T? value;
 
   const SelectorItem({
     required this.title,
     this.leading,
     this.subtitle,
     this.trailing,
-    required this.value,
+    this.value,
   });
 }
 
-/// A menu item that shows subtitle and trailing on hover
+// A menu item that shows subtitle and trailing on hover
 class _HoverMenuItem<T> extends StatefulWidget {
   final SelectorItem<T> item;
   final bool isSelected;
@@ -120,7 +120,7 @@ class _HoverMenuItemState<T> extends State<_HoverMenuItem<T>> {
   }
 }
 
-/// A generic selector menu that can be used with any type of items
+// A generic selector menu that can be used with any type of items
 class SelectorMenu<T> extends StatelessWidget {
   final List<SelectorItem<T>> items;
   final T selectedValue;
@@ -181,7 +181,7 @@ class SelectorMenu<T> extends StatelessWidget {
                     item: item,
                     isSelected: isSelected,
                     onTap: () {
-                      onItemSelected(item.value);
+                      onItemSelected(item.value as T);
                       Navigator.pop(context);
                     },
                   );
@@ -195,9 +195,9 @@ class SelectorMenu<T> extends StatelessWidget {
   }
 }
 
-/// A helper class to show the selector menu as a popup
+// A helper class to show the selector menu as a popup
 class SelectorMenuHelper {
-  /// Shows the selector menu as a popup
+  // Shows the selector menu as a popup
   static Future<T?> showMenu<T>({
     required BuildContext context,
     required List<SelectorItem<T>> items,
