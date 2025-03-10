@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/app_sidebar.dart';
+import '../widgets/bot/create_bot_dialog.dart';
 import '../widgets/selector_menu.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -229,8 +230,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: InkWell(
-                      /// Add onTap here
-                      onTap: () {},
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => CreateBotDialog(
+                            onSubmit: (name, instructions) {
+                              // Handle bot creation
+                            },
+                          ),
+                        );
+                      },
                       borderRadius: BorderRadius.circular(24),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
