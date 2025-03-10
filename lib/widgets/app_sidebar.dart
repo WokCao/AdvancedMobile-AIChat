@@ -73,7 +73,7 @@ class AppSidebar extends StatelessWidget {
                         ),
                         const SizedBox(width: 12),
                         const Text(
-                          'Dashboard',
+                          'ChatGEM',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -114,7 +114,7 @@ class AppSidebar extends StatelessWidget {
                             ),
                           ),
                           selected: isSelected,
-                          selectedTileColor: Colors.purple.withOpacity(0.1),
+                          selectedTileColor: Colors.purple.withValues(alpha: 0.1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),

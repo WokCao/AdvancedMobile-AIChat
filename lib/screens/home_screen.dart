@@ -15,6 +15,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isSidebarVisible = false;
   final TextEditingController _textController = TextEditingController();
   bool _isInputFocused = false;
+  bool _isAISelectorFocused = false;
+  bool _isBotCreateFocused = false;
   final ScrollController _scrollController = ScrollController();
 
   // Mock messages
@@ -371,85 +373,96 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 children: [
                   // AI model selector
-                  Container(
-                    key: _modelSelectorKey,
-                    margin: const EdgeInsets.only(left: 16.0),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.purple.shade50,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: InkWell(
-                      onTap: _showModelSelector,
-                      borderRadius: BorderRadius.circular(24),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            _currentModel['icon'],
-                            size: 20,
-                            color: _currentModel['iconColor'],
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _currentModel['name'],
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                  MouseRegion(
+                    onEnter: (_) => setState(() => _isAISelectorFocused = true),
+                    onExit: (_) => setState(() => _isAISelectorFocused = false),
+                    child: Container(
+                      key: _modelSelectorKey,
+                      margin: const EdgeInsets.only(left: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _isAISelectorFocused ? Colors.purple.shade100.withValues(alpha: 0.5) : Colors.purple.shade50,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: InkWell(
+                        onTap: _showModelSelector,
+                        hoverColor: Colors.transparent,
+                        borderRadius: BorderRadius.circular(24),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _currentModel['icon'],
+                              size: 20,
+                              color: _currentModel['iconColor'],
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.expand_more,
-                            size: 20,
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Text(
+                              _currentModel['name'],
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.expand_more,
+                              size: 20,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   // Create bot button
-                  Container(
-                    margin: const EdgeInsets.only(left: 16.0),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.purple.shade200, Colors.purple.shade300], // Gradient colors
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
+                  MouseRegion(
+                    onEnter: (_) => setState(() => _isBotCreateFocused = true),
+                    onExit: (_) => setState(() => _isBotCreateFocused = false),
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
                       ),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => CreateBotDialog(
-                            onSubmit: (name, instructions) {
-                              // Handle bot creation
-                            },
-                          ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(24),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                              Icons.smart_toy_outlined,
-                              color: Colors.white,
-                          ),
-                          const SizedBox(width: 4),
-                          Icon(
-                              Icons.add,
-                              color: Colors.white
-                          ),
-                        ],
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: _isBotCreateFocused
+                              ? [Colors.purple.shade300, Colors.purple.shade400]
+                              : [Colors.purple.shade200, Colors.purple.shade300], // Gradient colors
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: InkWell(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => CreateBotDialog(
+                              onSubmit: (name, instructions) {
+                                // Handle bot creation
+                              },
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(24),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                                Icons.smart_toy_outlined,
+                                color: Colors.white,
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                                Icons.add,
+                                color: Colors.white
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

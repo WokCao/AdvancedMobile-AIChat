@@ -49,7 +49,7 @@ class _HoverMenuItemState<T> extends State<_HoverMenuItem<T>> {
             vertical: 12,
           ),
           decoration: BoxDecoration(
-            color: widget.isSelected ? Colors.blue.withOpacity(0.1) : null,
+            color: widget.isSelected ? Colors.blue.withValues(alpha: 0.1) : null,
           ),
           child: Row(
             children: [

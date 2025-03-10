@@ -219,8 +219,8 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                       ElevatedButton(
                         onPressed: _handleSubmit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple.shade100,
-                          foregroundColor: Colors.purple.shade900,
+                          backgroundColor: Colors.purple.shade300,
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
                             vertical: 12,
