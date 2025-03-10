@@ -57,7 +57,7 @@ class _ChatItemState extends State<ChatItem> {
       onExit: (_) => setState(() => isHovered = false),
       cursor: SystemMouseCursors.click,
       child: Container(
-        padding: EdgeInsets.fromLTRB(10.0, 10.0, 25.0, 10.0),
+        padding: EdgeInsets.all(10.0),
         decoration: BoxDecoration(
           color: isHovered ? Colors.purple[50] : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
@@ -75,11 +75,11 @@ class _ChatItemState extends State<ChatItem> {
                       margin: EdgeInsets.only(right: 5.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                        color: Colors.black,
+                        color: Colors.purple.shade200,
                       ),
                       child: Text(
                         "Current Chat",
-                        style: TextStyle(color: Colors.yellow),
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                   Expanded(
@@ -87,7 +87,7 @@ class _ChatItemState extends State<ChatItem> {
                       widget.content,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 17,
+                        fontSize: 16,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -118,8 +118,8 @@ class _ChatItemState extends State<ChatItem> {
                           onExit: (_) => setState(() => isEditHovered = false),
                           child: Icon(
                             Icons.edit,
-                            color: isEditHovered ? Colors.blue : Colors.grey,
-                            size: 25,
+                            color: isEditHovered ? Colors.purple : Colors.grey,
+                            size: 24,
                           ),
                         ),
                       ),
@@ -138,8 +138,8 @@ class _ChatItemState extends State<ChatItem> {
                           onExit: (_) => setState(() => isDeleteHovered = false),
                           child: Icon(
                             Icons.delete_forever,
-                            color: isDeleteHovered ? Colors.red : Colors.grey,
-                            size: 25,
+                            color: isDeleteHovered ? Colors.purple : Colors.grey,
+                            size: 24,
                           ),
                         ),
                       ),
