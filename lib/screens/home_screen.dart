@@ -254,7 +254,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   IconButton(
                     icon: const Icon(Icons.history),
                     iconSize: 32,
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/history");
+                    },
                     tooltip: 'Chat history',
                   ),
                   const SizedBox(width: 8),
@@ -342,7 +344,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               IconButton(
                                 icon: const Icon(Icons.auto_awesome),
                                 iconSize: 20,
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.pushNamed(context, "/prompts");
+                                },
                                 tooltip: 'View prompts',
                               ),
                               const Spacer(),

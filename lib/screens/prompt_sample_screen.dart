@@ -1,9 +1,19 @@
-import 'package:ai_chat/widgets/prompt_item.dart';
-import 'package:ai_chat/widgets/segmented_button.dart';
+import 'package:ai_chat/widgets/prompt/add_prompt.dart';
+import 'package:ai_chat/widgets/prompt/prompt_item.dart';
+import 'package:ai_chat/widgets/prompt/segmented_button.dart';
 import 'package:flutter/material.dart';
 
 class PromptSampleScreen extends StatelessWidget {
   const PromptSampleScreen({super.key});
+
+  void _showAddPrompt(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AddPrompt();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,26 +40,29 @@ class PromptSampleScreen extends StatelessWidget {
                     children: [
                       Tooltip(
                         message: "Add Prompt",
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          // onEnter & onExit to change color
-                          child: Container(
-                            padding: EdgeInsets.all(3.0),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.pink.shade300,
-                                  Colors.purple.shade300,
-                                ],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () { _showAddPrompt(context); },
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            // onEnter & onExit to change color
+                            child: Container(
+                              padding: EdgeInsets.all(3.0),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.pink.shade300,
+                                    Colors.purple.shade300,
+                                  ],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
                               ),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.white70,
-                              size: 20,
+                              child: Icon(
+                                Icons.add,
+                                color: Colors.white70,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ),
@@ -58,7 +71,9 @@ class PromptSampleScreen extends StatelessWidget {
                       Tooltip(
                         message: "Close",
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
                             width: 30,

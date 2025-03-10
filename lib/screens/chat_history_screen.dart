@@ -1,4 +1,4 @@
-import 'package:ai_chat/widgets/chat_item.dart';
+import 'package:ai_chat/widgets/history/chat_item.dart';
 import 'package:flutter/material.dart';
 
 class ChatHistoryScreen extends StatelessWidget {
@@ -25,7 +25,9 @@ class ChatHistoryScreen extends StatelessWidget {
                   Tooltip(
                     message: "Close",
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
                         width: 30,

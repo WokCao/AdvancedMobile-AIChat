@@ -1,5 +1,5 @@
-import 'package:ai_chat/widgets/edit_chat_title.dart';
-import 'package:ai_chat/widgets/remove_chat.dart';
+import 'package:ai_chat/widgets/history/edit_chat_title.dart';
+import 'package:ai_chat/widgets/history/remove_chat.dart';
 import 'package:flutter/material.dart';
 
 class ChatItem extends StatefulWidget {
