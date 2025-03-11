@@ -83,9 +83,9 @@ class _RemoveChatState extends State<RemoveChat> {
                     Navigator.of(context).pop();
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.purple.shade200),
                       gradient: LinearGradient(
                         colors: [
@@ -109,7 +109,7 @@ class _RemoveChatState extends State<RemoveChat> {
                   ),
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 8),
               // Save button
               MouseRegion(
                 cursor: SystemMouseCursors.click,
@@ -120,11 +120,11 @@ class _RemoveChatState extends State<RemoveChat> {
                     Navigator.of(context).pop();
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.shade200),
-                      color: isDeleteHovered ? Colors.red.shade600 : Colors.red.shade400
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: Colors.purple.shade200),
+                      color: isDeleteHovered ? Colors.purple.shade600 : Colors.purple.shade400
                     ),
                     child: const Text(
                       'Delete',

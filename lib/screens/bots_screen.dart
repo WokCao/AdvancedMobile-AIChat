@@ -1,5 +1,4 @@
 import 'package:ai_chat/widgets/bot/bot_list.dart';
-import 'package:ai_chat/widgets/bot/knowledge_table.dart';
 import 'package:flutter/material.dart';
 
 class BotsScreen extends StatefulWidget {
@@ -88,7 +87,7 @@ class _BotsScreenState extends State<BotsScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [ BotList(), KnowledgeTable()]
+                children: [ BotList() ]
               ),
             ),
           ],

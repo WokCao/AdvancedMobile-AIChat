@@ -152,9 +152,9 @@ class _EditChatTitle extends State<EditChatTitle> {
                     Navigator.of(context).pop();
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.purple.shade200),
                       gradient: LinearGradient(
                         colors: [
@@ -178,7 +178,7 @@ class _EditChatTitle extends State<EditChatTitle> {
                   ),
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 8),
 
               // Save button
               MouseRegion(
@@ -191,9 +191,9 @@ class _EditChatTitle extends State<EditChatTitle> {
                     Navigator.of(context).pop();
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.purple.shade200),
                       gradient: LinearGradient(
                         colors: [
