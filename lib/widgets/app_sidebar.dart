@@ -124,6 +124,11 @@ class AppSidebar extends StatelessWidget {
                           ),
                           onTap: () {
                             onItemSelected(index);
+                            if (index == 1) {
+                              Navigator.pushReplacementNamed(context, "/bots");
+                            } else {
+                              Navigator.pushReplacementNamed(context, "/home");
+                            }
                             // Close sidebar after selection on mobile
                             if (MediaQuery.of(context).size.width < 600) {
                               onClose();
