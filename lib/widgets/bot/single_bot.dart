@@ -21,7 +21,7 @@ class _SingleBotState extends State<SingleBot> {
       child: Card(
         color: Colors.white,
         elevation: isHovered ? 8 : 4,
-        shadowColor: Colors.pink.shade300,
+        shadowColor: Colors.black,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -36,7 +36,7 @@ class _SingleBotState extends State<SingleBot> {
                   leading: Icon(
                     Icons.smart_toy_outlined,
                     size: 52,
-                    color: Colors.blue.shade300,
+                    color: Colors.purple.shade200,
                   ),
                   title: Text(
                     widget.name,
@@ -56,23 +56,25 @@ class _SingleBotState extends State<SingleBot> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Tooltip(
                         message: "Mark as Fav",
-                        child: Icon(Icons.star_border_outlined),
+                        child: Icon(Icons.star_border_outlined, color: Colors.purple.shade200,),
                       ),
                       SizedBox(width: 12),
                       Tooltip(
                         message: "Delete",
-                        child: Icon(Icons.delete_outline_outlined),
+                        child: Icon(Icons.delete_outline_outlined, color: Colors.purple.shade200,),
                       ),
                     ],
                   ),
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.access_time_outlined),
+                      Icon(Icons.access_time_outlined, color: Colors.grey,),
                       SizedBox(width: 4),
-                      Text("01/01/2025"),
+                      Text("01/01/2025", style: TextStyle(color: Colors.grey),),
                     ],
                   ),
                 ],

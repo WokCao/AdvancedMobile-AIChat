@@ -58,25 +58,32 @@ class _BotListState extends State<BotList> {
                   ],
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(
-                    Colors.purple.shade300,
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.pink.shade300, Colors.purple.shade300],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
                   ),
-                  shape: WidgetStatePropertyAll(
-                    RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    padding: EdgeInsets.all(8),
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  padding: WidgetStatePropertyAll(EdgeInsets.all(8)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.add_circle_outline, color: Colors.white),
-                    SizedBox(width: 5),
-                    Text("Create Bot", style: TextStyle(color: Colors.white)),
-                  ],
+                  child: Row(
+                    children: [
+                      Icon(Icons.add_circle_outline, color: Colors.white),
+                      SizedBox(width: 5),
+                      Text("Create Bot", style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
                 ),
               ),
             ],

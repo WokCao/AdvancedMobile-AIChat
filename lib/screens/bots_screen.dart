@@ -56,9 +56,9 @@ class _BotsScreenState extends State<BotsScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TabBar(
                 controller: _tabController,
-                labelColor: Colors.blue,
+                labelColor: Colors.purple.shade300,
                 unselectedLabelColor: Colors.black87,
-                indicatorColor: Colors.blue,
+                indicatorColor: Colors.purple.shade300,
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: Colors.grey.shade300,
                 tabs: [
