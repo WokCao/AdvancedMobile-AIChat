@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/bot/create_bot_dialog.dart';
 import '../widgets/chat_message.dart';
+import '../widgets/prompt/use_prompt.dart';
 import '../widgets/welcome.dart';
 import '../widgets/selector_menu.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool? showUsePrompt;
+
+  const HomeScreen({
+    super.key,
+    this.showUsePrompt,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -19,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isAISelectorFocused = false;
   bool _isBotCreateFocused = false;
   final ScrollController _scrollController = ScrollController();
+  bool _isUsePromptVisible = false;
 
   // Mock messages
   // final List<ChatMessage> _messages = [
@@ -154,6 +161,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _selectedModel = _modelData[0]['name'];
     _textController.addListener(_handleTextChange);
+
+    if (widget.showUsePrompt != null) {
+      _isUsePromptVisible = widget.showUsePrompt!;
+    }
 
     // Scroll to bottom after initial render
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -315,6 +326,12 @@ class _HomeScreenState extends State<HomeScreen> {
           iconColor: oldMessage.iconColor,
         );
       }
+    });
+  }
+
+  void _hideUsePrompt() {
+    setState(() {
+      _isUsePromptVisible = false;
     });
   }
 
@@ -544,6 +561,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 maxLines: null,
+                                minLines: 2,
                                 textCapitalization: TextCapitalization.sentences,
                                 onSubmitted: (_) => _handleSendMessage(),
                               ),
@@ -643,6 +661,9 @@ class _HomeScreenState extends State<HomeScreen> {
             onToggleExpanded: () {},
             onClose: _closeSidebar,
           ),
+
+          // Use Prompt panel
+          if (_isUsePromptVisible) UsePrompt(onClose: _hideUsePrompt),
         ],
       ),
     );

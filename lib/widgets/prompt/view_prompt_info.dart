@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../screens/home_screen.dart';
+
 class ViewPromptInfo extends StatefulWidget {
   final String title;
   final String description;
@@ -241,8 +243,12 @@ class _ViewPromptInfoState extends State<ViewPromptInfo> {
                 onExit: (_) => (setState(() => isUseHovered = false)),
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pop();
-                    /// Mike: Show Edit prompt
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomeScreen(showUsePrompt: true),
+                      ),
+                    );
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),

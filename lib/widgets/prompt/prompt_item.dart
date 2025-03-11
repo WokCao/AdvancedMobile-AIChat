@@ -1,3 +1,4 @@
+import 'package:ai_chat/screens/home_screen.dart';
 import 'package:ai_chat/widgets/prompt/view_prompt_info.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,12 @@ class _PromptItemState extends State<PromptItem> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        /// Mike: show Edit prompt
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(showUsePrompt: true),
+          ),
+        );
       },
       child: Column(
         children: [

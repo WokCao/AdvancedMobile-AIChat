@@ -1,6 +1,7 @@
 import 'package:ai_chat/widgets/prompt/remove_prompt.dart';
 import 'package:flutter/material.dart';
 
+import '../../screens/home_screen.dart';
 import 'add_prompt.dart';
 
 class PersonalPromptItem extends StatefulWidget {
@@ -44,7 +45,12 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        /// Mike: show Edit prompt
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(showUsePrompt: true),
+          ),
+        );
       },
       child: Column(
         children: [
@@ -144,7 +150,12 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
                         message: "Use Prompt",
                         child: GestureDetector(
                           onTap: () {
-                            /// Mike: show Edit prompt
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomeScreen(showUsePrompt: true),
+                              ),
+                            );
                           },
                           child: MouseRegion(
                             cursor: SystemMouseCursors.click,
