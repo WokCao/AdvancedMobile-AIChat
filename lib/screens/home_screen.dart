@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/bot/create_bot_dialog.dart';
 import '../widgets/chat_message.dart';
+import '../widgets/empty_state.dart';
 import '../widgets/selector_menu.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,75 +21,76 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
 
   // Mock messages
-  final List<ChatMessage> _messages = [
-    ChatMessage(
-      id: '1',
-      message: 'Hello! How can I help you today?',
-      type: MessageType.ai,
-      senderName: 'GPT-4o mini',
-      senderIcon: Icons.auto_awesome,
-    ),
-    ChatMessage(
-      id: '2',
-      message: 'I need help with a Flutter project. I\'m trying to create a chat interface.',
-      type: MessageType.user,
-    ),
-    ChatMessage(
-      id: '3',
-      message: 'I\'d be happy to help with your Flutter chat interface! What specific aspects are you working on? Are you looking for help with the UI design, state management, or integrating with a backend service?',
-      type: MessageType.ai,
-      senderName: 'GPT-4o mini',
-      senderIcon: Icons.auto_awesome,
-    ),
-    ChatMessage(
-      id: '4',
-      message: 'Mainly the UI design. I want to create message bubbles that look good for both the user and AI responses.',
-      type: MessageType.user,
-    ),
-    ChatMessage(
-      id: '5',
-      message: 'For a chat UI in Flutter, you\'ll want to create a message bubble widget that can be styled differently based on whether it\'s a user or AI message. Here are some key components to consider:\n\n1. Different background colors for user vs AI messages\n2. Different alignment (user messages on right, AI on left)\n3. Avatars for each participant\n4. Timestamps\n5. Support for different content types (text, images, etc.)',
-      type: MessageType.ai,
-      senderName: 'GPT-4o mini',
-      senderIcon: Icons.auto_awesome,
-    ),
-    ChatMessage(
-      id: '6',
-      message: 'That\'s helpful! Do you have any example code I could use as a starting point?',
-      type: MessageType.user,
-    ),
-    ChatMessage(
-      id: '7',
-      message: 'Here\'s a simple example of a chat message widget in Flutter:\n\n```dart\nclass ChatBubble extends StatelessWidget {\n  final bool isUser;\n  final String message;\n  \n  const ChatBubble({\n    required this.isUser,\n    required this.message,\n  });\n  \n  @override\n  Widget build(BuildContext context) {\n    return Align(\n      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,\n      child: Container(\n        margin: EdgeInsets.symmetric(vertical: 8),\n        padding: EdgeInsets.all(12),\n        decoration: BoxDecoration(\n          color: isUser ? Colors.blue : Colors.grey[200],\n          borderRadius: BorderRadius.circular(12),\n        ),\n        child: Text(\n          message,\n          style: TextStyle(\n            color: isUser ? Colors.white : Colors.black,\n          ),\n        ),\n      ),\n    );\n  }\n}```\n\nYou can expand on this basic example to add avatars, timestamps, and other features.',
-      type: MessageType.ai,
-      senderName: 'GPT-4o mini',
-      senderIcon: Icons.auto_awesome,
-    ),
-    ChatMessage(
-      id: '8',
-      message: 'Perfect! I\'ll use this as a starting point and customize it for my needs.',
-      type: MessageType.user,
-    ),
-    ChatMessage(
-      id: '9',
-      message: 'Glad I could help! If you need any further assistance with your Flutter chat UI, feel free to ask. Good luck with your project!',
-      type: MessageType.ai,
-      senderName: 'GPT-4o mini',
-      senderIcon: Icons.auto_awesome,
-    ),
-    ChatMessage(
-      id: '10',
-      message: 'One more question - what\'s the best way to handle scrolling in the chat list?',
-      type: MessageType.user,
-    ),
-    ChatMessage(
-      id: '11',
-      message: 'For handling scrolling in a chat list, you\'ll want to use a ListView.builder with a ScrollController. Here are some best practices:\n\n1. Auto-scroll to the bottom when new messages arrive\n2. Allow the user to scroll up to view history\n3. Show a "scroll to bottom" button when the user has scrolled up and new messages arrive\n\nHere\'s how you can implement auto-scrolling to the bottom:\n\n```dart\n// In your state class\nfinal ScrollController _scrollController = ScrollController();\n\n// After adding a new message\nvoid _scrollToBottom() {\n  WidgetsBinding.instance.addPostFrameCallback((_) {\n    if (_scrollController.hasClients) {\n      _scrollController.animateTo(\n        _scrollController.position.maxScrollExtent,\n        duration: Duration(milliseconds: 300),\n        curve: Curves.easeOut,\n      );\n    }\n  });\n}\n```\n\nCall `_scrollToBottom()` whenever a new message is added to the chat.',
-      type: MessageType.ai,
-      senderName: 'GPT-4o mini',
-      senderIcon: Icons.auto_awesome,
-    ),
-  ];
+  // final List<ChatMessage> _messages = [
+  //   ChatMessage(
+  //     id: '1',
+  //     message: 'Hello! How can I help you today?',
+  //     type: MessageType.ai,
+  //     senderName: 'GPT-4o mini',
+  //     senderIcon: Icons.auto_awesome,
+  //   ),
+  //   ChatMessage(
+  //     id: '2',
+  //     message: 'I need help with a Flutter project. I\'m trying to create a chat interface.',
+  //     type: MessageType.user,
+  //   ),
+  //   ChatMessage(
+  //     id: '3',
+  //     message: 'I\'d be happy to help with your Flutter chat interface! What specific aspects are you working on? Are you looking for help with the UI design, state management, or integrating with a backend service?',
+  //     type: MessageType.ai,
+  //     senderName: 'GPT-4o mini',
+  //     senderIcon: Icons.auto_awesome,
+  //   ),
+  //   ChatMessage(
+  //     id: '4',
+  //     message: 'Mainly the UI design. I want to create message bubbles that look good for both the user and AI responses.',
+  //     type: MessageType.user,
+  //   ),
+  //   ChatMessage(
+  //     id: '5',
+  //     message: 'For a chat UI in Flutter, you\'ll want to create a message bubble widget that can be styled differently based on whether it\'s a user or AI message. Here are some key components to consider:\n\n1. Different background colors for user vs AI messages\n2. Different alignment (user messages on right, AI on left)\n3. Avatars for each participant\n4. Timestamps\n5. Support for different content types (text, images, etc.)',
+  //     type: MessageType.ai,
+  //     senderName: 'GPT-4o mini',
+  //     senderIcon: Icons.auto_awesome,
+  //   ),
+  //   ChatMessage(
+  //     id: '6',
+  //     message: 'That\'s helpful! Do you have any example code I could use as a starting point?',
+  //     type: MessageType.user,
+  //   ),
+  //   ChatMessage(
+  //     id: '7',
+  //     message: 'Here\'s a simple example of a chat message widget in Flutter:\n\n```dart\nclass ChatBubble extends StatelessWidget {\n  final bool isUser;\n  final String message;\n  \n  const ChatBubble({\n    required this.isUser,\n    required this.message,\n  });\n  \n  @override\n  Widget build(BuildContext context) {\n    return Align(\n      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,\n      child: Container(\n        margin: EdgeInsets.symmetric(vertical: 8),\n        padding: EdgeInsets.all(12),\n        decoration: BoxDecoration(\n          color: isUser ? Colors.blue : Colors.grey[200],\n          borderRadius: BorderRadius.circular(12),\n        ),\n        child: Text(\n          message,\n          style: TextStyle(\n            color: isUser ? Colors.white : Colors.black,\n          ),\n        ),\n      ),\n    );\n  }\n}```\n\nYou can expand on this basic example to add avatars, timestamps, and other features.',
+  //     type: MessageType.ai,
+  //     senderName: 'GPT-4o mini',
+  //     senderIcon: Icons.auto_awesome,
+  //   ),
+  //   ChatMessage(
+  //     id: '8',
+  //     message: 'Perfect! I\'ll use this as a starting point and customize it for my needs.',
+  //     type: MessageType.user,
+  //   ),
+  //   ChatMessage(
+  //     id: '9',
+  //     message: 'Glad I could help! If you need any further assistance with your Flutter chat UI, feel free to ask. Good luck with your project!',
+  //     type: MessageType.ai,
+  //     senderName: 'GPT-4o mini',
+  //     senderIcon: Icons.auto_awesome,
+  //   ),
+  //   ChatMessage(
+  //     id: '10',
+  //     message: 'One more question - what\'s the best way to handle scrolling in the chat list?',
+  //     type: MessageType.user,
+  //   ),
+  //   ChatMessage(
+  //     id: '11',
+  //     message: 'For handling scrolling in a chat list, you\'ll want to use a ListView.builder with a ScrollController. Here are some best practices:\n\n1. Auto-scroll to the bottom when new messages arrive\n2. Allow the user to scroll up to view history\n3. Show a "scroll to bottom" button when the user has scrolled up and new messages arrive\n\nHere\'s how you can implement auto-scrolling to the bottom:\n\n```dart\n// In your state class\nfinal ScrollController _scrollController = ScrollController();\n\n// After adding a new message\nvoid _scrollToBottom() {\n  WidgetsBinding.instance.addPostFrameCallback((_) {\n    if (_scrollController.hasClients) {\n      _scrollController.animateTo(\n        _scrollController.position.maxScrollExtent,\n        duration: Duration(milliseconds: 300),\n        curve: Curves.easeOut,\n      );\n    }\n  });\n}\n```\n\nCall `_scrollToBottom()` whenever a new message is added to the chat.',
+  //     type: MessageType.ai,
+  //     senderName: 'GPT-4o mini',
+  //     senderIcon: Icons.auto_awesome,
+  //   ),
+  // ];
+  final List<ChatMessage> _messages = [];
 
   // AI Models data
   final List<Map<String, dynamic>> _modelData = [
@@ -344,15 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Chat messages
               Expanded(
                 child: _messages.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No messages yet',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 16,
-                        ),
-                      ),
-                    )
+                  ? EmptyState()
                   : ListView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.only(top: 16, bottom: 16),
@@ -505,7 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onEnter: (_) => setState(() => _isInputFocused = true),
                 onExit: (_) => setState(() => _isInputFocused = false),
                 child: Container(
-                  margin: const EdgeInsets.all(16.0),
+                  margin: const EdgeInsets.only(top: 8.0, bottom: 16.0, left: 16.0, right: 16.0),
                   padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
                   decoration: BoxDecoration(
                     color: _isInputFocused ? Colors.transparent : Colors.purple.shade50,
