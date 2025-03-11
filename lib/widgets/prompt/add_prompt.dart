@@ -211,9 +211,10 @@ class _AddPrompt extends State<AddPrompt> {
                     Navigator.of(context).pop();
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    margin: EdgeInsets.only(right: 8),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.purple.shade200),
                       gradient: LinearGradient(
                         colors: [
@@ -248,9 +249,9 @@ class _AddPrompt extends State<AddPrompt> {
                     Navigator.of(context).pop();
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.purple.shade200),
                       gradient: LinearGradient(
                         colors: [

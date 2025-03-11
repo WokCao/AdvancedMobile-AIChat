@@ -83,7 +83,7 @@ class _ViewPromptInfoState extends State<ViewPromptInfo> {
               Row(
                 children: [
                   Tooltip(
-                    message: "Mark as Fav",
+                    message: "Favorite",
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       onEnter: (_) => setState(() => isStarHovered = true),
@@ -207,9 +207,10 @@ class _ViewPromptInfoState extends State<ViewPromptInfo> {
                     Navigator.of(context).pop();
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    margin: EdgeInsets.only(right: 8),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.purple.shade200),
                       gradient: LinearGradient(
                         colors: [
@@ -244,9 +245,9 @@ class _ViewPromptInfoState extends State<ViewPromptInfo> {
                     /// Mike: Show Edit prompt
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.purple.shade200),
                       gradient: LinearGradient(
                         colors: [
