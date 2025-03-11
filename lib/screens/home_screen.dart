@@ -334,6 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Sidebar button
               Container(
                 padding: EdgeInsets.all(5.0),
                 child: IconButton(
@@ -364,6 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
               ),
 
+              // Above input
               Row(
                 children: [
                   // AI model selector
@@ -493,13 +495,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
 
-              // Bottom input section
+              // Chat input
               MouseRegion(
                 key: _promptSelectorKey,
                 onEnter: (_) => setState(() => _isInputFocused = true),
                 onExit: (_) => setState(() => _isInputFocused = false),
                 child: Container(
-                  margin: const EdgeInsets.only(top: 8.0, bottom: 16.0, left: 16.0, right: 16.0),
+                  margin: const EdgeInsets.only(top: 8.0, bottom: 12.0, left: 16.0, right: 16.0),
                   padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
                   decoration: BoxDecoration(
                     color: _isInputFocused ? Colors.transparent : Colors.purple.shade50,
@@ -577,11 +579,57 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-              )
+              ),
+
+              // Below input
+              Container(
+                padding: EdgeInsets.only(bottom: 16.0, left: 16.0, right: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.shade50,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.diamond, color: Colors.purple, size: 16),
+                          const SizedBox(width: 2),
+                          const Text(
+                            "50",
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    TextButton(
+                      onPressed: () {
+                        // Handle upgrade
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.purple,
+                      ),
+                      child: Row(
+                        children: [
+                          const Text(
+                            "Upgrade",
+                            style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(Icons.rocket_launch, color: Colors.purple, size: 18),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
 
-          // Floating Sidebar
+          // Floating sidebar
           AppSidebar(
             isExpanded: true,
             isVisible: _isSidebarVisible,

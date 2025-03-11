@@ -85,7 +85,9 @@ class EmptyState extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  /// Handle view all prompts
+                },
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.purple,
                 ),
@@ -102,7 +104,9 @@ class EmptyState extends StatelessWidget {
             'Story generator',
           ].map((prompt) => _buildSectionWithArrow(
             title: prompt,
-            onTap: () {},
+            onTap: () {
+              /// Handle selecting prompt
+            },
             compact: true,
           )),
         ],
