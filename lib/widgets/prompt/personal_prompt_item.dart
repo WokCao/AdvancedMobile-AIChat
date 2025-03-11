@@ -53,7 +53,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
             onEnter: (_) => setState(() => isHovered = true),
             onExit: (_) => setState(() => isHovered = false),
             child: Container(
-              padding: EdgeInsets.fromLTRB(10.0, 16.0, 25.0, 16.0),
+              padding: EdgeInsets.all(10.0),
               decoration: BoxDecoration(
                 color: isHovered ? Colors.purple[50] : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),

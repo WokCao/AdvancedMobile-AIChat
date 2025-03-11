@@ -21,7 +21,7 @@ class _SegmentedButtonWidget extends State<SegmentedButtonWidget> {
         backgroundColor: WidgetStateProperty.resolveWith<Color?>(
               (Set<WidgetState> states) {
             if (states.contains(WidgetState.selected)){
-              return Colors.purple.shade200;
+              return Colors.purple.shade100;
             }
             return null;
           },

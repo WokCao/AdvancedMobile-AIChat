@@ -16,6 +16,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _instructionsController = TextEditingController();
+  bool _isCreateFocused = false;
 
   @override
   void dispose() {
@@ -216,17 +217,36 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                         child: const Text('Cancel'),
                       ),
                       const SizedBox(width: 12),
-                      ElevatedButton(
-                        onPressed: _handleSubmit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple.shade300,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
+                      MouseRegion(
+                        onEnter: (_) => setState(() => _isCreateFocused = true),
+                        onExit: (_) => setState(() => _isCreateFocused = false),
+                        child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  _isCreateFocused
+                                      ? Colors.pink.shade400
+                                      : Colors.pink.shade300,
+                                  _isCreateFocused
+                                      ? Colors.purple.shade400
+                                      : Colors.purple.shade300,
+                                ], // Gradient colors
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                // Handle create bot
+                              },
+                              child: const Text('Create', style: TextStyle(color: Colors.white)),
+                            )
                         ),
-                        child: const Text('Create'),
                       ),
                     ],
                   ),

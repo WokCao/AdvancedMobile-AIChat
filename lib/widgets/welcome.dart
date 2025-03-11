@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
-class EmptyState extends StatelessWidget {
-  const EmptyState({super.key});
+class Welcome extends StatefulWidget {
+  const Welcome({super.key});
+
+  @override
+  State<Welcome> createState() => _WelcomeState();
+}
+
+class _WelcomeState extends State<Welcome> {
+  bool _isTrialFocused = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,20 +59,37 @@ class EmptyState extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Center(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple.shade300,
-                      foregroundColor: Colors.white,
+                  child: MouseRegion(
+                    onEnter: (_) => setState(() => _isTrialFocused = true),
+                    onExit: (_) => setState(() => _isTrialFocused = false),
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 16.0),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+                        horizontal: 18,
+                        vertical: 6,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            _isTrialFocused
+                                ? Colors.pink.shade400
+                                : Colors.pink.shade300,
+                            _isTrialFocused
+                                ? Colors.purple.shade400
+                                : Colors.purple.shade300,
+                          ], // Gradient colors
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
                       ),
+                      child: InkWell(
+                        onTap: () {
+                          // Handle upgrade
+                        },
+                        child: const Text('Start Free Trial', style: TextStyle(color: Colors.white)),
+                      )
                     ),
-                    child: const Text('Start Free Trial'),
                   ),
                 ),
               ],

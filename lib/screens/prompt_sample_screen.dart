@@ -36,7 +36,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.all(15.0),
+          padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -85,7 +85,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(width: 6),
+                      SizedBox(width: 8),
                       Tooltip(
                         message: "Close",
                         child: InkWell(
@@ -97,7 +97,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                             width: 30,
                             height: 30,
                             alignment: Alignment.center,
-                            child: Icon(Icons.close, size: 20),
+                            child: Icon(Icons.close, color: Colors.grey, size: 24),
                           ),
                         ),
                       ),

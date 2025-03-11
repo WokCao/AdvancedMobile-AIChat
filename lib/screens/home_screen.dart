@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/bot/create_bot_dialog.dart';
 import '../widgets/chat_message.dart';
-import '../widgets/empty_state.dart';
+import '../widgets/welcome.dart';
 import '../widgets/selector_menu.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -347,7 +347,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Chat messages
               Expanded(
                 child: _messages.isEmpty
-                  ? EmptyState()
+                  ? Welcome()
                   : ListView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.only(top: 16, bottom: 16),
@@ -425,9 +425,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: _isBotCreateFocused
-                              ? [Colors.purple.shade300, Colors.purple.shade400]
-                              : [Colors.purple.shade200, Colors.purple.shade300], // Gradient colors
+                          colors: [
+                            _isBotCreateFocused
+                                ? Colors.pink.shade400
+                                : Colors.pink.shade300,
+                            _isBotCreateFocused
+                                ? Colors.purple.shade400
+                                : Colors.purple.shade300,
+                          ], // Gradient colors
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
