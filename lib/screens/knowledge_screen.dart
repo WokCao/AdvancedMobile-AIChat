@@ -1,3 +1,4 @@
+import 'package:ai_chat/widgets/bot/create_knowledge_dialog.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/bot/knowledge_table.dart';
@@ -66,7 +67,16 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => CreateKnowledgeDialog(
+                        onSubmit: (name, instructions) {
+                          // Handle bot creation
+                        },
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,

@@ -2,6 +2,8 @@ import 'package:ai_chat/widgets/bot/single_bot.dart';
 import 'package:ai_chat/widgets/bot/type_drop_down.dart';
 import 'package:flutter/material.dart';
 
+import 'create_bot_dialog.dart';
+
 class BotList extends StatefulWidget {
   const BotList({super.key});
 
@@ -68,7 +70,16 @@ class _BotListState extends State<BotList> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => CreateBotDialog(
+                        onSubmit: (name, instructions) {
+                          // Handle bot creation
+                        },
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
