@@ -159,7 +159,7 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                     ),
 
                     // Edit button (only for user messages)
-                    if (isUser) ...[
+                    if (isUser && widget.onEditMessage != null) ...[
                       const SizedBox(width: 4),
                       AnimatedOpacity(
                         opacity: _isHovering ? 1.0 : 0.0,
