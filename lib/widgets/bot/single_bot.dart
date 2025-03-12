@@ -35,7 +35,7 @@ class _SingleBotState extends State<SingleBot> {
                 child: ListTile(
                   leading: Icon(
                     Icons.smart_toy_outlined,
-                    size: 52,
+                    size: 48,
                     color: Colors.purple.shade200,
                   ),
                   title: Text(

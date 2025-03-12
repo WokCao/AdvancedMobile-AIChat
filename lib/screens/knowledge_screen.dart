@@ -1,15 +1,15 @@
-import 'package:ai_chat/widgets/bot/single_bot.dart';
-import 'package:ai_chat/widgets/bot/type_drop_down.dart';
 import 'package:flutter/material.dart';
 
-class BotList extends StatefulWidget {
-  const BotList({super.key});
+import '../widgets/bot/knowledge_table.dart';
+
+class KnowledgeScreen extends StatefulWidget {
+  const KnowledgeScreen({super.key});
 
   @override
-  State<BotList> createState() => _BotListState();
+  State<KnowledgeScreen> createState() => _KnowledgeScreenState();
 }
 
-class _BotListState extends State<BotList> {
+class _KnowledgeScreenState extends State<KnowledgeScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -23,8 +23,6 @@ class _BotListState extends State<BotList> {
               Expanded(
                 child: Row(
                   children: [
-                    TypeDropdown(),
-                    SizedBox(width: 8),
                     ConstrainedBox(
                       constraints: BoxConstraints(
                         maxWidth: MediaQuery.of(context).size.width * 0.3,
@@ -81,7 +79,7 @@ class _BotListState extends State<BotList> {
                     children: [
                       Icon(Icons.add_circle_outline, color: Colors.white),
                       SizedBox(width: 5),
-                      Text("Create Bot", style: TextStyle(color: Colors.white)),
+                      Text("Create Knowledge", style: TextStyle(color: Colors.white)),
                     ],
                   ),
                 ),
@@ -90,22 +88,24 @@ class _BotListState extends State<BotList> {
           ),
           SizedBox(height: 16),
           Expanded(
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 800,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 4,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              child: PaginatedDataTable(
+                columnSpacing: 0,
+                showFirstLastButtons: true,
+                showCheckboxColumn: false,
+                columns: [
+                  DataColumn(label: Text("Knowledge", style: TextStyle(fontWeight: FontWeight.bold))),
+                  DataColumn(label: Text("Units", style: TextStyle(fontWeight: FontWeight.bold))),
+                  DataColumn(label: Text("Size", style: TextStyle(fontWeight: FontWeight.bold))),
+                  DataColumn(label: Text("Edit time", style: TextStyle(fontWeight: FontWeight.bold))),
+                  DataColumn(label: Text("Action", style: TextStyle(fontWeight: FontWeight.bold))),
+                ],
+                source: MyDataWithActions(),
+                rowsPerPage: 8,
+                dividerThickness: 0.2,
               ),
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return SingleBot(
-                  name: "Bot $index",
-                  description:
-                      "his example shows a custom implementation of selection in list and grid views. Use the button in the top right (possibly hidden under the DEBUG banner) to toggle between ListView and GridView. Long press any ListTile or GridTile to enable selection mode.",
-                );
-              },
-            ),
+            )
           ),
         ],
       ),
