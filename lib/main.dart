@@ -1,5 +1,6 @@
 import 'package:ai_chat/screens/auth/register_screen.dart';
 import 'package:ai_chat/screens/auth/login_screen.dart';
+import 'package:ai_chat/screens/bot_playground_screen.dart';
 import 'package:ai_chat/screens/bots_screen.dart';
 import 'package:ai_chat/screens/home_screen.dart';
 import 'package:ai_chat/screens/chat_history_screen.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         '/history': (context) => const ChatHistoryScreen(),
         '/prompts': (context) => const PromptSampleScreen(),
         '/bots': (context) => const BotsScreen(initialTabIndex: 0),
+        '/playground': (context) => const BotPlaygroundScreen(),
         '/knowledge': (context) => const BotsScreen(initialTabIndex: 1),
         '/units': (context) => const UnitScreen()
       },
