@@ -21,10 +21,13 @@ class MyDataWithActions extends DataTableSource {
       onSelectChanged: (selected) {},
       index: index,
       color: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.pressed)) {
+          return Colors.purple.shade100;
+        }
         if (states.contains(WidgetState.hovered)) {
           return Colors.purple.shade50;
         }
-        return WidgetStateColor.transparent;
+        return Colors.transparent;
       }),
       cells: [
         DataCell(
