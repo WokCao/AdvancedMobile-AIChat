@@ -72,8 +72,9 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                       context: context,
                       builder: (context) => CreateKnowledgeDialog(
                         onSubmit: (name, instructions) {
-                          // Handle bot creation
+                          // Handle knowledge creation
                         },
+                        type: "Create",
                       ),
                     );
                   },
@@ -111,8 +112,8 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                   DataColumn(label: Text("Edit time", style: TextStyle(fontWeight: FontWeight.bold))),
                   DataColumn(label: Text("Action", style: TextStyle(fontWeight: FontWeight.bold))),
                 ],
-                source: MyDataWithActions(),
-                rowsPerPage: 8,
+                source: MyDataWithActions(context),
+                rowsPerPage: 7,
                 dividerThickness: 0.2,
               ),
             )

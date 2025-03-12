@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class CreateKnowledgeDialog extends StatefulWidget {
   final Function(String name, String instructions) onSubmit;
-  const CreateKnowledgeDialog({super.key, required this.onSubmit});
+  final String type;
+  const CreateKnowledgeDialog({super.key, required this.onSubmit, required this.type});
 
   @override
   State<CreateKnowledgeDialog> createState() => _CreateKnowledgeDialogState();
@@ -48,8 +49,8 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
             // Header
             Row(
               children: [
-                const Text(
-                  'Create New Knowledge',
+                Text(
+                  widget.type == 'Create' ? 'Create New Knowledge' : 'Update Knowledge',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -130,7 +131,6 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Instructions field
                   Text(
                     'Knowledge description',
                     style: TextStyle(
