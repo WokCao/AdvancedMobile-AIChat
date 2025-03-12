@@ -22,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isSidebarVisible = false;
   final TextEditingController _textController = TextEditingController();
   bool _isInputFocused = false;
+  bool _isInputHasText = false;
   bool _isAISelectorFocused = false;
   bool _isBotCreateFocused = false;
   final ScrollController _scrollController = ScrollController();
@@ -273,6 +274,16 @@ class _HomeScreenState extends State<HomeScreen> {
     final text = _textController.text;
     if (text.startsWith('/')) {
       _showPromptSelector();
+    }
+    if (text.isNotEmpty) {
+      setState(() {
+        _isInputHasText = true;
+      });
+    }
+    else {
+      setState(() {
+        _isInputHasText = false;
+      });
     }
   }
 
@@ -592,7 +603,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               IconButton(
                                 icon: const Icon(Icons.send),
                                 iconSize: 20,
-                                onPressed: _handleSendMessage,
+                                color: Colors.purple,
+                                onPressed: _isInputHasText ? _handleSendMessage : null,
                                 tooltip: 'Send message',
                               ),
                             ],
