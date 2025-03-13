@@ -18,7 +18,7 @@ class _BotListState extends State<BotList> {
       padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       child: Column(
         children: [
-          SizedBox(height: 32),
+          SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

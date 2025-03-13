@@ -17,7 +17,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
       padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       child: Column(
         children: [
-          SizedBox(height: 32),
+          SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

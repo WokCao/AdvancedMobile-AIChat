@@ -14,13 +14,8 @@ class _UnitScreenState extends State<UnitScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.grey),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
         title: Text("Units"),
+        backgroundColor: Colors.purple.shade200,
       ),
       body: SafeArea(
         child: Container(
@@ -116,7 +111,7 @@ class _UnitScreenState extends State<UnitScreen> {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-
+                        Navigator.pushNamed(context, '/source');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
