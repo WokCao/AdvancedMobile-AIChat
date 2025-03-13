@@ -4,11 +4,15 @@ import 'package:ai_chat/screens/bot_playground_screen.dart';
 import 'package:ai_chat/screens/bots_screen.dart';
 import 'package:ai_chat/screens/home_screen.dart';
 import 'package:ai_chat/screens/chat_history_screen.dart';
+import 'package:ai_chat/screens/local_file.screen.dart';
 import 'package:ai_chat/screens/prompt_sample_screen.dart';
+import 'package:ai_chat/screens/source_list_screen.dart';
 import 'package:ai_chat/screens/unit_screen.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -19,11 +23,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ChatGem AI',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.purple,
-        useMaterial3: true,
+        useMaterial3: false,
       ),
-      initialRoute: '/home',
+      initialRoute: '/',
       routes: {
         '/': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
@@ -33,7 +38,9 @@ class MyApp extends StatelessWidget {
         '/bots': (context) => const BotsScreen(initialTabIndex: 0),
         '/playground': (context) => const BotPlaygroundScreen(),
         '/knowledge': (context) => const BotsScreen(initialTabIndex: 1),
-        '/units': (context) => const UnitScreen()
+        '/units': (context) => const UnitScreen(),
+        '/source': (context) => const SourceListScreen(),
+        '/local': (context) => const LocalFileScreen()
       },
     );
   }

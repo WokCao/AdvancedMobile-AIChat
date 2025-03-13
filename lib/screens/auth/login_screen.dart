@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../widgets/auth/auth_button.dart';
 import '../../widgets/auth/auth_header.dart';
 import '../../widgets/auth/custom_text_field.dart';
@@ -40,17 +41,19 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 200.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width > 1024 ? MediaQuery.of(context).size.width * 0.4 : MediaQuery.of(context).size.width * 0.6,
+              ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Header
                   const AuthHeader(
                     title: 'Welcome back',
                     subtitle: 'Sign in to your account',
-                    icon: Icons.chat,
+                    icon: FontAwesomeIcons.bots
                   ),
 
                   // Form
