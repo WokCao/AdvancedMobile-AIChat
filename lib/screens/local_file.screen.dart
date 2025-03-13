@@ -28,7 +28,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
           margin: EdgeInsets.all(20),
           padding: EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.grey[50],
+            color: Colors.grey.shade50,
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(

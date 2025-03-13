@@ -85,28 +85,40 @@ class _SourceListScreenState extends State<SourceListScreen> {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 550,
-            childAspectRatio: 2.5,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: _options.length,
-          itemBuilder: (context, index) {
-            return DataSourceCard(
-              option: _options[index],
-              isSelected: _selectedIndex == index && !_options[index].disabled,
-              onTap: () {
-                if (!_options[index].disabled) {
-                  setState(() {
-                    _selectedIndex = index;
-                  });
-                  if (index == 0) Navigator.pushNamed(context, '/local');
-                }
-              },
-            );
-          },
+        child: Column(
+          children: [
+            Text('Choose source to import data', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),),
+            SizedBox(height: 16,),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 550,
+                  childAspectRatio: 2.5,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemCount: _options.length,
+                itemBuilder: (context, index) {
+                  return DataSourceCard(
+                    option: _options[index],
+                    isSelected: _selectedIndex == index && !_options[index].disabled,
+                    onTap: () {
+                      if (!_options[index].disabled) {
+                        setState(() {
+                          _selectedIndex = index;
+                        });
+                        if (index == 0) {
+                          Navigator.pushNamed(context, '/local');
+                        } else if (index == 1) {
+                          Navigator.pushNamed(context, '/website');
+                        }
+                      }
+                    },
+                  );
+                },
+              ),
+            )
+          ],
         ),
       ),
     );

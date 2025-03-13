@@ -70,12 +70,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           prefixIcon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                              return 'Please enter a valid email';
-                            }
+                            // if (value == null || value.isEmpty) {
+                            //   return 'Please enter your email';
+                            // }
+                            // if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                            //   return 'Please enter a valid email';
+                            // }
                             return null;
                           },
                         ),
@@ -100,12 +100,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           obscureText: _obscurePassword,
                           textInputAction: TextInputAction.done,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
+                            // if (value == null || value.isEmpty) {
+                            //   return 'Please enter your password';
+                            // }
+                            // if (value.length < 6) {
+                            //   return 'Password must be at least 6 characters';
+                            // }
                             return null;
                           },
                           onFieldSubmitted: (_) => _submitForm(),

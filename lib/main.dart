@@ -8,6 +8,7 @@ import 'package:ai_chat/screens/local_file.screen.dart';
 import 'package:ai_chat/screens/prompt_sample_screen.dart';
 import 'package:ai_chat/screens/source_list_screen.dart';
 import 'package:ai_chat/screens/unit_screen.dart';
+import 'package:ai_chat/screens/website_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -40,7 +41,8 @@ class MyApp extends StatelessWidget {
         '/knowledge': (context) => const BotsScreen(initialTabIndex: 1),
         '/units': (context) => const UnitScreen(),
         '/source': (context) => const SourceListScreen(),
-        '/local': (context) => const LocalFileScreen()
+        '/local': (context) => const LocalFileScreen(),
+        '/website': (context) => const WebsiteScreen()
       },
     );
   }

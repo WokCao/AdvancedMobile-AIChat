@@ -1,17 +1,19 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyUnitDataWithActions extends DataTableSource {
   final BuildContext context;
   final List<Map<String, dynamic>> _data;
   final List<bool> _switchValues;
+  final List<String> _sourceType = ["Local file", "Website"];
 
   MyUnitDataWithActions(this.context)
     : _data = List.generate(
         50,
         (index) => {
           "unit": "Unit ${index + 1}",
-          "source": "Local file",
+          "source": Random.secure().nextInt(2),
           "size": "${Random.secure().nextInt(2000)} Kb",
           "create_time": DateTime.now().toString(),
           "latest_update": DateTime.now().toString(),
@@ -44,16 +46,11 @@ class MyUnitDataWithActions extends DataTableSource {
             child: Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(2),
+                  padding: EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4),
-                    gradient: LinearGradient(
-                      colors: [Colors.cyan.shade300, Colors.blue.shade300],
-                      begin: Alignment.bottomLeft,
-                      end: Alignment.topRight,
-                    ),
                   ),
-                  child: Icon(Icons.file_open, color: Colors.white),
+                  child: Icon(_sourceType.elementAt(item["source"]) == "Local file" ? FontAwesomeIcons.fileLines : FontAwesomeIcons.globe, color: _sourceType.elementAt(item["source"]) == "Local file" ? Colors.blue : Colors.blue),
                 ),
                 SizedBox(width: 8),
                 Text(item["unit"], overflow: TextOverflow.ellipsis),
@@ -61,7 +58,7 @@ class MyUnitDataWithActions extends DataTableSource {
             ),
           ),
         ),
-        DataCell(SizedBox(width: 120, child: Text(item["source"].toString()))),
+        DataCell(SizedBox(width: 120, child: Text(_sourceType.elementAt(item["source"]).toString()))),
         DataCell(SizedBox(width: 120, child: Text(item["size"]))),
         DataCell(SizedBox(width: 240, child: Text(item["create_time"]))),
         DataCell(SizedBox(width: 240, child: Text(item["latest_update"]))),
