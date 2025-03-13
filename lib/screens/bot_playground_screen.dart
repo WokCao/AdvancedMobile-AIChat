@@ -1,3 +1,4 @@
+import 'package:ai_chat/widgets/bot/remove_knowledge.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/chat_message.dart';
@@ -387,6 +388,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                                   IconButton(
                                     onPressed: () {
                                       /// Handle view knowledge
+                                      Navigator.pushNamed(context, '/units');
                                     },
                                     icon: const Icon(
                                       Icons.remove_red_eye_outlined,
@@ -399,6 +401,12 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                                   IconButton(
                                     onPressed: () {
                                       /// Handle remove knowledge
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return RemoveKnowledge();
+                                          }
+                                      );
                                     },
                                     icon: const Icon(
                                       Icons.delete_outline,

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:ai_chat/widgets/bot/remove_knowledge.dart';
 import 'package:flutter/material.dart';
 
 class MyDataWithActions extends DataTableSource {
@@ -67,7 +68,14 @@ class MyDataWithActions extends DataTableSource {
             message: "Delete",
             child: IconButton(
               icon: Icon(Icons.delete_outline_outlined),
-              onPressed: () {},
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return RemoveKnowledge();
+                    }
+                );
+              },
             ),
           ),
         ),

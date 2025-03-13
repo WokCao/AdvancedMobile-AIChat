@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:ai_chat/widgets/bot/remove_unit.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -81,7 +82,14 @@ class MyUnitDataWithActions extends DataTableSource {
             message: "Delete",
             child: IconButton(
               icon: Icon(Icons.delete_outline_outlined),
-              onPressed: () {},
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return RemoveUnit();
+                    }
+                );
+              },
             ),
           ),
         ),

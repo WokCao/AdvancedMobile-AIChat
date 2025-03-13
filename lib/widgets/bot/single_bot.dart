@@ -1,3 +1,4 @@
+import 'package:ai_chat/widgets/bot/remove_bot.dart';
 import 'package:flutter/material.dart';
 
 class SingleBot extends StatefulWidget {
@@ -69,7 +70,17 @@ class _SingleBotState extends State<SingleBot> {
                         SizedBox(width: 12),
                         Tooltip(
                           message: "Delete",
-                          child: Icon(Icons.delete_outline_outlined, color: Colors.purple.shade200,),
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return RemoveBot();
+                                  }
+                              );
+                            },
+                            child: Icon(Icons.delete_outline_outlined, color: Colors.purple.shade200,),
+                          ),
                         ),
                       ],
                     ),
