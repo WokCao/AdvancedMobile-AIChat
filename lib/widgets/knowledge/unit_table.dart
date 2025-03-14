@@ -26,7 +26,6 @@ class MyUnitDataWithActions extends DataTableSource {
   DataRow? getRow(int index) {
     if (index >= _data.length) return null;
     final item = _data[index];
-    bool value = false;
 
     return DataRow.byIndex(
       onSelectChanged: (selected) {},
