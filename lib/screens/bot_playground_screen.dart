@@ -1,7 +1,8 @@
-import 'package:ai_chat/widgets/bot/remove_knowledge.dart';
+
 import 'package:flutter/material.dart';
 
 import '../widgets/chat_message.dart';
+import '../widgets/knowledge/remove_knowledge.dart';
 
 class BotPlaygroundScreen extends StatefulWidget {
   const BotPlaygroundScreen({super.key});

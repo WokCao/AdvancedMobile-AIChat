@@ -4,12 +4,11 @@ import 'package:ai_chat/screens/bot_playground_screen.dart';
 import 'package:ai_chat/screens/bots_screen.dart';
 import 'package:ai_chat/screens/home_screen.dart';
 import 'package:ai_chat/screens/chat_history_screen.dart';
-import 'package:ai_chat/screens/local_file.screen.dart';
+import 'package:ai_chat/screens/knowledge/local_file.screen.dart';
+import 'package:ai_chat/screens/knowledge/source_list_screen.dart';
+import 'package:ai_chat/screens/knowledge/unit_screen.dart';
+import 'package:ai_chat/screens/knowledge/website_screen.dart';
 import 'package:ai_chat/screens/prompt_sample_screen.dart';
-import 'package:ai_chat/screens/source_list_screen.dart';
-import 'package:ai_chat/screens/unit_screen.dart';
-import 'package:ai_chat/screens/website_screen.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -27,7 +26,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.purple,
-        useMaterial3: false,
+        useMaterial3: true,
       ),
       initialRoute: '/',
       routes: {

@@ -1,6 +1,6 @@
-import 'package:ai_chat/screens/knowledge_screen.dart';
+import 'package:ai_chat/screens/knowledge/knowledge_screen.dart';
 import 'package:ai_chat/widgets/bot/bot_list.dart';
-import 'package:ai_chat/widgets/bot/knowledge_table.dart';
+import 'package:ai_chat/widgets/knowledge/knowledge_table.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/app_sidebar.dart';

@@ -1,7 +1,7 @@
-import 'package:ai_chat/widgets/bot/create_knowledge_dialog.dart';
 import 'package:flutter/material.dart';
 
-import '../widgets/bot/knowledge_table.dart';
+import '../../widgets/knowledge/create_knowledge_dialog.dart';
+import '../../widgets/knowledge/knowledge_table.dart';
 
 class KnowledgeScreen extends StatefulWidget {
   const KnowledgeScreen({super.key});

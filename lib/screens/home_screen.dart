@@ -9,10 +9,7 @@ import '../widgets/selector_menu.dart';
 class HomeScreen extends StatefulWidget {
   final bool? showUsePrompt;
 
-  const HomeScreen({
-    super.key,
-    this.showUsePrompt,
-  });
+  const HomeScreen({super.key, this.showUsePrompt});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -106,49 +103,56 @@ class _HomeScreenState extends State<HomeScreen> {
       'name': 'GPT-4o mini',
       'icon': Icons.auto_awesome,
       'iconColor': Colors.blue,
-      'description': "OpenAI's latest model, very fast and great for most everyday tasks.",
+      'description':
+          "OpenAI's latest model, very fast and great for most everyday tasks.",
       'tokenCount': 'Cost 1 Token',
     },
     {
       'name': 'GPT-4o',
       'icon': Icons.auto_awesome_outlined,
       'iconColor': Colors.purple,
-      'description': "Most capable model, best for complex tasks while maintaining quality.",
+      'description':
+          "Most capable model, best for complex tasks while maintaining quality.",
       'tokenCount': 'Cost 5 Tokens',
     },
     {
       'name': 'Gemini 1.5 Flash',
       'icon': Icons.flash_on,
       'iconColor': Colors.amber,
-      'description': "Google's latest model, optimized for narrower or high-frequency tasks where the speed of the model's response time matters the most.",
+      'description':
+          "Google's latest model, optimized for narrower or high-frequency tasks where the speed of the model's response time matters the most.",
       'tokenCount': 'Cost 1 Token',
     },
     {
       'name': 'Gemini 1.5 Pro',
       'icon': Icons.workspace_premium,
       'iconColor': Colors.black,
-      'description': "Google's next-generation model, best for complex tasks requiring advanced reasoning.",
+      'description':
+          "Google's next-generation model, best for complex tasks requiring advanced reasoning.",
       'tokenCount': 'Cost 5 Tokens',
     },
     {
       'name': 'Claude 3 Haiku',
       'icon': Icons.psychology,
       'iconColor': Colors.orange,
-      'description': "Anthropic's most compact model, designed for near-instant responsiveness and seamless AI experiences that mimic human interactions.",
+      'description':
+          "Anthropic's most compact model, designed for near-instant responsiveness and seamless AI experiences that mimic human interactions.",
       'tokenCount': 'Cost 1 Token',
     },
     {
       'name': 'Claude 3 Sonnet',
       'icon': Icons.psychology_outlined,
       'iconColor': Colors.brown,
-      'description': "Anthropic's most intelligent model to date between intelligence and speed, ideal for a wide range of tasks.",
+      'description':
+          "Anthropic's most intelligent model to date between intelligence and speed, ideal for a wide range of tasks.",
       'tokenCount': 'Cost 3 Tokens',
     },
     {
       'name': 'Deepseek Chat',
       'icon': Icons.chat_bubble_outline,
       'iconColor': Colors.blue,
-      'description': "Deepseek's model, address tasks requiring logical inference, mathematical problem-solving, and real-time decision-making.",
+      'description':
+          "Deepseek's model, address tasks requiring logical inference, mathematical problem-solving, and real-time decision-making.",
       'tokenCount': 'Cost 1 Token',
     },
   ];
@@ -197,22 +201,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showModelSelector() {
     // Convert model data to selector items
-    final items = _modelData.map((model) {
-      return SelectorItem<String>(
-        title: model['name'],
-        leading: Icon(
-          model['icon'],
-          size: 20,
-          color: model['iconColor'],
-        ),
-        subtitle: model['description'],
-        trailing: model['tokenCount'],
-        value: model['name'],
-      );
-    }).toList();
+    final items =
+        _modelData.map((model) {
+          return SelectorItem<String>(
+            title: model['name'],
+            leading: Icon(model['icon'], size: 20, color: model['iconColor']),
+            subtitle: model['description'],
+            trailing: model['tokenCount'],
+            value: model['name'],
+          );
+        }).toList();
 
     // Get the position of the button
-    final RenderBox? renderBox = _modelSelectorKey.currentContext?.findRenderObject() as RenderBox?;
+    final RenderBox? renderBox =
+        _modelSelectorKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
     final offset = renderBox.localToGlobal(Offset.zero);
@@ -228,7 +230,10 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       },
       title: 'Base AI Models',
-      offset: Offset(offset.dx + 16, offset.dy - 370), // Position above the button
+      offset: Offset(
+        offset.dx + 16,
+        offset.dy - 370,
+      ), // Position above the button
     );
   }
 
@@ -244,7 +249,8 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     // Get the position of the input
-    final RenderBox? renderBox = _promptSelectorKey.currentContext?.findRenderObject() as RenderBox?;
+    final RenderBox? renderBox =
+        _promptSelectorKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
     final offset = renderBox.localToGlobal(Offset.zero);
@@ -258,14 +264,17 @@ class _HomeScreenState extends State<HomeScreen> {
         // Handle item selected
       },
       title: 'Suggested Prompts',
-      offset: Offset(offset.dx + 16, offset.dy - 300), // Position above the input
+      offset: Offset(
+        offset.dx + 16,
+        offset.dy - 300,
+      ), // Position above the input
     );
   }
 
   // Get the current model data
   Map<String, dynamic> get _currentModel {
     return _modelData.firstWhere(
-          (model) => model['name'] == _selectedModel,
+      (model) => model['name'] == _selectedModel,
       orElse: () => _modelData[0],
     );
   }
@@ -279,8 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _isInputHasText = true;
       });
-    }
-    else {
+    } else {
       setState(() {
         _isInputHasText = false;
       });
@@ -293,11 +301,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       // Add user message
-      _messages.add(ChatMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        message: text,
-        type: MessageType.user,
-      ));
+      _messages.add(
+        ChatMessage(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          message: text,
+          type: MessageType.user,
+        ),
+      );
 
       // Clear input
       _textController.clear();
@@ -309,12 +319,14 @@ class _HomeScreenState extends State<HomeScreen> {
     // Simulate AI response after a delay
     Future.delayed(const Duration(seconds: 1), () {
       setState(() {
-        _messages.add(ChatMessage(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          message: 'I received your message: "$text"',
-          type: MessageType.ai,
-          senderName: _currentModel['name'],
-        ));
+        _messages.add(
+          ChatMessage(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            message: 'I received your message: "$text"',
+            type: MessageType.ai,
+            senderName: _currentModel['name'],
+          ),
+        );
       });
 
       // Scroll to bottom again
@@ -374,23 +386,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Chat messages
               Expanded(
-                child: _messages.isEmpty
-                  ? Welcome()
-                  : ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.only(top: 16, bottom: 16),
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) {
-                        final message = _messages[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16), // Adds a gap below each item
-                          child: ChatMessageWidget(
-                            message: message,
-                            onEditMessage: _handleEditMessage,
-                          ),
-                        );
-                      },
-                  ),
+                child:
+                    _messages.isEmpty
+                        ? Welcome()
+                        : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.only(top: 16, bottom: 16),
+                          itemCount: _messages.length,
+                          itemBuilder: (context, index) {
+                            final message = _messages[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: 16,
+                              ), // Adds a gap below each item
+                              child: ChatMessageWidget(
+                                message: message,
+                                onEditMessage: _handleEditMessage,
+                              ),
+                            );
+                          },
+                        ),
               ),
 
               // Above input
@@ -408,7 +423,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: _isAISelectorFocused ? Colors.purple.shade100.withValues(alpha: 0.5) : Colors.purple.shade50,
+                        color:
+                            _isAISelectorFocused
+                                ? Colors.purple.shade100.withValues(alpha: 0.5)
+                                : Colors.purple.shade50,
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: InkWell(
@@ -432,10 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             const SizedBox(width: 4),
-                            const Icon(
-                              Icons.expand_more,
-                              size: 20,
-                            ),
+                            const Icon(Icons.expand_more, size: 20),
                           ],
                         ),
                       ),
@@ -470,26 +485,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           showDialog(
                             context: context,
-                            builder: (context) => CreateBotDialog(
-                              onSubmit: (name, instructions) {
-                                // Handle bot creation
-                              },
-                            ),
+                            builder:
+                                (context) => CreateBotDialog(
+                                  onSubmit: (name, instructions) {
+                                    // Handle bot creation
+                                  },
+                                ),
                           );
                         },
                         borderRadius: BorderRadius.circular(24),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                                Icons.smart_toy_outlined,
-                                color: Colors.white,
-                            ),
+                            Icon(Icons.smart_toy_outlined, color: Colors.white),
                             const SizedBox(width: 4),
-                            Icon(
-                                Icons.add,
-                                color: Colors.white
-                            ),
+                            Icon(Icons.add, color: Colors.white),
                           ],
                         ),
                       ),
@@ -515,7 +525,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(30.0),
                         topRight: Radius.circular(30.0),
-                        bottomRight: Radius.circular(30.0)
+                        bottomRight: Radius.circular(30.0),
                       ),
                     ),
                     child: IconButton(
@@ -523,7 +533,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white,
                       onPressed: () {},
                       tooltip: 'New chat',
-                    )
+                    ),
                   ),
                 ],
               ),
@@ -534,10 +544,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 onEnter: (_) => setState(() => _isInputFocused = true),
                 onExit: (_) => setState(() => _isInputFocused = false),
                 child: Container(
-                  margin: const EdgeInsets.only(top: 8.0, bottom: 12.0, left: 16.0, right: 16.0),
-                  padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+                  margin: const EdgeInsets.only(
+                    top: 8.0,
+                    bottom: 12.0,
+                    left: 16.0,
+                    right: 16.0,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4.0,
+                    horizontal: 4.0,
+                  ),
                   decoration: BoxDecoration(
-                    color: _isInputFocused ? Colors.transparent : Colors.purple.shade50,
+                    color:
+                        _isInputFocused
+                            ? Colors.transparent
+                            : Colors.purple.shade50,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.02),
@@ -546,9 +567,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                     border: Border.all(
-                      color: _isInputFocused ? Colors.purple : Colors.transparent
+                      color:
+                          _isInputFocused ? Colors.purple : Colors.transparent,
                     ),
-                    borderRadius: BorderRadius.circular(8.0)
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: SafeArea(
                     child: Column(
@@ -560,7 +582,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: TextField(
                                 controller: _textController,
                                 decoration: InputDecoration(
-                                  hintText: 'Ask me anything, press \'/\' for prompts...',
+                                  hintText:
+                                      'Ask me anything, press \'/\' for prompts...',
                                   hintStyle: TextStyle(color: Colors.grey),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(24),
@@ -573,7 +596,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 maxLines: null,
                                 minLines: 2,
-                                textCapitalization: TextCapitalization.sentences,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
                                 onSubmitted: (_) => _handleSendMessage(),
                               ),
                             ),
@@ -604,7 +628,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 icon: const Icon(Icons.send),
                                 iconSize: 20,
                                 color: Colors.purple,
-                                onPressed: _isInputHasText ? _handleSendMessage : null,
+                                onPressed:
+                                    _isInputHasText ? _handleSendMessage : null,
                                 tooltip: 'Send message',
                               ),
                             ],
@@ -623,7 +648,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 10),
+                      padding: const EdgeInsets.only(
+                        top: 4,
+                        bottom: 4,
+                        left: 8,
+                        right: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.purple.shade50,
                         borderRadius: BorderRadius.circular(16),
@@ -634,7 +664,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(width: 2),
                           const Text(
                             "50",
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -651,10 +684,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           const Text(
                             "Upgrade",
-                            style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              color: Colors.purple,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(width: 4),
-                          Icon(Icons.rocket_launch, color: Colors.purple, size: 18),
+                          Icon(
+                            Icons.rocket_launch,
+                            color: Colors.purple,
+                            size: 18,
+                          ),
                         ],
                       ),
                     ),

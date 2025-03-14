@@ -186,6 +186,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                     child: OutlinedButton.icon(
                       onPressed: () {
                         /// Handle adding knowledge source
+                        Navigator.pushNamed(context, '/source');
                       },
                       icon: Icon(Icons.add, color: Colors.purple.shade700),
                       label: const Text('Add knowledge source'),

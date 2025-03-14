@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/bot/create_knowledge_dialog.dart';
-import '../widgets/bot/unit_table.dart';
+import '../../widgets/knowledge/create_knowledge_dialog.dart';
+import '../../widgets/knowledge/unit_table.dart';
 
 class UnitScreen extends StatefulWidget {
   const UnitScreen({super.key});

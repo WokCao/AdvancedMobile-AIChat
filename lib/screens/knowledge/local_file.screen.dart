@@ -1,7 +1,8 @@
-import 'package:ai_chat/widgets/bot/file_item.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:dotted_border/dotted_border.dart';
+
+import '../../widgets/knowledge/file_item.dart';
 
 class LocalFileScreen extends StatefulWidget {
   const LocalFileScreen({super.key});

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../screens/home_screen.dart';
+
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
 
@@ -111,6 +113,7 @@ class _WelcomeState extends State<Welcome> {
               TextButton(
                 onPressed: () {
                   /// Handle view all prompts
+                  Navigator.pushNamed(context, '/prompts');
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.purple,
@@ -130,6 +133,12 @@ class _WelcomeState extends State<Welcome> {
             title: prompt,
             onTap: () {
               /// Handle selecting prompt
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(showUsePrompt: true),
+                ),
+              );
             },
             compact: true,
           )),

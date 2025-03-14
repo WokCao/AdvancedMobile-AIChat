@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:ai_chat/widgets/bot/remove_knowledge.dart';
+import 'package:ai_chat/widgets/knowledge/remove_knowledge.dart';
 import 'package:flutter/material.dart';
 
 class MyDataWithActions extends DataTableSource {
