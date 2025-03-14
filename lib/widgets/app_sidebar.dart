@@ -185,7 +185,9 @@ class AppSidebar extends StatelessWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.logout),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, '/');
+                          },
                           tooltip: 'Logout',
                         ),
                       ],

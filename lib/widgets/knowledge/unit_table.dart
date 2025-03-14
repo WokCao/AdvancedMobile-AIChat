@@ -66,14 +66,17 @@ class MyUnitDataWithActions extends DataTableSource {
         DataCell(
           SizedBox(
             width: 120,
-            child: Switch(
-              hoverColor: Colors.transparent,
-              activeColor: Colors.green,
-              value: _switchValues[index],
-              onChanged: (bool newValue) {
-                _switchValues[index] = newValue;
-                notifyListeners();
-              },
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Switch(
+                hoverColor: Colors.transparent,
+                activeColor: Colors.green,
+                value: _switchValues[index],
+                onChanged: (bool newValue) {
+                  _switchValues[index] = newValue;
+                  notifyListeners();
+                },
+              ),
             ),
           ),
         ),

@@ -21,127 +21,132 @@ class _WelcomeState extends State<Welcome> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Greetings
-          Text(
-            '👋',
-            style: TextStyle(fontSize: 32),
-          ),
-          SizedBox(width: 8),
-          Text(
-            'Hi, good afternoon!',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "I'm ChatGEM, your personal assistant.",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Pro Version Banner
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.purple.shade50,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Expanded(
+            child: ListView(
               children: [
-                const Text(
-                  'Upgrade to the Pro version for unlimited access with a 1-month free trial!',
+                Text(
+                  '👋',
+                  style: TextStyle(fontSize: 32),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  'Hi, good afternoon!',
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 16),
-                Center(
-                  child: MouseRegion(
-                    onEnter: (_) => setState(() => _isTrialFocused = true),
-                    onExit: (_) => setState(() => _isTrialFocused = false),
-                    child: Container(
-                      margin: const EdgeInsets.only(left: 16.0),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            _isTrialFocused
-                                ? Colors.pink.shade400
-                                : Colors.pink.shade300,
-                            _isTrialFocused
-                                ? Colors.purple.shade400
-                                : Colors.purple.shade300,
-                          ], // Gradient colors
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
+                const SizedBox(height: 8),
+                Text(
+                  "I'm ChatGEM, your personal assistant.",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Pro Version Banner
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Upgrade to the Pro version for unlimited access with a 1-month free trial!',
+                        style: TextStyle(
+                          fontSize: 15,
                         ),
-                        borderRadius: BorderRadius.circular(24),
                       ),
-                      child: InkWell(
-                        onTap: () {
-                          // Handle upgrade
-                        },
-                        child: const Text('Start Free Trial', style: TextStyle(color: Colors.white)),
-                      )
-                    ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: MouseRegion(
+                          onEnter: (_) => setState(() => _isTrialFocused = true),
+                          onExit: (_) => setState(() => _isTrialFocused = false),
+                          child: Container(
+                              margin: const EdgeInsets.only(left: 16.0),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    _isTrialFocused
+                                        ? Colors.pink.shade400
+                                        : Colors.pink.shade300,
+                                    _isTrialFocused
+                                        ? Colors.purple.shade400
+                                        : Colors.purple.shade300,
+                                  ], // Gradient colors
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  // Handle upgrade
+                                },
+                                child: const Text('Start Free Trial', style: TextStyle(color: Colors.white)),
+                              )
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const Spacer(),
+                // Prompts Section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Don't know what to say? Use a prompt!",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        /// Handle view all prompts
+                        Navigator.pushNamed(context, '/prompts');
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.purple,
+                      ),
+                      child: const Text('View all'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+
+                // Prompt Suggestions
+                ...[
+                  'Grammar corrector',
+                  'Learn Code FAST!',
+                  'Story generator',
+                ].map((prompt) => _buildSectionWithArrow(
+                  title: prompt,
+                  onTap: () {
+                    /// Handle selecting prompt
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomeScreen(showUsePrompt: true),
+                      ),
+                    );
+                  },
+                  compact: true,
+                )),
               ],
             ),
-          ),
-          const Spacer(),
-
-          // Prompts Section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Don't know what to say? Use a prompt!",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  /// Handle view all prompts
-                  Navigator.pushNamed(context, '/prompts');
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.purple,
-                ),
-                child: const Text('View all'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Prompt Suggestions
-          ...[
-            'Grammar corrector',
-            'Learn Code FAST!',
-            'Story generator',
-          ].map((prompt) => _buildSectionWithArrow(
-            title: prompt,
-            onTap: () {
-              /// Handle selecting prompt
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen(showUsePrompt: true),
-                ),
-              );
-            },
-            compact: true,
-          )),
+          )
         ],
       ),
     );
