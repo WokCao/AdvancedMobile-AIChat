@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isUsePromptVisible = false;
 
   final List<ChatMessage> _messages = [];
+  int _remainingTokens = 50;
 
   // AI Models data
   final List<Map<String, dynamic>> _modelData = [
@@ -98,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _textController.addListener(_handleTextChange);
 
     _apiService = ApiService(
-      authToken: "YOUR_RUNTIME_AUTH_TOKEN_HERE",
+      authToken: "eyJhbGciOiJFUzI1NiIsImtpZCI6IjNjbFlkbURkLVFrbSJ9.eyJzdWIiOiI0YWY2M2ZhYy01ODc3LTQ5NzctODcyNy02NTI3ZWZmYjljNzAiLCJicmFuY2hJZCI6Im1haW4iLCJpc3MiOiJodHRwczovL2FjY2Vzcy10b2tlbi5qd3Qtc2lnbmF0dXJlLnN0YWNrLWF1dGguY29tIiwiaWF0IjoxNzQ0MDE5NDM1LCJhdWQiOiJhOTE0ZjA2Yi01ZTQ2LTQ5NjYtODY5My04MGU0YjlmNGY0MDkiLCJleHAiOjE3NDQwMjAwMzV9.7hgLOOmJFbfYncED-i2B-dO3fhmJixsRHgEWUl8FLcfBcf0PVbwdUSyIS9qUqMmfkPMrqzkRqghzTj8h7j8keQ",
     );
 
     if (widget.showUsePrompt != null) {
@@ -251,7 +252,13 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollToBottom();
 
     final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model ID
-    final reply = await _apiService.sendMessage(content: text, modelId: modelId);
+    final result = await _apiService.sendMessage(
+      content: text,
+      modelId: modelId,
+    );
+
+    final reply = result['message'];
+    final remaining = result['remainingUsage'];
 
     setState(() {
       _messages.add(ChatMessage(
@@ -263,6 +270,8 @@ class _HomeScreenState extends State<HomeScreen> {
         iconColor: _currentModel['iconColor'],
       ));
     });
+
+    _remainingTokens = remaining ?? _remainingTokens;
 
     _scrollToBottom();
   }
@@ -328,10 +337,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: _messages.length,
                       itemBuilder: (context, index) {
                         final message = _messages[index];
+                        // Adds a gap below each item
                         return Padding(
                           padding: const EdgeInsets.only(
-                            bottom: 16,
-                          ), // Adds a gap below each item
+                            bottom: 10,
+                          ),
                           child: ChatMessageWidget(
                             message: message,
                             onEditMessage: _handleEditMessage,
@@ -595,13 +605,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Icon(Icons.diamond, color: Colors.purple, size: 16),
                           const SizedBox(width: 2),
-                          const Text(
-                            "50",
+                          Text(
+                            "$_remainingTokens",
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ),

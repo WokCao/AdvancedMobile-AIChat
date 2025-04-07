@@ -17,7 +17,7 @@ class ApiService {
 
   String? _conversationId;
 
-  Future<String> sendMessage({
+  Future<Map<String, dynamic>> sendMessage({
     required String content,
     required String modelId
   }) async {
@@ -42,14 +42,17 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = response.data;
         _conversationId = data['conversationId'];
-        return data['message'];
+        return {
+          'message': data['message'],
+          'remainingUsage': response.data['remainingUsage'] ?? 0,
+        };
       } else {
-        return 'Unexpected error: ${response.statusCode}';
+        throw Exception("Unexpected status: ${response.statusCode}");
       }
     } on DioException catch (e) {
-      return 'Dio error: ${e.response?.data ?? e.message}';
+      throw Exception("Dio error: ${e.response?.data ?? e.message}");
     } catch (e) {
-      return 'General error: $e';
+      throw Exception("General error: $e");
     }
   }
 
