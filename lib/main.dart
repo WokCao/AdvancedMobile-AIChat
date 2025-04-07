@@ -1,3 +1,4 @@
+import 'package:ai_chat/providers/auth_provider.dart';
 import 'package:ai_chat/screens/auth/register_screen.dart';
 import 'package:ai_chat/screens/auth/login_screen.dart';
 import 'package:ai_chat/screens/bot_playground_screen.dart';
@@ -10,10 +11,18 @@ import 'package:ai_chat/screens/knowledge/unit_screen.dart';
 import 'package:ai_chat/screens/knowledge/website_screen.dart';
 import 'package:ai_chat/screens/prompt_sample_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

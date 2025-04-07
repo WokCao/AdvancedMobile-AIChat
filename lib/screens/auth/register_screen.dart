@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/auth_service.dart';
 import '../../widgets/auth/auth_button.dart';
 import '../../widgets/auth/auth_header.dart';
 import '../../widgets/auth/custom_text_field.dart';
@@ -21,11 +24,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _acceptTerms = false;
+  bool _isLoading = false;
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate() && _acceptTerms) {
       // Handle registration
-      Navigator.pushNamed(context, '/home');
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      final success = await authProvider.signUp(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (success) {
+        Navigator.pushNamed(context, '/home');
+      } else {
+        // Show error returned from the server
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(authProvider.error ?? 'Signup failed. Please try again')),
+        );
+      }
     } else if (!_acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please accept the terms and conditions')),
@@ -68,21 +94,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Name field
-                        CustomTextField(
-                          controller: _nameController,
-                          labelText: 'Full Name',
-                          hintText: 'Enter your full name',
-                          prefixIcon: Icons.person_outline,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your name';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-
                         // Email field
                         CustomTextField(
                           controller: _emailController,
@@ -122,9 +133,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a password';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
                             }
                             return null;
                           },
@@ -203,8 +211,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                         // Register button
                         AuthButton(
-                          text: 'Sign Up',
+                          text: _isLoading ? 'Creating account...' : 'Sign Up',
                           onPressed: _submitForm,
+                          isLoading: _isLoading,
                         ),
                       ],
                     ),
