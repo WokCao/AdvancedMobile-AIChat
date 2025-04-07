@@ -74,4 +74,39 @@ class AuthService {
       };
     }
   }
+
+  Future<Map<String, dynamic>> logout(String token, String refreshToken) async {
+    try {
+      await _dio.delete(
+        "/api/v1/auth/sessions/current",
+        data: {},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'X-Stack-Refresh-Token': refreshToken,
+          }
+        )
+      );
+
+      return {
+        "success": true
+      };
+
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data['error'] ??
+          e.response?.data['message'] ??
+          "Something went wrong";
+      return {
+        "success": false,
+        "error": errorMessage,
+        "code": e.response?.data['code'],
+        "statusCode": e.response?.statusCode,
+      };
+    } catch (e) {
+      return {
+        "success": false,
+        "error": "Unexpected error: $e",
+      };
+    }
+  }
 }
