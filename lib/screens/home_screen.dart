@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isUsePromptVisible = false;
 
   final List<ChatMessage> _messages = [];
-  int _remainingTokens = 50;
+  int _remainingTokens = -1;
 
   // AI Models data
   final List<Map<String, dynamic>> _modelData = [
@@ -104,6 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Scroll to bottom after initial render
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
+      _loadTokenCount();
     });
   }
 
@@ -315,6 +316,17 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _isUsePromptVisible = false;
     });
+  }
+
+  Future<void> _loadTokenCount() async {
+    final apiService = getApiService(context);
+    final tokens = await apiService.getAvailableTokens();
+
+    if (tokens != null) {
+      setState(() {
+        _remainingTokens = tokens;
+      });
+    }
   }
 
   @override
@@ -619,17 +631,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
-                        children: [
-                          Icon(Icons.diamond, color: Colors.purple, size: 16),
-                          const SizedBox(width: 2),
-                          Text(
-                            "$_remainingTokens",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        ],
+                        children: _remainingTokens == -1
+                            ? [
+                                SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              ]
+                            : [
+                                Icon(Icons.diamond, color: Colors.purple, size: 16),
+                                const SizedBox(width: 2),
+                                Text(
+                                  "$_remainingTokens",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              ],
                       ),
                     ),
 

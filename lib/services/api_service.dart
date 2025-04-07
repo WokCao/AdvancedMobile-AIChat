@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 class ApiService {
   final Dio _dio;
@@ -77,6 +78,20 @@ class ApiService {
         return items;
       } else {
         throw Exception("Unexpected status: ${response.statusCode}");
+      }
+    } on DioException catch (e) {
+      throw Exception("Dio error: ${e.response?.data ?? e.message}");
+    }
+  }
+
+  Future<int?> getAvailableTokens() async {
+    try {
+      final response = await _dio.get('/api/v1/tokens/usage');
+
+      if (response.statusCode == 200) {
+        return response.data['availableTokens'];
+      } else {
+        throw Exception('Failed to fetch token usage');
       }
     } on DioException catch (e) {
       throw Exception("Dio error: ${e.response?.data ?? e.message}");
