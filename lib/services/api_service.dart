@@ -9,7 +9,7 @@ class ApiService {
       baseUrl: 'https://api.dev.jarvis.cx',
       headers: {
         'Content-Type': 'application/json',
-        if (authToken.isNotEmpty) 'Authorization': 'Bearer $authToken',
+        'Authorization': 'Bearer $authToken',
         'x-jarvis-guid': '361331f8-fc9b-4dfe-a3f7-6d9a1e8b289b',
       },
     ),
@@ -50,6 +50,33 @@ class ApiService {
       return 'Dio error: ${e.response?.data ?? e.message}';
     } catch (e) {
       return 'General error: $e';
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getConversations({
+    required String modelId,
+    String? cursor,
+    int limit = 100,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/ai-chat/conversations',
+        queryParameters: {
+          'cursor': cursor,
+          'limit': limit,
+          'assistantId': modelId,
+          'assistantModel': 'dify',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final items = List<Map<String, dynamic>>.from(response.data['items'] ?? []);
+        return items;
+      } else {
+        throw Exception("Unexpected status: ${response.statusCode}");
+      }
+    } on DioException catch (e) {
+      throw Exception("Dio error: ${e.response?.data ?? e.message}");
     }
   }
 }
