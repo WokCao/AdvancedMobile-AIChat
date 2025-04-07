@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import '../utils/get_api_utils.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/bot/create_bot_dialog.dart';
 import '../widgets/chat_message.dart';
@@ -90,17 +90,12 @@ class _HomeScreenState extends State<HomeScreen> {
   late String _selectedModel;
   final GlobalKey _modelSelectorKey = GlobalKey();
   final GlobalKey _promptSelectorKey = GlobalKey();
-  late final ApiService _apiService;
 
   @override
   void initState() {
     super.initState();
     _selectedModel = _modelData[0]['name'];
     _textController.addListener(_handleTextChange);
-
-    _apiService = ApiService(
-      authToken: "eyJhbGciOiJFUzI1NiIsImtpZCI6IjNjbFlkbURkLVFrbSJ9.eyJzdWIiOiI0YWY2M2ZhYy01ODc3LTQ5NzctODcyNy02NTI3ZWZmYjljNzAiLCJicmFuY2hJZCI6Im1haW4iLCJpc3MiOiJodHRwczovL2FjY2Vzcy10b2tlbi5qd3Qtc2lnbmF0dXJlLnN0YWNrLWF1dGguY29tIiwiaWF0IjoxNzQ0MDE5NDM1LCJhdWQiOiJhOTE0ZjA2Yi01ZTQ2LTQ5NjYtODY5My04MGU0YjlmNGY0MDkiLCJleHAiOjE3NDQwMjAwMzV9.7hgLOOmJFbfYncED-i2B-dO3fhmJixsRHgEWUl8FLcfBcf0PVbwdUSyIS9qUqMmfkPMrqzkRqghzTj8h7j8keQ",
-    );
 
     if (widget.showUsePrompt != null) {
       _isUsePromptVisible = widget.showUsePrompt!;
@@ -251,27 +246,49 @@ class _HomeScreenState extends State<HomeScreen> {
     // Scroll to bottom
     _scrollToBottom();
 
-    final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model ID
-    final result = await _apiService.sendMessage(
-      content: text,
-      modelId: modelId,
-    );
-
-    final reply = result['message'];
-    final remaining = result['remainingUsage'];
-
-    setState(() {
-      _messages.add(ChatMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        message: reply,
+    // Bot message template
+    ChatMessage botMessage(String id, String message) {
+      return ChatMessage(
+        id: id,
+        message: message,
         type: MessageType.ai,
         senderName: _currentModel['name'],
         senderIcon: _currentModel['icon'],
         iconColor: _currentModel['iconColor'],
-      ));
+      );
+    }
+
+    // Show temporary loading message
+    const loadingMessageId = 'loading';
+    setState(() {
+      _messages.add(botMessage(loadingMessageId, 'Typing...'));
     });
 
-    _remainingTokens = remaining ?? _remainingTokens;
+    try {
+      final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model
+      
+      final apiService = getApiService(context);
+      final result = await apiService.sendMessage(
+        content: text,
+        modelId: modelId,
+      );
+      
+      final reply = result['message'];
+      final remaining = result['remainingUsage'];
+      
+      setState(() {
+        // Remove loading message
+        _messages.removeWhere((msg) => msg.id == loadingMessageId);
+        _messages.add(botMessage(DateTime.now().millisecondsSinceEpoch.toString(), reply));
+      });
+      
+      _remainingTokens = remaining ?? _remainingTokens;
+    } on Exception catch (e) {
+      setState(() {
+        _messages.removeWhere((msg) => msg.id == loadingMessageId);
+        _messages.add(botMessage(DateTime.now().millisecondsSinceEpoch.toString(), '⚠️ Failed to get response: $e'));
+      });
+    }
 
     _scrollToBottom();
   }

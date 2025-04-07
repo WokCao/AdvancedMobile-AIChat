@@ -1,8 +1,7 @@
 import 'package:ai_chat/widgets/history/chat_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-import '../services/api_service.dart';
+import '../utils/get_api_utils.dart';
 import '../utils/time_utils.dart';
 
 class ChatHistoryScreen extends StatefulWidget {
@@ -24,7 +23,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
 
   Future<void> _fetchChatHistory() async {
     try {
-      final apiService = ApiService(authToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6IjNjbFlkbURkLVFrbSJ9.eyJzdWIiOiI0YWY2M2ZhYy01ODc3LTQ5NzctODcyNy02NTI3ZWZmYjljNzAiLCJicmFuY2hJZCI6Im1haW4iLCJpc3MiOiJodHRwczovL2FjY2Vzcy10b2tlbi5qd3Qtc2lnbmF0dXJlLnN0YWNrLWF1dGguY29tIiwiaWF0IjoxNzQ0MDE4NjMzLCJhdWQiOiJhOTE0ZjA2Yi01ZTQ2LTQ5NjYtODY5My04MGU0YjlmNGY0MDkiLCJleHAiOjE3NDQwMTkyMzN9.xJVCxNmpR9mxllfe1XfsUImrfeTn0RizIoNYoW2zpQz9afgfVYAHZ9oNhamV3MEQ3YLXYPBhwvWzmbZ8LkW_Mw');
+      final apiService = getApiService(context);
       final conversations = await apiService.getConversations(
         modelId: 'gpt-4o-mini', // or any valid model
       );
