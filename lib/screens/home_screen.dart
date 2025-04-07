@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/bot/create_bot_dialog.dart';
 import '../widgets/chat_message.dart';
@@ -25,82 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isUsePromptVisible = false;
 
-  // Mock messages
-  // final List<ChatMessage> _messages = [
-  //   ChatMessage(
-  //     id: '1',
-  //     message: 'Hello! How can I help you today?',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  //   ChatMessage(
-  //     id: '2',
-  //     message: 'I need help with a Flutter project. I\'m trying to create a chat interface.',
-  //     type: MessageType.user,
-  //   ),
-  //   ChatMessage(
-  //     id: '3',
-  //     message: 'I\'d be happy to help with your Flutter chat interface! What specific aspects are you working on? Are you looking for help with the UI design, state management, or integrating with a backend service?',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  //   ChatMessage(
-  //     id: '4',
-  //     message: 'Mainly the UI design. I want to create message bubbles that look good for both the user and AI responses.',
-  //     type: MessageType.user,
-  //   ),
-  //   ChatMessage(
-  //     id: '5',
-  //     message: 'For a chat UI in Flutter, you\'ll want to create a message bubble widget that can be styled differently based on whether it\'s a user or AI message. Here are some key components to consider:\n\n1. Different background colors for user vs AI messages\n2. Different alignment (user messages on right, AI on left)\n3. Avatars for each participant\n4. Timestamps\n5. Support for different content types (text, images, etc.)',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  //   ChatMessage(
-  //     id: '6',
-  //     message: 'That\'s helpful! Do you have any example code I could use as a starting point?',
-  //     type: MessageType.user,
-  //   ),
-  //   ChatMessage(
-  //     id: '7',
-  //     message: 'Here\'s a simple example of a chat message widget in Flutter:\n\n```dart\nclass ChatBubble extends StatelessWidget {\n  final bool isUser;\n  final String message;\n  \n  const ChatBubble({\n    required this.isUser,\n    required this.message,\n  });\n  \n  @override\n  Widget build(BuildContext context) {\n    return Align(\n      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,\n      child: Container(\n        margin: EdgeInsets.symmetric(vertical: 8),\n        padding: EdgeInsets.all(12),\n        decoration: BoxDecoration(\n          color: isUser ? Colors.blue : Colors.grey[200],\n          borderRadius: BorderRadius.circular(12),\n        ),\n        child: Text(\n          message,\n          style: TextStyle(\n            color: isUser ? Colors.white : Colors.black,\n          ),\n        ),\n      ),\n    );\n  }\n}```\n\nYou can expand on this basic example to add avatars, timestamps, and other features.',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  //   ChatMessage(
-  //     id: '8',
-  //     message: 'Perfect! I\'ll use this as a starting point and customize it for my needs.',
-  //     type: MessageType.user,
-  //   ),
-  //   ChatMessage(
-  //     id: '9',
-  //     message: 'Glad I could help! If you need any further assistance with your Flutter chat UI, feel free to ask. Good luck with your project!',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  //   ChatMessage(
-  //     id: '10',
-  //     message: 'One more question - what\'s the best way to handle scrolling in the chat list?',
-  //     type: MessageType.user,
-  //   ),
-  //   ChatMessage(
-  //     id: '11',
-  //     message: 'For handling scrolling in a chat list, you\'ll want to use a ListView.builder with a ScrollController. Here are some best practices:\n\n1. Auto-scroll to the bottom when new messages arrive\n2. Allow the user to scroll up to view history\n3. Show a "scroll to bottom" button when the user has scrolled up and new messages arrive\n\nHere\'s how you can implement auto-scrolling to the bottom:\n\n```dart\n// In your state class\nfinal ScrollController _scrollController = ScrollController();\n\n// After adding a new message\nvoid _scrollToBottom() {\n  WidgetsBinding.instance.addPostFrameCallback((_) {\n    if (_scrollController.hasClients) {\n      _scrollController.animateTo(\n        _scrollController.position.maxScrollExtent,\n        duration: Duration(milliseconds: 300),\n        curve: Curves.easeOut,\n      );\n    }\n  });\n}\n```\n\nCall `_scrollToBottom()` whenever a new message is added to the chat.',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  // ];
   final List<ChatMessage> _messages = [];
+  int _remainingTokens = 50;
 
   // AI Models data
   final List<Map<String, dynamic>> _modelData = [
     {
       'name': 'GPT-4o mini',
+      'apiId': 'gpt-4o-mini',
       'icon': Icons.auto_awesome,
       'iconColor': Colors.blue,
       'description':
@@ -109,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'name': 'GPT-4o',
+      'apiId': 'gpt-4o',
       'icon': Icons.auto_awesome_outlined,
       'iconColor': Colors.purple,
       'description':
@@ -117,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'name': 'Gemini 1.5 Flash',
+      'apiId': 'gemini-1.5-flash-latest',
       'icon': Icons.flash_on,
       'iconColor': Colors.amber,
       'description':
@@ -125,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'name': 'Gemini 1.5 Pro',
+      'apiId': 'gemini-1.5-pro-latest',
       'icon': Icons.workspace_premium,
       'iconColor': Colors.black,
       'description':
@@ -133,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'name': 'Claude 3 Haiku',
+      'apiId': 'claude-3-haiku-20240307',
       'icon': Icons.psychology,
       'iconColor': Colors.orange,
       'description':
@@ -141,31 +78,29 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'name': 'Claude 3 Sonnet',
+      'apiId': 'claude-3-sonnet-20240229',
       'icon': Icons.psychology_outlined,
       'iconColor': Colors.brown,
       'description':
           "Anthropic's most intelligent model to date between intelligence and speed, ideal for a wide range of tasks.",
       'tokenCount': 'Cost 3 Tokens',
     },
-    {
-      'name': 'Deepseek Chat',
-      'icon': Icons.chat_bubble_outline,
-      'iconColor': Colors.blue,
-      'description':
-          "Deepseek's model, address tasks requiring logical inference, mathematical problem-solving, and real-time decision-making.",
-      'tokenCount': 'Cost 1 Token',
-    },
   ];
 
   late String _selectedModel;
   final GlobalKey _modelSelectorKey = GlobalKey();
   final GlobalKey _promptSelectorKey = GlobalKey();
+  late final ApiService _apiService;
 
   @override
   void initState() {
     super.initState();
     _selectedModel = _modelData[0]['name'];
     _textController.addListener(_handleTextChange);
+
+    _apiService = ApiService(
+      authToken: "eyJhbGciOiJFUzI1NiIsImtpZCI6IjNjbFlkbURkLVFrbSJ9.eyJzdWIiOiI0YWY2M2ZhYy01ODc3LTQ5NzctODcyNy02NTI3ZWZmYjljNzAiLCJicmFuY2hJZCI6Im1haW4iLCJpc3MiOiJodHRwczovL2FjY2Vzcy10b2tlbi5qd3Qtc2lnbmF0dXJlLnN0YWNrLWF1dGguY29tIiwiaWF0IjoxNzQ0MDE5NDM1LCJhdWQiOiJhOTE0ZjA2Yi01ZTQ2LTQ5NjYtODY5My04MGU0YjlmNGY0MDkiLCJleHAiOjE3NDQwMjAwMzV9.7hgLOOmJFbfYncED-i2B-dO3fhmJixsRHgEWUl8FLcfBcf0PVbwdUSyIS9qUqMmfkPMrqzkRqghzTj8h7j8keQ",
+    );
 
     if (widget.showUsePrompt != null) {
       _isUsePromptVisible = widget.showUsePrompt!;
@@ -232,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
       title: 'Base AI Models',
       offset: Offset(
         offset.dx + 16,
-        offset.dy - 370,
+        offset.dy - 320,
       ), // Position above the button
     );
   }
@@ -295,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _handleSendMessage() {
+  Future<void> _handleSendMessage() async {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
 
@@ -316,22 +251,29 @@ class _HomeScreenState extends State<HomeScreen> {
     // Scroll to bottom
     _scrollToBottom();
 
-    // Simulate AI response after a delay
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        _messages.add(
-          ChatMessage(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            message: 'I received your message: "$text"',
-            type: MessageType.ai,
-            senderName: _currentModel['name'],
-          ),
-        );
-      });
+    final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model ID
+    final result = await _apiService.sendMessage(
+      content: text,
+      modelId: modelId,
+    );
 
-      // Scroll to bottom again
-      _scrollToBottom();
+    final reply = result['message'];
+    final remaining = result['remainingUsage'];
+
+    setState(() {
+      _messages.add(ChatMessage(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        message: reply,
+        type: MessageType.ai,
+        senderName: _currentModel['name'],
+        senderIcon: _currentModel['icon'],
+        iconColor: _currentModel['iconColor'],
+      ));
     });
+
+    _remainingTokens = remaining ?? _remainingTokens;
+
+    _scrollToBottom();
   }
 
   void _handleEditMessage(String id, String newMessage) {
@@ -387,25 +329,26 @@ class _HomeScreenState extends State<HomeScreen> {
               // Chat messages
               Expanded(
                 child:
-                    _messages.isEmpty
-                        ? Welcome()
-                        : ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.only(top: 16, bottom: 16),
-                          itemCount: _messages.length,
-                          itemBuilder: (context, index) {
-                            final message = _messages[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: 16,
-                              ), // Adds a gap below each item
-                              child: ChatMessageWidget(
-                                message: message,
-                                onEditMessage: _handleEditMessage,
-                              ),
-                            );
-                          },
-                        ),
+                  _messages.isEmpty
+                    ? Welcome()
+                    : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.only(top: 16, bottom: 16),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final message = _messages[index];
+                        // Adds a gap below each item
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: 10,
+                          ),
+                          child: ChatMessageWidget(
+                            message: message,
+                            onEditMessage: _handleEditMessage,
+                          ),
+                        );
+                      },
+                    ),
               ),
 
               // Above input
@@ -662,13 +605,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Icon(Icons.diamond, color: Colors.purple, size: 16),
                           const SizedBox(width: 2),
-                          const Text(
-                            "50",
+                          Text(
+                            "$_remainingTokens",
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ),

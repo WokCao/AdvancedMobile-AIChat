@@ -1,20 +1,45 @@
 import 'package:ai_chat/widgets/history/chat_item.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class ChatHistoryScreen extends StatelessWidget {
+import '../services/api_service.dart';
+import '../utils/time_utils.dart';
+
+class ChatHistoryScreen extends StatefulWidget {
   const ChatHistoryScreen({super.key});
 
-  static const List<ChatItem> chatItems = [
-    ChatItem(content: "Xin chao tat ca cac ban", time: "3 days ago", isCurrent: true),
-    ChatItem(content: "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện của tất cả các màn hình trong để tài + navigation/routing. Nhóm sinh viên tạo branch mock-ui và code trên branch này.", time: "3 days ago"),
-    ChatItem(content: "Xây dựng mock-ui cho toàn bộ các màn hình trong đô án cuối kì, phần mock-ui bao gồm giao diện của tất cả các màn hình trong để tài + navigation/routing. Nhóm sinh viên tạo branch mock-ui và code trên branch này.", time: "3 days ago"),
-    ChatItem(content: "Xin chao tat ca cac ban", time: "3 days ago"),
-    ChatItem(content: "Xin chao tat ca cac ban", time: "3 days ago"),
-    ChatItem(content: "Xin chao tat ca cac ban", time: "3 days ago"),
-    ChatItem(content: "Xin chao tat ca cac ban", time: "3 days ago"),
-    ChatItem(content: "Xin chao tat ca cac ban", time: "3 days ago"),
-    ChatItem(content: "Xin chao tat ca cac ban", time: "3 days ago"),
-  ];
+  @override
+  State<ChatHistoryScreen> createState() => _ChatHistoryScreenState();
+}
+
+class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
+  List<Map<String, dynamic>> _chatItems = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchChatHistory();
+  }
+
+  Future<void> _fetchChatHistory() async {
+    try {
+      final apiService = ApiService(authToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6IjNjbFlkbURkLVFrbSJ9.eyJzdWIiOiI0YWY2M2ZhYy01ODc3LTQ5NzctODcyNy02NTI3ZWZmYjljNzAiLCJicmFuY2hJZCI6Im1haW4iLCJpc3MiOiJodHRwczovL2FjY2Vzcy10b2tlbi5qd3Qtc2lnbmF0dXJlLnN0YWNrLWF1dGguY29tIiwiaWF0IjoxNzQ0MDE4NjMzLCJhdWQiOiJhOTE0ZjA2Yi01ZTQ2LTQ5NjYtODY5My04MGU0YjlmNGY0MDkiLCJleHAiOjE3NDQwMTkyMzN9.xJVCxNmpR9mxllfe1XfsUImrfeTn0RizIoNYoW2zpQz9afgfVYAHZ9oNhamV3MEQ3YLXYPBhwvWzmbZ8LkW_Mw');
+      final conversations = await apiService.getConversations(
+        modelId: 'gpt-4o-mini', // or any valid model
+      );
+
+      setState(() {
+        _chatItems = conversations;
+        _loading = false;
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print("Failed to load history: $e");
+      }
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,21 +80,27 @@ class ChatHistoryScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 20),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: chatItems.length,
-                  separatorBuilder: (context, index) => Divider(
-                    color: Colors.grey.shade300,
-                    thickness: 1,
-                    height: 8,
-                    indent: 4,
-                    endIndent: 4,
-                  ),
-                  itemBuilder: (context, index) {
-                    return chatItems[index];
-                  },
-                ),
-              )
+              _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Expanded(
+                      child: ListView.separated(
+                        itemCount: _chatItems.length,
+                        separatorBuilder: (context, index) => Divider(
+                          color: Colors.grey.shade300,
+                          thickness: 1,
+                          height: 8,
+                          indent: 4,
+                          endIndent: 4,
+                        ),
+                        itemBuilder: (context, index) {
+                          final item = _chatItems[index];
+                          return ChatItem(
+                            content: item['title'] ?? 'Untitled',
+                            time: formatRelativeTime(item['createdAt']),
+                          );
+                        },
+                      ),
+                    )
             ],
           ),
         )
