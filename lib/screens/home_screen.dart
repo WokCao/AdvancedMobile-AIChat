@@ -89,13 +89,17 @@ class _HomeScreenState extends State<HomeScreen> {
   late String _selectedModel;
   final GlobalKey _modelSelectorKey = GlobalKey();
   final GlobalKey _promptSelectorKey = GlobalKey();
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService;
 
   @override
   void initState() {
     super.initState();
     _selectedModel = _modelData[0]['name'];
     _textController.addListener(_handleTextChange);
+
+    _apiService = ApiService(
+      authToken: "YOUR_RUNTIME_AUTH_TOKEN_HERE",
+    );
 
     if (widget.showUsePrompt != null) {
       _isUsePromptVisible = widget.showUsePrompt!;
@@ -247,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollToBottom();
 
     final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model ID
-    final reply = await _apiService.sendMessage(text, modelId);
+    final reply = await _apiService.sendMessage(content: text, modelId: modelId);
 
     setState(() {
       _messages.add(ChatMessage(
