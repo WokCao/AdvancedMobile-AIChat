@@ -101,6 +101,7 @@ class ApiService {
   Future<Map<String, dynamic>> getPublicPrompts({
     int offset = 0,
     int limit = 20,
+    String query = '',
   }) async {
     try {
       final response = await _dio.get(
@@ -109,6 +110,7 @@ class ApiService {
           'isPublic': true,
           'offset': offset,
           'limit': limit,
+          if (query.isNotEmpty) 'query': query,
         },
       );
 

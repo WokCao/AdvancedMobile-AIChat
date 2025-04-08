@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_chat/widgets/prompt/add_prompt.dart';
 import 'package:ai_chat/widgets/prompt/prompt_item.dart';
 import 'package:ai_chat/widgets/prompt/segmented_button.dart';
@@ -20,10 +22,13 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
   bool _isLoading = true;
 
   final ScrollController _scrollController = ScrollController();
-
   int _offset = 0;
   bool _hasNext = true;
   bool _isFetchingMore = false;
+
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -42,7 +47,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
 
   Future<void> _fetchPublicPrompts() async {
     final apiService = getApiService(context);
-    final data = await apiService.getPublicPrompts(offset: _offset);
+    final data = await apiService.getPublicPrompts(offset: _offset, query: _searchQuery);
 
     setState(() {
       _publicPrompts.addAll(List<Map<String, dynamic>>.from(data['items']));
@@ -66,6 +71,14 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
         return AddPrompt();
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -149,6 +162,19 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                 children: [
                   Expanded(
                     child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        if (_debounce?.isActive ?? false) _debounce!.cancel();
+                        _debounce = Timer(Duration(milliseconds: 500), () {
+                          setState(() {
+                            _searchQuery = value.trim();
+                            _offset = 0;
+                            _hasNext = true;
+                            _publicPrompts.clear();
+                          });
+                          _fetchPublicPrompts(); // 🔁 refresh with query
+                        });
+                      },
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.search_sharp),
                         hintText: "Search...",
@@ -204,14 +230,19 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                       ? (_isLoading
                         ? [Center(child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            child: Center(child: CircularProgressIndicator()),
+                            child: CircularProgressIndicator(),
                           ))]
-                          : _publicPrompts.map((p) {
-                              return PromptItem(
-                                name: p['title'] ?? 'Untitled',
-                                description: p['description'] ?? '',
-                              );
-                            }).toList()
+                          : (_publicPrompts.isEmpty
+                              ? [Center(child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  child: Text("No prompts found"),
+                                ))]
+                              : _publicPrompts.map((p) {
+                                  return PromptItem(
+                                    name: p['title'] ?? 'Untitled',
+                                    description: p['description'] ?? '',
+                                  );
+                                }).toList())
                       )
                       : List.generate(
                         2,
