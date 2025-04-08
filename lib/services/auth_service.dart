@@ -1,16 +1,15 @@
+import 'package:ai_chat/utils/auth_interceptor.dart';
 import 'package:dio/dio.dart';
+
+import '../main.dart';
 
 class AuthService {
   final Dio _dio = Dio(BaseOptions(baseUrl: "https://auth-api.dev.jarvis.cx"));
   final Dio _dioApi = Dio(BaseOptions(baseUrl: "https://api.dev.jarvis.cx"));
 
-  static const headers = {
-    'X-Stack-Access-Type': 'client',
-    'X-Stack-Project-Id': 'a914f06b-5e46-4966-8693-80e4b9f4f409',
-    'X-Stack-Publishable-Client-Key':
-        'pck_tqsy29b64a585km2g4wnpc57ypjprzzdch8xzpq0xhayr',
-    'Content-Type': 'application/json',
-  };
+  AuthService() {
+    _dioApi.interceptors.add(AuthInterceptor(_dioApi, navigatorKey));
+  }
 
   Future<Map<String, dynamic>> signUp(String email, String password) async {
     try {
@@ -65,14 +64,13 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> isLoggedIn(String token) async {
+  Future<Map<String, dynamic>> isLoggedIn() async {
     try {
       final response = await _dioApi.get(
         "/api/v1/auth/me",
         options: Options(
           headers: {
             'x-jarvis-guid': '361331f8-fc9b-4dfe-a3f7-6d9a1e8b289b',
-            'Authorization': 'Bearer $token',
           },
         ),
       );
@@ -83,7 +81,7 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> logout(String token, String refreshToken) async {
+  Future<Map<String, dynamic>> logout(String refreshToken) async {
     try {
       await _dio.delete(
         "/api/v1/auth/sessions/current",
@@ -91,7 +89,6 @@ class AuthService {
         options: Options(
           headers: {
             ...headers,
-            'Authorization': 'Bearer $token',
             'X-Stack-Refresh-Token': refreshToken,
           },
         ),
@@ -113,4 +110,12 @@ class AuthService {
       return {"success": false, "error": "Unexpected error: $e"};
     }
   }
+
+  static const headers = {
+    'X-Stack-Access-Type': 'client',
+    'X-Stack-Project-Id': 'a914f06b-5e46-4966-8693-80e4b9f4f409',
+    'X-Stack-Publishable-Client-Key':
+        'pck_tqsy29b64a585km2g4wnpc57ypjprzzdch8xzpq0xhayr',
+    'Content-Type': 'application/json',
+  };
 }

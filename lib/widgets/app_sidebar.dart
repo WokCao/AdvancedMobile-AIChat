@@ -202,7 +202,6 @@ class AppSidebar extends StatelessWidget {
                             }
 
                             final success = await authProvider.logout(
-                              user.accessToken,
                               user.refreshToken
                             );
 

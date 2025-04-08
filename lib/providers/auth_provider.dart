@@ -51,7 +51,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<bool> isLoggedIn(String token, String refreshToken) async {
-    final result = await _authService.isLoggedIn(token);
+    final result = await _authService.isLoggedIn();
     if (result['isLoggedIn']) {
       _user = UserModel(userId: result['id'], accessToken: token, refreshToken: refreshToken);
       _error = null;
@@ -65,8 +65,8 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> logout(String token, String refreshToken) async {
-    final result = await _authService.logout(token, refreshToken);
+  Future<bool> logout(String refreshToken) async {
+    final result = await _authService.logout(refreshToken);
     if (result['success']) {
       _user = null;
       _error = null;

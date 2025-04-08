@@ -47,6 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (user == null) {
           return;
         }
+
         await saveTokens(user.accessToken, user.refreshToken);
         Navigator.pushNamed(context, '/home');
       } else {

@@ -3,6 +3,8 @@ import 'package:ai_chat/screens/auth/route_guard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
@@ -22,6 +24,7 @@ class MyApp extends StatelessWidget {
       title: 'ChatGem AI',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.purple, useMaterial3: true),
+      navigatorKey: navigatorKey,
       onGenerateRoute: (settings) => RouteGuard.generateRoute(settings),
     );
   }
