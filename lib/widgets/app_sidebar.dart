@@ -1,3 +1,4 @@
+import 'package:ai_chat/utils/token_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -196,6 +197,7 @@ class AppSidebar extends StatelessWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('No user found')),
                               );
+                              Navigator.pushReplacementNamed(context, '/login');
                               return;
                             }
 
@@ -204,8 +206,10 @@ class AppSidebar extends StatelessWidget {
                               user.refreshToken
                             );
 
+                            await clearTokens();
+
                             if (success) {
-                              Navigator.pushReplacementNamed(context, '/');
+                              Navigator.pushReplacementNamed(context, '/login');
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(authProvider.error ?? 'Logout failed. Please try again')),

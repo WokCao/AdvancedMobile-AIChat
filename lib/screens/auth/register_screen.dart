@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/auth_service.dart';
+import '../../utils/token_storage.dart';
 import '../../widgets/auth/auth_button.dart';
 import '../../widgets/auth/auth_header.dart';
 import '../../widgets/auth/custom_text_field.dart';
@@ -45,11 +45,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
 
       if (success) {
+        final user = authProvider.user;
+        if (user == null) {
+          return;
+        }
+        await saveTokens(user.accessToken, user.refreshToken);
         Navigator.pushNamed(context, '/home');
       } else {
         // Show error returned from the server
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authProvider.error ?? 'Signup failed. Please try again')),
+          SnackBar(content: Text(authProvider.error ?? 'Signup failed. Please try again!')),
         );
       }
     } else if (!_acceptTerms) {

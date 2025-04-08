@@ -39,11 +39,27 @@ class AuthProvider with ChangeNotifier {
         accessToken: data['access_token'],
         refreshToken: data['refresh_token'],
       );
+
       _error = null;
       notifyListeners();
       return true;
     } else {
       _error = result['error'];
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> isLoggedIn(String token, String refreshToken) async {
+    final result = await _authService.isLoggedIn(token);
+    if (result['isLoggedIn']) {
+      _user = UserModel(userId: result['id'], accessToken: token, refreshToken: refreshToken);
+      _error = null;
+      notifyListeners();
+      return true;
+    } else {
+      _error = 'Invalid token';
+      _user = null;
       notifyListeners();
       return false;
     }

@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 
 class AuthService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: "https://auth-api.dev.jarvis.cx", headers: headers));
+  final Dio _dio = Dio(BaseOptions(baseUrl: "https://auth-api.dev.jarvis.cx"));
+  final Dio _dioApi = Dio(BaseOptions(baseUrl: "https://api.dev.jarvis.cx"));
 
   static const headers = {
     'X-Stack-Access-Type': 'client',
@@ -19,15 +20,14 @@ class AuthService {
           "email": email,
           "password": password,
           "verification_callback_url":
-          "https://auth.dev.jarvis.cx/handler/email-verification?after_auth_return_to=%2Fauth%2Fsignin%3Fclient_id%3Djarvis_chat%26redirect%3Dhttps%253A%252F%252Fchat.dev.jarvis.cx%252Fauth%252Foauth%252Fsuccess"
+              "https://auth.dev.jarvis.cx/handler/email-verification?after_auth_return_to=%2Fauth%2Fsignin%3Fclient_id%3Djarvis_chat%26redirect%3Dhttps%253A%252F%252Fchat.dev.jarvis.cx%252Fauth%252Foauth%252Fsuccess",
         },
+        options: Options(headers: headers),
       );
-      return {
-        "success": true,
-        "data": response.data,
-      };
+      return {"success": true, "data": response.data};
     } on DioException catch (e) {
-      final errorMessage = e.response?.data['error'] ??
+      final errorMessage =
+          e.response?.data['error'] ??
           e.response?.data['message'] ??
           "Something went wrong";
       return {
@@ -37,10 +37,7 @@ class AuthService {
         "statusCode": e.response?.statusCode,
       };
     } catch (e) {
-      return {
-        "success": false,
-        "error": "Unexpected error: $e",
-      };
+      return {"success": false, "error": "Unexpected error: $e"};
     }
   }
 
@@ -48,17 +45,13 @@ class AuthService {
     try {
       final response = await _dio.post(
         "/api/v1/auth/password/sign-in",
-        data: {
-          "email": email,
-          "password": password,
-        },
+        data: {"email": email, "password": password},
+        options: Options(headers: headers),
       );
-      return {
-        "success": true,
-        "data": response.data,
-      };
+      return {"success": true, "data": response.data};
     } on DioException catch (e) {
-      final errorMessage = e.response?.data['error'] ??
+      final errorMessage =
+          e.response?.data['error'] ??
           e.response?.data['message'] ??
           "Something went wrong";
       return {
@@ -68,10 +61,25 @@ class AuthService {
         "statusCode": e.response?.statusCode,
       };
     } catch (e) {
-      return {
-        "success": false,
-        "error": "Unexpected error: $e",
-      };
+      return {"success": false, "error": "Unexpected error: $e"};
+    }
+  }
+
+  Future<Map<String, dynamic>> isLoggedIn(String token) async {
+    try {
+      final response = await _dioApi.get(
+        "/api/v1/auth/me",
+        options: Options(
+          headers: {
+            'x-jarvis-guid': '361331f8-fc9b-4dfe-a3f7-6d9a1e8b289b',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      final data = response.data;
+      return {'isLoggedIn': true, 'id': data['id']};
+    } catch (e) {
+      return {'isLoggedIn': false};
     }
   }
 
@@ -82,18 +90,17 @@ class AuthService {
         data: {},
         options: Options(
           headers: {
+            ...headers,
             'Authorization': 'Bearer $token',
             'X-Stack-Refresh-Token': refreshToken,
-          }
-        )
+          },
+        ),
       );
 
-      return {
-        "success": true
-      };
-
+      return {"success": true};
     } on DioException catch (e) {
-      final errorMessage = e.response?.data['error'] ??
+      final errorMessage =
+          e.response?.data['error'] ??
           e.response?.data['message'] ??
           "Something went wrong";
       return {
@@ -103,10 +110,7 @@ class AuthService {
         "statusCode": e.response?.statusCode,
       };
     } catch (e) {
-      return {
-        "success": false,
-        "error": "Unexpected error: $e",
-      };
+      return {"success": false, "error": "Unexpected error: $e"};
     }
   }
 }
