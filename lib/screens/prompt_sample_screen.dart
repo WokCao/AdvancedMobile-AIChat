@@ -30,6 +30,12 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
   String _searchQuery = '';
   Timer? _debounce;
 
+  final List<String> _categories = [
+    "All", "Business", "Career", "Chatbot", "Coding", "Education", "Fun", "Marketing", "Productivity", "SEO", "Writing", "Other",
+  ];
+
+  String _selectedCategory = "All";
+
   @override
   void initState() {
     super.initState();
@@ -47,7 +53,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
 
   Future<void> _fetchPublicPrompts() async {
     final apiService = getApiService(context);
-    final data = await apiService.getPublicPrompts(offset: _offset, query: _searchQuery);
+    final data = await apiService.getPublicPrompts(offset: _offset, query: _searchQuery, category: _selectedCategory);
 
     setState(() {
       _publicPrompts.addAll(List<Map<String, dynamic>>.from(data['items']));
@@ -158,6 +164,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
               SizedBox(height: 20),
               SegmentedButtonWidget(promptCallback: _promptCallback),
               SizedBox(height: 20),
+              // Search
               Row(
                 children: [
                   Expanded(
@@ -170,6 +177,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                             _searchQuery = value.trim();
                             _offset = 0;
                             _hasNext = true;
+                            _isLoading = true;
                             _publicPrompts.clear();
                           });
                           _fetchPublicPrompts(); // 🔁 refresh with query
@@ -221,7 +229,45 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                     ),
                 ],
               ),
+              SizedBox(height: 14),
+              // Categories
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: _categories.map((category) {
+                  final isSelected = category == _selectedCategory;
+
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        _selectedCategory = category;
+                        _offset = 0;
+                        _hasNext = true;
+                        _isLoading = true;
+                        _publicPrompts.clear();
+                      });
+                      _fetchPublicPrompts(); // 🔁 refresh based on new category
+                      _scrollController.jumpTo(0);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.purple.shade200 : Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
               SizedBox(height: 10),
+              // Prompts
               Expanded(
                 child: ListView(
                   controller: _scrollController,

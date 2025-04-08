@@ -102,6 +102,7 @@ class ApiService {
     int offset = 0,
     int limit = 20,
     String query = '',
+    String category = 'All',
   }) async {
     try {
       final response = await _dio.get(
@@ -111,6 +112,7 @@ class ApiService {
           'offset': offset,
           'limit': limit,
           if (query.isNotEmpty) 'query': query,
+          if (category != 'All') 'category': category.toLowerCase(),
         },
       );
 

@@ -18,16 +18,27 @@ class _SegmentedButtonWidget extends State<SegmentedButtonWidget> {
     return SegmentedButton<Prompt>(
       showSelectedIcon: false,
       style: ButtonStyle(
+        iconColor: WidgetStateProperty.resolveWith<Color?>(
+              (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)){
+              return Colors.white;
+            }
+            return Colors.black;
+          },
+        ),
         backgroundColor: WidgetStateProperty.resolveWith<Color?>(
               (Set<WidgetState> states) {
             if (states.contains(WidgetState.selected)){
-              return Colors.purple.shade100;
+              return Colors.purple.shade200;
             }
             return null;
           },
         ),
         foregroundColor: WidgetStateProperty.resolveWith<Color?>(
               (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)){
+              return Colors.white;
+            }
             return Colors.black;
           },
         ),
@@ -35,12 +46,12 @@ class _SegmentedButtonWidget extends State<SegmentedButtonWidget> {
       segments: const <ButtonSegment<Prompt>>[
         ButtonSegment<Prompt>(
           value: Prompt.public,
-          label: Text('Public Prompt'),
+          label: Text('Public Prompts'),
           icon: Icon(Icons.public),
         ),
         ButtonSegment<Prompt>(
           value: Prompt.personal,
-          label: Text('Personal Prompt'),
+          label: Text('My Prompts'),
           icon: Icon(Icons.person),
         ),
       ],
