@@ -37,114 +37,117 @@ class _PromptItemState extends State<PromptItem> {
           ),
         );
       },
-      child: Column(
-        children: [
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            onEnter: (_) => setState(() => isHovered = true),
-            onExit: (_) => setState(() => isHovered = false),
-            child: Container(
-              padding: EdgeInsets.all(10.0),
-              decoration: BoxDecoration(
-                color: isHovered ? Colors.purple[50] : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.only(right: 100),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+      child: Container(
+        padding: EdgeInsets.only(right: 16.0),
+        child: Column(
+          children: [
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              onEnter: (_) => setState(() => isHovered = true),
+              onExit: (_) => setState(() => isHovered = false),
+              child: Container(
+                padding: EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  color: isHovered ? Colors.purple[50] : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.only(right: 100),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 5,),
-                          Text(
-                            widget.description,
-                            style: TextStyle(color: Colors.grey, fontSize: 15, overflow: TextOverflow.ellipsis),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Tooltip(
-                        message: "Favorite",
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          onEnter: (_) => setState(() => isStarHovered = true),
-                          onExit: (_) => setState(() => isStarHovered = false),
-                          child: Container(
-                            padding: EdgeInsets.all(3.0),
-                            decoration: BoxDecoration(
-                              color:
-                              isStarHovered
-                                  ? Colors.purple.shade100
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
+                            SizedBox(height: 5,),
+                            Text(
+                              widget.description,
+                              style: TextStyle(color: Colors.grey, fontSize: 15, overflow: TextOverflow.ellipsis),
                             ),
-                            child: Icon(Icons.star_border, color: isStarHovered ? Colors.black : Colors.grey,),
-                          ),
+                          ],
                         ),
                       ),
-                      SizedBox(width: 8),
-                      Tooltip(
-                        message: "View Info",
-                        child: GestureDetector(
-                          onTap: () { _showPromptInfo(context); },
+                    ),
+                    Row(
+                      children: [
+                        Tooltip(
+                          message: "Favorite",
                           child: MouseRegion(
                             cursor: SystemMouseCursors.click,
-                            onEnter: (_) => setState(() => isInfoHovered = true),
-                            onExit: (_) => setState(() => isInfoHovered = false),
+                            onEnter: (_) => setState(() => isStarHovered = true),
+                            onExit: (_) => setState(() => isStarHovered = false),
                             child: Container(
                               padding: EdgeInsets.all(3.0),
                               decoration: BoxDecoration(
                                 color:
-                                isInfoHovered
+                                isStarHovered
                                     ? Colors.purple.shade100
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Icon(Icons.info_outline, color: isInfoHovered ? Colors.black : Colors.grey,),
+                              child: Icon(Icons.star_border, color: isStarHovered ? Colors.black : Colors.grey,),
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: 8),
-                      Tooltip(
-                        message: "Use Prompt",
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          onEnter: (_) => setState(() => isViewHovered = true),
-                          onExit: (_) => setState(() => isViewHovered = false),
-                          child: Container(
-                            padding: EdgeInsets.all(3.0),
-                            decoration: BoxDecoration(
-                              color:
-                              isViewHovered
-                                  ? Colors.purple.shade100
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
+                        SizedBox(width: 8),
+                        Tooltip(
+                          message: "View Info",
+                          child: GestureDetector(
+                            onTap: () { _showPromptInfo(context); },
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              onEnter: (_) => setState(() => isInfoHovered = true),
+                              onExit: (_) => setState(() => isInfoHovered = false),
+                              child: Container(
+                                padding: EdgeInsets.all(3.0),
+                                decoration: BoxDecoration(
+                                  color:
+                                  isInfoHovered
+                                      ? Colors.purple.shade100
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(Icons.info_outline, color: isInfoHovered ? Colors.black : Colors.grey,),
+                              ),
                             ),
-                            child: Icon(Icons.arrow_forward, color: isViewHovered ? Colors.black : Colors.grey,),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        SizedBox(width: 8),
+                        Tooltip(
+                          message: "Use Prompt",
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            onEnter: (_) => setState(() => isViewHovered = true),
+                            onExit: (_) => setState(() => isViewHovered = false),
+                            child: Container(
+                              padding: EdgeInsets.all(3.0),
+                              decoration: BoxDecoration(
+                                color:
+                                isViewHovered
+                                    ? Colors.purple.shade100
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(Icons.arrow_forward, color: isViewHovered ? Colors.black : Colors.grey,),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const Divider(thickness: 1.5),
-        ],
+            const Divider(thickness: 1.5),
+          ],
+        ),
       ),
     );
   }

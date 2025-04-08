@@ -97,4 +97,28 @@ class ApiService {
       throw Exception("Dio error: ${e.response?.data ?? e.message}");
     }
   }
+
+  Future<Map<String, dynamic>> getPublicPrompts({
+    int offset = 0,
+    int limit = 20,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/prompts',
+        queryParameters: {
+          'isPublic': true,
+          'offset': offset,
+          'limit': limit,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(response.data);
+      } else {
+        throw Exception("Unexpected status: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error fetching prompts: $e");
+    }
+  }
 }

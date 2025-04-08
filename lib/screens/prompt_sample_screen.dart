@@ -2,7 +2,7 @@ import 'package:ai_chat/widgets/prompt/add_prompt.dart';
 import 'package:ai_chat/widgets/prompt/prompt_item.dart';
 import 'package:ai_chat/widgets/prompt/segmented_button.dart';
 import 'package:flutter/material.dart';
-
+import '../utils/get_api_utils.dart';
 import '../widgets/prompt/personal_prompt_item.dart';
 
 class PromptSampleScreen extends StatefulWidget {
@@ -15,6 +15,43 @@ class PromptSampleScreen extends StatefulWidget {
 class _PromptSampleScreenState extends State<PromptSampleScreen> {
   bool isHovered = false;
   Prompt prompt = Prompt.public;
+
+  final List<Map<String, dynamic>> _publicPrompts = [];
+  bool _isLoading = true;
+
+  final ScrollController _scrollController = ScrollController();
+
+  int _offset = 0;
+  bool _hasNext = true;
+  bool _isFetchingMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPublicPrompts();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100 &&
+          !_isFetchingMore &&
+          _hasNext) {
+        setState(() => _isFetchingMore = true);
+        _fetchPublicPrompts();
+      }
+    });
+  }
+
+  Future<void> _fetchPublicPrompts() async {
+    final apiService = getApiService(context);
+    final data = await apiService.getPublicPrompts(offset: _offset);
+
+    setState(() {
+      _publicPrompts.addAll(List<Map<String, dynamic>>.from(data['items']));
+      _hasNext = data['hasNext'] ?? false;
+      _offset += 20;
+      _isLoading = false;
+      _isFetchingMore = false;
+    });
+  }
 
   void _promptCallback(Prompt selectedPrompt) {
     setState(() {
@@ -161,22 +198,33 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
               SizedBox(height: 10),
               Expanded(
                 child: ListView(
+                  controller: _scrollController,
                   children: [
                     ...(prompt == Prompt.public
-                        ? List.generate(
-                          7,
-                          (index) => PromptItem(
-                            name: "Testing",
-                            description: "This is a sample prompt description.",
-                          ),
-                        )
-                        : List.generate(
-                          2,
-                          (index) => PersonalPromptItem(
-                            name: "Testing",
-                            prompt: "This is a sample prompt description.",
-                          ),
-                        )),
+                      ? (_isLoading
+                        ? [Center(child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: Center(child: CircularProgressIndicator()),
+                          ))]
+                          : _publicPrompts.map((p) {
+                              return PromptItem(
+                                name: p['title'] ?? 'Untitled',
+                                description: p['description'] ?? '',
+                              );
+                            }).toList()
+                      )
+                      : List.generate(
+                        2,
+                        (index) => PersonalPromptItem(
+                          name: "Testing",
+                          prompt: "This is a sample prompt description.",
+                        ),
+                      )),
+                    if (_isFetchingMore)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
                   ],
                 ),
               ),
