@@ -1,11 +1,21 @@
 import 'package:ai_chat/screens/home_screen.dart';
 import 'package:ai_chat/widgets/prompt/view_prompt_info.dart';
 import 'package:flutter/material.dart';
+import '../../utils/get_api_utils.dart';
 
 class PromptItem extends StatefulWidget {
+  final String id;
   final String name;
   final String description;
-  const PromptItem({super.key, required this.name, required this.description});
+  final bool isFavorite;
+
+  const PromptItem({
+    super.key,
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.isFavorite,
+  });
 
   @override
   State<PromptItem> createState() => _PromptItemState();
@@ -16,6 +26,13 @@ class _PromptItemState extends State<PromptItem> {
   bool isStarHovered = false;
   bool isInfoHovered = false;
   bool isViewHovered = false;
+  late bool _isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFavorite = widget.isFavorite;
+  }
 
   void _showPromptInfo(BuildContext context) {
     showDialog(
@@ -83,16 +100,34 @@ class _PromptItemState extends State<PromptItem> {
                             cursor: SystemMouseCursors.click,
                             onEnter: (_) => setState(() => isStarHovered = true),
                             onExit: (_) => setState(() => isStarHovered = false),
-                            child: Container(
-                              padding: EdgeInsets.all(3.0),
-                              decoration: BoxDecoration(
-                                color:
-                                isStarHovered
-                                    ? Colors.purple.shade100
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
+                            child: InkWell(
+                              onTap: () async {
+                                final apiService = getApiService(context);
+                                final success = await apiService.togglePromptFavorite(
+                                  widget.id,
+                                  isCurrentlyFavorited: _isFavorite,
+                                );
+
+                                if (success) {
+                                  setState(() {
+                                    _isFavorite = !_isFavorite;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(3.0),
+                                decoration: BoxDecoration(
+                                  color:
+                                  isStarHovered
+                                      ? Colors.purple.shade100
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  _isFavorite ? Icons.star : Icons.star_border,
+                                  color: _isFavorite ? Colors.amber : (isStarHovered ? Colors.black : Colors.grey),
+                                ),
                               ),
-                              child: Icon(Icons.star_border, color: isStarHovered ? Colors.black : Colors.grey,),
                             ),
                           ),
                         ),

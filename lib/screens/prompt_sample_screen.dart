@@ -16,6 +16,7 @@ class PromptSampleScreen extends StatefulWidget {
 
 class _PromptSampleScreenState extends State<PromptSampleScreen> {
   bool isHovered = false;
+  bool _showFavoritesOnly = false;
   Prompt prompt = Prompt.public;
 
   final List<Map<String, dynamic>> _publicPrompts = [];
@@ -53,7 +54,12 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
 
   Future<void> _fetchPublicPrompts() async {
     final apiService = getApiService(context);
-    final data = await apiService.getPublicPrompts(offset: _offset, query: _searchQuery, category: _selectedCategory);
+    final data = await apiService.getPublicPrompts(
+        offset: _offset,
+        query: _searchQuery,
+        category: _selectedCategory,
+        isFavorite: _showFavoritesOnly,
+    );
 
     setState(() {
       _publicPrompts.addAll(List<Map<String, dynamic>>.from(data['items']));
@@ -96,6 +102,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Title
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -162,6 +169,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                 ],
               ),
               SizedBox(height: 20),
+              // Prompt Buttons
               SegmentedButtonWidget(promptCallback: _promptCallback),
               SizedBox(height: 20),
               // Search
@@ -209,22 +217,31 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                   ),
                   SizedBox(width: 10),
                   if (prompt == Prompt.public)
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                            width: 1,
-                          ),
+                    Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 1,
                         ),
-                        child: Icon(
-                          Icons.star_border,
-                          color: Colors.grey.shade500,
-                          size: 25,
+                      ),
+                      child: IconButton(
+                        tooltip: 'Show Favorites',
+                        icon: Icon(
+                          _showFavoritesOnly ? Icons.star : Icons.star_border,
+                          color: _showFavoritesOnly ? Colors.amber : Colors.grey,
                         ),
+                        onPressed: () {
+                          setState(() {
+                            _showFavoritesOnly = !_showFavoritesOnly;
+                            _offset = 0;
+                            _hasNext = true;
+                            _isLoading = true;
+                            _publicPrompts.clear();
+                          });
+                          _fetchPublicPrompts();
+                        },
                       ),
                     ),
                 ],
@@ -285,8 +302,10 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                                 ))]
                               : _publicPrompts.map((p) {
                                   return PromptItem(
+                                    id: p['_id'],
                                     name: p['title'] ?? 'Untitled',
                                     description: p['description'] ?? '',
+                                    isFavorite: p['isFavorite'],
                                   );
                                 }).toList())
                       )

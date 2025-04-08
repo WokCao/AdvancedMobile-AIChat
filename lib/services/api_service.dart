@@ -103,6 +103,7 @@ class ApiService {
     int limit = 20,
     String query = '',
     String category = 'All',
+    bool isFavorite = false,
   }) async {
     try {
       final response = await _dio.get(
@@ -113,6 +114,7 @@ class ApiService {
           'limit': limit,
           if (query.isNotEmpty) 'query': query,
           if (category != 'All') 'category': category.toLowerCase(),
+          if (isFavorite) 'isFavorite': true,
         },
       );
 
@@ -123,6 +125,24 @@ class ApiService {
       }
     } catch (e) {
       throw Exception("Error fetching prompts: $e");
+    }
+  }
+
+  Future<bool> togglePromptFavorite(String id, {required bool isCurrentlyFavorited}) async {
+    try {
+      final path = '/api/v1/prompts/$id/favorite';
+      final response = isCurrentlyFavorited
+          ? await _dio.delete(path)
+          : await _dio.post(path);
+      final successCode = isCurrentlyFavorited ? 200 : 201;
+
+      if (response.statusCode == successCode) {
+        return true;
+      } else {
+        throw Exception("Failed to toggle favorite prompt");
+      }
+    } on DioException catch (e) {
+      throw Exception("Favorite toggle failed: ${e.message}");
     }
   }
 }
