@@ -8,7 +8,8 @@ class AuthService {
   final Dio _dioApi = Dio(BaseOptions(baseUrl: "https://api.dev.jarvis.cx"));
 
   AuthService() {
-    _dioApi.interceptors.add(AuthInterceptor(_dioApi, navigatorKey));
+    _dio.interceptors.add(AuthInterceptor(_dio, navigatorKey));
+    _dioApi.interceptors.add(AuthInterceptor(_dio, navigatorKey));
   }
 
   Future<Map<String, dynamic>> signUp(String email, String password) async {
@@ -64,13 +65,14 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> isLoggedIn() async {
+  Future<Map<String, dynamic>> isLoggedIn(String token) async {
     try {
       final response = await _dioApi.get(
         "/api/v1/auth/me",
         options: Options(
           headers: {
             'x-jarvis-guid': '361331f8-fc9b-4dfe-a3f7-6d9a1e8b289b',
+            'Authorization': 'Bearer $token'
           },
         ),
       );
