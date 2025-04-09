@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/get_api_utils.dart';
+
 class AddPrompt extends StatefulWidget {
   final String name;
   final String prompt;
@@ -239,14 +241,40 @@ class _AddPrompt extends State<AddPrompt> {
                 ),
               ),
               const SizedBox(width: 4),
-              // Save button
+              // Create button
               MouseRegion(
                 cursor: SystemMouseCursors.click,
                 onEnter: (_) => (setState(() => isCreateHovered = true)),
                 onExit: (_) => (setState(() => isCreateHovered = false)),
                 child: GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
+                  onTap: () async {
+                    final title = _textController.text.trim();
+                    final content = _promptTextController.text.trim();
+
+                    if (title.isEmpty || content.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please fill out all required fields")),
+                      );
+                      return;
+                    }
+
+                    final apiService = getApiService(context);
+                    final success = await apiService.createPrivatePrompt(
+                      title: title,
+                      content: content,
+                      description: "User-created prompt",
+                    );
+
+                    if (success) {
+                      Navigator.of(context).pop(true);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Prompt created successfully")),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Failed to create prompt")),
+                      );
+                    }
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),

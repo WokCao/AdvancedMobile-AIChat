@@ -174,4 +174,31 @@ class ApiService {
       throw Exception("Favorite toggle failed: ${e.message}");
     }
   }
+
+  Future<bool> createPrivatePrompt({
+    required String title,
+    required String content,
+    required String description,
+    String category = "other",
+    String language = "English",
+  }) async {
+    try {
+      final response = await _dio.post('/api/v1/prompts', data: {
+        "title": title,
+        "content": content,
+        "description": description,
+        "category": category,
+        "language": language,
+        "isPublic": false, // always private
+      });
+
+      if (response.statusCode == 201) {
+        return true;
+      } else {
+        throw Exception("Failed to create prompt");
+      }
+    } on DioException catch (e) {
+      throw Exception("Failed to create prompt: ${e.response?.data ?? e.message}");
+    }
+  }
 }
