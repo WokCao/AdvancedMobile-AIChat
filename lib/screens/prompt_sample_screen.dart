@@ -111,21 +111,47 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
     setState(() {
       prompt = selectedPrompt;
 
+      setState(() {
+        _offset = 0;
+        _hasNext = true;
+        _isLoading = true;
+        _privatePrompts.clear();
+      });
+
       if (selectedPrompt == Prompt.public) {
+        setState(() {
+          _publicPrompts.clear();
+        });
         _fetchPublicPrompts();
       } else {
+        setState(() {
+          _privatePrompts.clear();
+        });
         _fetchPrivatePrompts();
       }
+
+      _scrollController.jumpTo(0);
     });
   }
 
-  void _showAddPrompt() {
-    showDialog(
+  Future<void> _showAddPrompt() async {
+    final shouldShowPersonal = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AddPrompt();
       },
     );
+
+    if (shouldShowPersonal == true) {
+      setState(() {
+        prompt = Prompt.personal; // ✅ switch tab
+        _offset = 0;
+        _hasNext = true;
+        _isLoading = true;
+        _privatePrompts.clear(); // optional: reset list
+      });
+      _fetchPrivatePrompts(); // ✅ load personal prompts again
+    }
   }
 
   @override
@@ -364,7 +390,6 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                       final isPublic = prompt == Prompt.public;
                       final prompts =
                           isPublic ? _publicPrompts : _privatePrompts;
-
 
                       if (prompts.isEmpty) {
                         return [
