@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/get_api_utils.dart';
+
 class RemovePrompt extends StatefulWidget {
-  const RemovePrompt({super.key});
+  final String id;
+  final void Function(String) removePrivatePromptCallback;
+  const RemovePrompt({super.key, required this.id, required this.removePrivatePromptCallback});
 
   @override
   State<RemovePrompt> createState() => _RemovePromptState();
@@ -115,8 +119,21 @@ class _RemovePromptState extends State<RemovePrompt> {
                 onEnter: (_) => (setState(() => isDeleteHovered = true)),
                 onExit: (_) => (setState(() => isDeleteHovered = false)),
                 child: GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
+                  onTap: () async {
+                    final apiService = getApiService(context);
+                    final response = await apiService.deletePrivatePrompt(id: widget.id);
+
+                    if (response) {
+                      widget.removePrivatePromptCallback(widget.id);
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Prompt is deleted successfully!")),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Failed to delete prompt!")),
+                      );
+                    }
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),

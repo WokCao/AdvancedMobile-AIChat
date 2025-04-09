@@ -80,7 +80,9 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
 
     setState(() {
       _publicPrompts.addAll(
-        (data['items'] as List).map((item) => PromptModel.fromJson(item)).toList(),
+        (data['items'] as List)
+            .map((item) => PromptModel.fromJson(item))
+            .toList(),
       );
       _hasNext = data['hasNext'] ?? false;
       _offset += 20;
@@ -98,7 +100,9 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
 
     setState(() {
       _privatePrompts.addAll(
-        (data['items'] as List).map((item) => PromptModel.fromJson(item)).toList(),
+        (data['items'] as List)
+            .map((item) => PromptModel.fromJson(item))
+            .toList(),
       );
       _hasNext = data['hasNext'] ?? false;
       _offset += 20;
@@ -152,6 +156,12 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
       });
       _fetchPrivatePrompts(); // ✅ load personal prompts again
     }
+  }
+
+  void removePrivatePromptCallback(String id) {
+    setState(() {
+      _privatePrompts.removeWhere((prompt) => prompt.id == id);
+    });
   }
 
   @override
@@ -243,7 +253,10 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
               ),
               SizedBox(height: 20),
               // Prompt Buttons
-              SegmentedButtonWidget(prompt: prompt, promptCallback: _promptCallback),
+              SegmentedButtonWidget(
+                prompt: prompt,
+                promptCallback: _promptCallback,
+              ),
               SizedBox(height: 20),
               // Search
               Row(
@@ -399,7 +412,11 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Image.asset('binoculars.png', width: 128, height: 128,),
+                                  Image.asset(
+                                    'binoculars.png',
+                                    width: 128,
+                                    height: 128,
+                                  ),
                                   const SizedBox(height: 16),
                                   Text(
                                     "No prompts found",
@@ -472,11 +489,11 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
 
                       return prompts.map((PromptModel p) {
                         return isPublic
-                            ? PromptItem(
-                              promptModel: p,
-                            )
+                            ? PromptItem(promptModel: p)
                             : PersonalPromptItem(
                               promptModel: p,
+                              removePrivatePromptCallback:
+                                  removePrivatePromptCallback,
                             );
                       }).toList();
                     })(),

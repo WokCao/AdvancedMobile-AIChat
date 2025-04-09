@@ -7,10 +7,13 @@ import 'add_prompt.dart';
 
 class PersonalPromptItem extends StatefulWidget {
   final PromptModel promptModel;
+  final void Function(String) removePrivatePromptCallback;
+
 
   const PersonalPromptItem({
     super.key,
     required this.promptModel,
+    required this.removePrivatePromptCallback,
   });
 
   @override
@@ -27,7 +30,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return RemovePrompt();
+        return RemovePrompt(id: widget.promptModel.id, removePrivatePromptCallback: widget.removePrivatePromptCallback,);
       },
     );
   }
@@ -153,7 +156,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HomeScreen(showUsePrompt: true),
+                                builder: (context) => HomeScreen(showUsePrompt: true, promptModel: widget.promptModel,),
                               ),
                             );
                           },
