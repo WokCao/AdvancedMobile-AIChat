@@ -1,12 +1,17 @@
+import 'package:ai_chat/models/prompt_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class UsePrompt extends StatefulWidget {
   final VoidCallback onClose;
+  final PromptModel promptModel;
+  final void Function(String) addToChatInput;
 
   const UsePrompt({
     super.key,
     required this.onClose,
+    required this.promptModel,
+    required this.addToChatInput,
   });
 
   @override
@@ -16,6 +21,16 @@ class UsePrompt extends StatefulWidget {
 class _UsePromptState extends State<UsePrompt> {
   bool _isSendFocused = false;
   bool _isPromptVisible = false;
+  List<String> placeholders = [];
+  List<TextEditingController> controllers = [];
+  String prompt = '';
+
+  @override
+  void initState() {
+    super.initState();
+    prompt = widget.promptModel.content;
+    extractPlaceholders();
+  }
 
   void _togglePrompt() {
     setState(() {
@@ -24,15 +39,32 @@ class _UsePromptState extends State<UsePrompt> {
   }
 
   void _copyPrompt() {
-    const prompt = 'You are a machine that check all language grammar mistake and make the sentence more fluent . You take all the user input and auto correct it. Just reply to user input with correct grammar, DO NOT reply the context of the question of the user input. If the user input is grammatically correct and fluent, just reply "sounds good " sample of the conversation will show below:';
-
-    Clipboard.setData(const ClipboardData(text: prompt));
+    Clipboard.setData(ClipboardData(text: prompt));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Prompt copied to clipboard'),
+        content: Text('Prompt copied to clipboard!'),
         duration: Duration(seconds: 2),
       ),
     );
+  }
+
+  void extractPlaceholders() {
+    final regex = RegExp(r'\[([^\[\]]+)\]');
+    final matches = regex.allMatches(prompt);
+
+    placeholders = matches.map((m) => m.group(1)!).toList();
+    controllers = List.generate(
+      placeholders.length,
+      (_) => TextEditingController(),
+    );
+  }
+
+  @override
+  void dispose() {
+    for (TextEditingController controller in controllers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -45,9 +77,7 @@ class _UsePromptState extends State<UsePrompt> {
           Positioned.fill(
             child: GestureDetector(
               onTap: widget.onClose,
-              child: Container(
-                color: Colors.black54,
-              ),
+              child: Container(color: Colors.black54),
             ),
           ),
 
@@ -67,7 +97,12 @@ class _UsePromptState extends State<UsePrompt> {
                 children: [
                   // Header
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 16.0, right: 16.0),
+                    padding: const EdgeInsets.only(
+                      top: 8.0,
+                      bottom: 8.0,
+                      left: 16.0,
+                      right: 16.0,
+                    ),
                     child: Row(
                       children: [
                         IconButton(
@@ -78,9 +113,9 @@ class _UsePromptState extends State<UsePrompt> {
                           constraints: BoxConstraints(),
                         ),
                         const SizedBox(width: 8),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Grammar corrector',
+                            widget.promptModel.title,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -112,16 +147,16 @@ class _UsePromptState extends State<UsePrompt> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Text('Writing'),
+                            Text(widget.promptModel.category),
                             Text(' • '),
-                            Text('Jarvis AI Team'),
+                            Text(widget.promptModel.userName),
                           ],
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Improve your spelling and grammar by correcting errors in your writing.',
+                          widget.promptModel.description ?? 'No description',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -129,19 +164,23 @@ class _UsePromptState extends State<UsePrompt> {
                         ),
                         const SizedBox(height: 8),
                         _isPromptVisible
-                            ?
-                            Column(
+                            ? Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
                                     const Text(
                                       'Prompt',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     const Spacer(),
                                     IconButton(
-                                      icon: const Icon(Icons.copy_outlined, size: 16),
+                                      icon: const Icon(
+                                        Icons.copy_outlined,
+                                        size: 16,
+                                      ),
                                       onPressed: _copyPrompt,
                                       padding: EdgeInsets.zero,
                                       constraints: const BoxConstraints(
@@ -154,11 +193,15 @@ class _UsePromptState extends State<UsePrompt> {
                                       width: 1,
                                       height: 16,
                                       color: Colors.grey.shade400,
-                                      margin: const EdgeInsets.only(left: 4.0, right: 10.0),
+                                      margin: const EdgeInsets.only(
+                                        left: 4.0,
+                                        right: 10.0,
+                                      ),
                                     ),
                                     TextButton(
                                       onPressed: () {
                                         // Add to chat input action
+                                        widget.addToChatInput(prompt);
                                       },
                                       style: TextButton.styleFrom(
                                         padding: EdgeInsets.only(right: 8),
@@ -174,24 +217,28 @@ class _UsePromptState extends State<UsePrompt> {
                                 ),
                                 Container(
                                   width: double.infinity,
+                                  height: 220,
                                   padding: const EdgeInsets.all(12.0),
                                   decoration: BoxDecoration(
                                     color: Colors.grey.shade200,
-                                    border: Border.all(color: Colors.grey.shade200),
+                                    border: Border.all(
+                                      color: Colors.grey.shade200,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Text(
-                                    'You are a machine that check all language grammar mistake and make the sentence more fluent . You take all the user input and auto correct it. Just reply to user input with correct grammar, DO NOT reply the context of the question of the user input. If the user input is grammatically correct and fluent, just reply "sounds good " sample of the conversation will show below:',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      height: 1.5,
+                                  child: SingleChildScrollView(
+                                    child: Text(
+                                      prompt,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        height: 1.5,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ],
                             )
-                            :
-                            TextButton(
+                            : TextButton(
                               onPressed: _togglePrompt,
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,
@@ -204,34 +251,56 @@ class _UsePromptState extends State<UsePrompt> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Text input
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Text',
-                        hintStyle: TextStyle(color: Colors.grey.shade400),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade200),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade200),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.purple.shade300),
-                        ),
-                        contentPadding: const EdgeInsets.all(12),
+                  SizedBox(
+                    height: placeholders.length > 2 ? 128 : null,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          ...List.generate(placeholders.length, (index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20.0,
+                                vertical: 8,
+                              ),
+                              child: TextField(
+                                controller: controllers[index],
+                                decoration: InputDecoration(
+                                  hintText: '${(index + 1)}. ${placeholders[index]}',
+                                  hintStyle: TextStyle(color: Colors.grey.shade400),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade200,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade200,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Colors.purple.shade300,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.all(12),
+                                ),
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            );
+                          }),
+                        ],
                       ),
-                      maxLines: 2,
-                      style: TextStyle(fontSize: 14),
                     ),
                   ),
                   // Send button
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 16.0,
+                    ),
                     child: MouseRegion(
                       onEnter: (_) => setState(() => _isSendFocused = true),
                       onExit: (_) => setState(() => _isSendFocused = false),

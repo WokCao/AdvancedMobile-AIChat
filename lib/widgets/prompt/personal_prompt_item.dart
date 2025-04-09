@@ -1,3 +1,4 @@
+import 'package:ai_chat/models/prompt_model.dart';
 import 'package:ai_chat/widgets/prompt/remove_prompt.dart';
 import 'package:flutter/material.dart';
 
@@ -5,14 +6,11 @@ import '../../screens/home_screen.dart';
 import 'add_prompt.dart';
 
 class PersonalPromptItem extends StatefulWidget {
-  final String id;
-  final String name;
-  final String prompt;
+  final PromptModel promptModel;
+
   const PersonalPromptItem({
     super.key,
-    required this.name,
-    required this.prompt,
-    required this.id,
+    required this.promptModel,
   });
 
   @override
@@ -38,7 +36,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AddPrompt(name: widget.name, prompt: widget.prompt,);
+        return AddPrompt(name: widget.promptModel.title, prompt: widget.promptModel.content,);
       },
     );
   }
@@ -50,7 +48,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(showUsePrompt: true),
+            builder: (context) => HomeScreen(showUsePrompt: true, promptModel: widget.promptModel,),
           ),
         );
       },
@@ -75,7 +73,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.name,
+                            widget.promptModel.title,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,

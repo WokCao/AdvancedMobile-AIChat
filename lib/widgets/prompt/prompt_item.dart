@@ -1,20 +1,15 @@
+import 'package:ai_chat/models/prompt_model.dart';
 import 'package:ai_chat/screens/home_screen.dart';
 import 'package:ai_chat/widgets/prompt/view_prompt_info.dart';
 import 'package:flutter/material.dart';
 import '../../utils/get_api_utils.dart';
 
 class PromptItem extends StatefulWidget {
-  final String id;
-  final String name;
-  final String description;
-  final bool isFavorite;
+  final PromptModel promptModel;
 
   const PromptItem({
     super.key,
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.isFavorite,
+    required this.promptModel,
   });
 
   @override
@@ -31,14 +26,14 @@ class _PromptItemState extends State<PromptItem> {
   @override
   void initState() {
     super.initState();
-    _isFavorite = widget.isFavorite;
+    _isFavorite = widget.promptModel.isFavorite;
   }
 
   void _showPromptInfo(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return ViewPromptInfo(title: "Testing", description: "Improve your spelling and grammar by correcting errors in your writing.", content: "You are a machine that check all language grammar mistake and make the sentence more fluent . You take all the user input and auto correct it. Just reply to user input with correct grammar, DO NOT reply the context of the question of the user input. If the user input is grammatically correct and fluent, just reply 'sounds good '. sample of the conversation will show below:", topic: "Writing", author: "Henry",);
+        return ViewPromptInfo(title: widget.promptModel.title, description: widget.promptModel.description ?? 'No description', content: widget.promptModel.content, topic: widget.promptModel.category, author: widget.promptModel.userName,);
       },
     );
   }
@@ -50,7 +45,7 @@ class _PromptItemState extends State<PromptItem> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(showUsePrompt: true),
+            builder: (context) => HomeScreen(showUsePrompt: true, promptModel: widget.promptModel,),
           ),
         );
       },
@@ -77,7 +72,7 @@ class _PromptItemState extends State<PromptItem> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.name,
+                              widget.promptModel.title,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -85,7 +80,7 @@ class _PromptItemState extends State<PromptItem> {
                             ),
                             SizedBox(height: 5,),
                             Text(
-                              widget.description,
+                              widget.promptModel.description ?? 'No description',
                               style: TextStyle(color: Colors.grey, fontSize: 15, overflow: TextOverflow.ellipsis),
                             ),
                           ],
@@ -104,7 +99,7 @@ class _PromptItemState extends State<PromptItem> {
                               onTap: () async {
                                 final apiService = getApiService(context);
                                 final success = await apiService.togglePromptFavorite(
-                                  widget.id,
+                                  widget.promptModel.id,
                                   isCurrentlyFavorited: _isFavorite,
                                 );
 

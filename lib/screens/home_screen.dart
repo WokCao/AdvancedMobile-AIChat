@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/prompt_model.dart';
 import '../utils/get_api_utils.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/bot/create_bot_dialog.dart';
@@ -9,8 +10,9 @@ import '../widgets/selector_menu.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool? showUsePrompt;
+  final PromptModel? promptModel;
 
-  const HomeScreen({super.key, this.showUsePrompt});
+  const HomeScreen({super.key, this.showUsePrompt, this.promptModel});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -329,6 +331,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void addToChatInput(String content) {
+    _textController.text = content;
+    setState(() {
+      _isUsePromptVisible = false;
+    });
+  }
+
   @override
   void dispose() {
     _textController.dispose();
@@ -555,7 +564,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 controller: _textController,
                                 decoration: InputDecoration(
                                   hintText:
-                                      'Ask me anything, press \'/\' for prompts...',
+                                  'Ask me anything, press \'/\' for prompts...',
                                   hintStyle: TextStyle(color: Colors.grey),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(24),
@@ -566,10 +575,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     vertical: 12,
                                   ),
                                 ),
-                                maxLines: null,
+                                maxLines: 5,
                                 minLines: 2,
                                 textCapitalization:
-                                    TextCapitalization.sentences,
+                                TextCapitalization.sentences,
                                 onSubmitted: (_) => _handleSendMessage(),
                               ),
                             ),
@@ -695,7 +704,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // Use Prompt panel
-          if (_isUsePromptVisible) UsePrompt(onClose: _hideUsePrompt),
+          if (_isUsePromptVisible && widget.promptModel != null) UsePrompt(onClose: _hideUsePrompt, promptModel: widget.promptModel!, addToChatInput: addToChatInput,),
         ],
       ),
     );

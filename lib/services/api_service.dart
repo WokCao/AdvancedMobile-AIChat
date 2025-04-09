@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../main.dart';
+import '../utils/auth_interceptor.dart';
+
 class ApiService {
   final Dio _dio;
 
@@ -14,7 +17,7 @@ class ApiService {
         'x-jarvis-guid': '361331f8-fc9b-4dfe-a3f7-6d9a1e8b289b',
       },
     ),
-  );
+  ) { _dio.interceptors.add(AuthInterceptor(_dio, navigatorKey));}
 
   String? _conversationId;
 

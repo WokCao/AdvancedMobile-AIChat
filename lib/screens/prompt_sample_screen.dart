@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:js_interop';
 
+import 'package:ai_chat/models/prompt_model.dart';
 import 'package:ai_chat/widgets/prompt/add_prompt.dart';
 import 'package:ai_chat/widgets/prompt/prompt_item.dart';
 import 'package:ai_chat/widgets/prompt/segmented_button.dart';
@@ -21,8 +23,8 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
   bool _showFavoritesOnly = false;
   Prompt prompt = Prompt.public;
 
-  final List<Map<String, dynamic>> _publicPrompts = [];
-  final List<Map<String, dynamic>> _privatePrompts = [];
+  final List<PromptModel> _publicPrompts = [];
+  final List<PromptModel> _privatePrompts = [];
   bool _isLoading = true;
 
   final ScrollController _scrollController = ScrollController();
@@ -77,7 +79,9 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
     );
 
     setState(() {
-      _publicPrompts.addAll(List<Map<String, dynamic>>.from(data['items']));
+      _publicPrompts.addAll(
+        (data['items'] as List).map((item) => PromptModel.fromJson(item)).toList(),
+      );
       _hasNext = data['hasNext'] ?? false;
       _offset += 20;
       _isLoading = false;
@@ -93,7 +97,9 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
     );
 
     setState(() {
-      _privatePrompts.addAll(List<Map<String, dynamic>>.from(data['items']));
+      _privatePrompts.addAll(
+        (data['items'] as List).map((item) => PromptModel.fromJson(item)).toList(),
+      );
       _hasNext = data['hasNext'] ?? false;
       _offset += 20;
       _isLoading = false;
@@ -439,18 +445,13 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                         ];
                       }
 
-                      return prompts.map((p) {
+                      return prompts.map((PromptModel p) {
                         return isPublic
                             ? PromptItem(
-                              id: p['_id'],
-                              name: p['title'] ?? 'Untitled',
-                              description: p['description'] ?? '',
-                              isFavorite: p['isFavorite'],
+                              promptModel: p,
                             )
                             : PersonalPromptItem(
-                              id: p['_id'],
-                              name: p['title'] ?? 'Untitled',
-                              prompt: p['description'] ?? '',
+                              promptModel: p,
                             );
                       }).toList();
                     })(),
