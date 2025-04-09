@@ -53,7 +53,13 @@ class AuthInterceptor extends Interceptor {
           final cloneReq = await _dio.fetch(opts);
           return handler.resolve(cloneReq);
         } catch (e) {
-          print(e);
+          await prefs.remove('accessToken');
+          await prefs.remove('refreshToken');
+
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            '/login',
+                (route) => false,
+          );
           return;
         }
       }
