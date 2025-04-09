@@ -126,8 +126,8 @@ class _WelcomeState extends State<Welcome> {
           // Prompt Suggestions
           ...[
             'Grammar corrector',
-            'Learn Code FAST!',
-            'Story generator',
+            // 'Learn Code FAST!',
+            // 'Story generator',
           ].map((prompt) => _buildSectionWithArrow(
             title: prompt,
             onTap: () {

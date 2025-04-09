@@ -5,12 +5,14 @@ import '../../screens/home_screen.dart';
 import 'add_prompt.dart';
 
 class PersonalPromptItem extends StatefulWidget {
+  final String id;
   final String name;
   final String prompt;
   const PersonalPromptItem({
     super.key,
     required this.name,
     required this.prompt,
+    required this.id,
   });
 
   @override

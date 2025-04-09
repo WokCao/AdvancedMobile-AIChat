@@ -128,6 +128,32 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> getPrivatePrompts({
+    int offset = 0,
+    int limit = 20,
+    String query = '',
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/prompts',
+        queryParameters: {
+          'isPublic': false,
+          'offset': offset,
+          'limit': limit,
+          if (query.isNotEmpty) 'query': query,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(response.data);
+      } else {
+        throw Exception("Unexpected status: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error fetching prompts: $e");
+    }
+  }
+
   Future<bool> togglePromptFavorite(String id, {required bool isCurrentlyFavorited}) async {
     try {
       final path = '/api/v1/prompts/$id/favorite';

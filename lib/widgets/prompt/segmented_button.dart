@@ -4,14 +4,14 @@ enum Prompt { public, personal }
 
 class SegmentedButtonWidget extends StatefulWidget {
   final Function(Prompt) promptCallback ;
-  const SegmentedButtonWidget({super.key, required this.promptCallback});
+  final Prompt prompt;
+  const SegmentedButtonWidget({super.key, required this.promptCallback, required this.prompt});
 
   @override
   State<SegmentedButtonWidget> createState() => _SegmentedButtonWidget();
 }
 
 class _SegmentedButtonWidget extends State<SegmentedButtonWidget> {
-  Prompt prompt = Prompt.public;
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +55,10 @@ class _SegmentedButtonWidget extends State<SegmentedButtonWidget> {
           icon: Icon(Icons.person),
         ),
       ],
-      selected: <Prompt>{prompt},
+      selected: <Prompt>{widget.prompt},
       onSelectionChanged: (Set<Prompt> newSelection) {
         setState(() {
-          prompt = newSelection.first;
-          widget.promptCallback(prompt);
+          widget.promptCallback(newSelection.first);
         });
       },
     );

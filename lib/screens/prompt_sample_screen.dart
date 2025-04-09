@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:ai_chat/widgets/prompt/add_prompt.dart';
 import 'package:ai_chat/widgets/prompt/prompt_item.dart';
 import 'package:ai_chat/widgets/prompt/segmented_button.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../utils/get_api_utils.dart';
 import '../widgets/prompt/personal_prompt_item.dart';
 
@@ -20,6 +22,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
   Prompt prompt = Prompt.public;
 
   final List<Map<String, dynamic>> _publicPrompts = [];
+  final List<Map<String, dynamic>> _privatePrompts = [];
   bool _isLoading = true;
 
   final ScrollController _scrollController = ScrollController();
@@ -32,7 +35,18 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
   Timer? _debounce;
 
   final List<String> _categories = [
-    "All", "Business", "Career", "Chatbot", "Coding", "Education", "Fun", "Marketing", "Productivity", "SEO", "Writing", "Other",
+    "All",
+    "Business",
+    "Career",
+    "Chatbot",
+    "Coding",
+    "Education",
+    "Fun",
+    "Marketing",
+    "Productivity",
+    "SEO",
+    "Writing",
+    "Other",
   ];
 
   String _selectedCategory = "All";
@@ -43,7 +57,8 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
     _fetchPublicPrompts();
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100 &&
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 100 &&
           !_isFetchingMore &&
           _hasNext) {
         setState(() => _isFetchingMore = true);
@@ -55,10 +70,10 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
   Future<void> _fetchPublicPrompts() async {
     final apiService = getApiService(context);
     final data = await apiService.getPublicPrompts(
-        offset: _offset,
-        query: _searchQuery,
-        category: _selectedCategory,
-        isFavorite: _showFavoritesOnly,
+      offset: _offset,
+      query: _searchQuery,
+      category: _selectedCategory,
+      isFavorite: _showFavoritesOnly,
     );
 
     setState(() {
@@ -70,9 +85,31 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
     });
   }
 
+  Future<void> _fetchPrivatePrompts() async {
+    final apiService = getApiService(context);
+    final data = await apiService.getPrivatePrompts(
+      offset: _offset,
+      query: _searchQuery,
+    );
+
+    setState(() {
+      _privatePrompts.addAll(List<Map<String, dynamic>>.from(data['items']));
+      _hasNext = data['hasNext'] ?? false;
+      _offset += 20;
+      _isLoading = false;
+      _isFetchingMore = false;
+    });
+  }
+
   void _promptCallback(Prompt selectedPrompt) {
     setState(() {
       prompt = selectedPrompt;
+
+      if (selectedPrompt == Prompt.public) {
+        _fetchPublicPrompts();
+      } else {
+        _fetchPrivatePrompts();
+      }
     });
   }
 
@@ -160,7 +197,11 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                             width: 30,
                             height: 30,
                             alignment: Alignment.center,
-                            child: Icon(Icons.close, color: Colors.grey, size: 24),
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.grey,
+                              size: 24,
+                            ),
                           ),
                         ),
                       ),
@@ -170,7 +211,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
               ),
               SizedBox(height: 20),
               // Prompt Buttons
-              SegmentedButtonWidget(promptCallback: _promptCallback),
+              SegmentedButtonWidget(prompt: prompt, promptCallback: _promptCallback),
               SizedBox(height: 20),
               // Search
               Row(
@@ -230,7 +271,8 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                         tooltip: 'Show Favorites',
                         icon: Icon(
                           _showFavoritesOnly ? Icons.star : Icons.star_border,
-                          color: _showFavoritesOnly ? Colors.amber : Colors.grey,
+                          color:
+                              _showFavoritesOnly ? Colors.amber : Colors.grey,
                         ),
                         onPressed: () {
                           setState(() {
@@ -251,37 +293,49 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
               Wrap(
                 spacing: 8.0,
                 runSpacing: 8.0,
-                children: _categories.map((category) {
-                  final isSelected = category == _selectedCategory;
+                children:
+                    prompt == Prompt.public
+                        ? _categories.map((category) {
+                          final isSelected = category == _selectedCategory;
 
-                  return InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedCategory = category;
-                        _offset = 0;
-                        _hasNext = true;
-                        _isLoading = true;
-                        _publicPrompts.clear();
-                      });
-                      _fetchPublicPrompts(); // 🔁 refresh based on new category
-                      _scrollController.jumpTo(0);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.purple.shade200 : Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        category,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black87,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                _selectedCategory = category;
+                                _offset = 0;
+                                _hasNext = true;
+                                _isLoading = true;
+                                _publicPrompts.clear();
+                              });
+                              _fetchPublicPrompts(); // 🔁 refresh based on new category
+                              _scrollController.jumpTo(0);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color:
+                                    isSelected
+                                        ? Colors.purple.shade200
+                                        : Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                category,
+                                style: TextStyle(
+                                  color:
+                                      isSelected
+                                          ? Colors.white
+                                          : Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList()
+                        : [],
               ),
               SizedBox(height: 10),
               // Prompts
@@ -289,38 +343,123 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                 child: ListView(
                   controller: _scrollController,
                   children: [
-                    ...(prompt == Prompt.public
-                      ? (_isLoading
-                        ? [Center(child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            child: CircularProgressIndicator(),
-                          ))]
-                          : (_publicPrompts.isEmpty
-                              ? [Center(child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                                  child: Text("No prompts found"),
-                                ))]
-                              : _publicPrompts.map((p) {
-                                  return PromptItem(
-                                    id: p['_id'],
-                                    name: p['title'] ?? 'Untitled',
-                                    description: p['description'] ?? '',
-                                    isFavorite: p['isFavorite'],
-                                  );
-                                }).toList())
-                      )
-                      : List.generate(
-                        2,
-                        (index) => PersonalPromptItem(
-                          name: "Testing",
-                          prompt: "This is a sample prompt description.",
-                        ),
-                      )),
+                    ...(() {
+                      if (_isLoading) {
+                        return const [
+                          Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                        ];
+                      }
+
+                      final isPublic = prompt == Prompt.public;
+                      final prompts =
+                          isPublic ? _publicPrompts : _privatePrompts;
+
+
+                      if (prompts.isEmpty) {
+                        return [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            child: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset('binoculars.png', width: 128, height: 128,),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    "No prompts found",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 128),
+                                  Text.rich(
+                                    TextSpan(
+                                      text: "Find more prompts in ",
+                                      style: TextStyle(
+                                        color: Colors.grey[700],
+                                        fontSize: 16,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: "Public prompts",
+                                          style: TextStyle(
+                                            color: Colors.purple,
+                                          ),
+                                          recognizer:
+                                              TapGestureRecognizer()
+                                                ..onTap = () {
+                                                  setState(() {
+                                                    prompt = Prompt.public;
+                                                    _selectedCategory = "All";
+                                                    _offset = 0;
+                                                    _hasNext = true;
+                                                    _isLoading = true;
+                                                    _publicPrompts.clear();
+                                                  });
+                                                  _fetchPublicPrompts();
+                                                  _scrollController.jumpTo(0);
+                                                },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text.rich(
+                                    TextSpan(
+                                      text: "or ",
+                                      style: TextStyle(
+                                        color: Colors.grey[700],
+                                        fontSize: 16,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: "Create your own prompt",
+                                          style: TextStyle(
+                                            color: Colors.purple,
+                                          ),
+                                          recognizer:
+                                              TapGestureRecognizer()
+                                                ..onTap = () {
+                                                  _showAddPrompt();
+                                                },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ];
+                      }
+
+                      return prompts.map((p) {
+                        return isPublic
+                            ? PromptItem(
+                              id: p['_id'],
+                              name: p['title'] ?? 'Untitled',
+                              description: p['description'] ?? '',
+                              isFavorite: p['isFavorite'],
+                            )
+                            : PersonalPromptItem(
+                              id: p['_id'],
+                              name: p['title'] ?? 'Untitled',
+                              prompt: p['description'] ?? '',
+                            );
+                      }).toList();
+                    })(),
+
                     if (_isFetchingMore)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
                         child: Center(child: CircularProgressIndicator()),
-                      )
+                      ),
                   ],
                 ),
               ),
