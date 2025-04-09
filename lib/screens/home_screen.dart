@@ -5,8 +5,9 @@ import '../widgets/app_sidebar.dart';
 import '../widgets/bot/create_bot_dialog.dart';
 import '../widgets/chat_message.dart';
 import '../widgets/prompt/use_prompt.dart';
+import '../widgets/selector_menu/selector_item.dart';
+import '../widgets/selector_menu/selector_menu_helper.dart';
 import '../widgets/welcome.dart';
-import '../widgets/selector_menu.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool? showUsePrompt;
@@ -27,6 +28,11 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isBotCreateFocused = false;
   final ScrollController _scrollController = ScrollController();
   bool _isUsePromptVisible = false;
+  late PromptModel? _selectedPrompt;
+
+  // Selector items
+  int _offset = 0;
+  bool _hasMore = true;
 
   final List<ChatMessage> _messages = [];
   int _remainingTokens = -1;
@@ -98,6 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _selectedModel = _modelData[0]['name'];
     _textController.addListener(_handleTextChange);
+    _selectedPrompt = null;
 
     if (widget.showUsePrompt != null) {
       _isUsePromptVisible = widget.showUsePrompt!;
@@ -170,16 +177,30 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showPromptSelector() {
-    // Selector items
-    final items = [
-      SelectorItem<String>(title: 'Grammar corrector'),
-      SelectorItem<String>(title: 'Learn Code FAST!'),
-      SelectorItem<String>(title: 'Story generator'),
-      SelectorItem<String>(title: 'Essay improver'),
-      SelectorItem<String>(title: 'Pro tips generator'),
-      SelectorItem<String>(title: 'Resume Editing'),
-    ];
+  Future<List<PromptModel>> _fetchPublicPrompts() async {
+    if (!_hasMore) return [];
+
+    final apiService = getApiService(context);
+    final data = await apiService.getPublicPrompts(offset: _offset, limit: 10);
+
+    final List<PromptModel> fetched = (data['items'] as List)
+        .map((item) => PromptModel.fromJson(item))
+        .toList();
+
+    setState(() {
+      _offset += fetched.length;
+      _hasMore = fetched.length == 10;
+    });
+
+    return fetched;
+  }
+
+
+  Future<void> _showPromptSelector() async {
+    final scrollController = ScrollController();
+
+    final initialPrompts = await _fetchPublicPrompts();
+    List<SelectorItem<PromptModel>> promptItems = initialPrompts.map((p) => SelectorItem<PromptModel>(title: p.title, value: p)).toList();
 
     // Get the position of the input
     final RenderBox? renderBox =
@@ -189,11 +210,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final offset = renderBox.localToGlobal(Offset.zero);
 
     // Show the menu above the input
-    SelectorMenuHelper.showMenu<String>(
+    SelectorMenuHelper.showMenu<PromptModel>(
       context: context,
-      items: items,
-      selectedValue: '',
+      items: promptItems,
+      selectedValue: _selectedPrompt,
       onItemSelected: (value) {
+        setState(() {
+          _selectedPrompt = value;
+          _isUsePromptVisible = true;
+        });
         // Handle item selected
       },
       title: 'Suggested Prompts',
@@ -201,6 +226,11 @@ class _HomeScreenState extends State<HomeScreen> {
         offset.dx + 16,
         offset.dy - 300,
       ), // Position above the input
+      scrollController: scrollController,
+      onLoadMore: () async {
+        final newPrompts = await _fetchPublicPrompts();
+        return newPrompts.map((p) => SelectorItem<PromptModel>(title: p.title, value: p)).toList();
+      },
     );
   }
 
@@ -704,7 +734,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // Use Prompt panel
-          if (_isUsePromptVisible && widget.promptModel != null) UsePrompt(onClose: _hideUsePrompt, promptModel: widget.promptModel!, addToChatInput: addToChatInput,),
+          if (_isUsePromptVisible && (widget.promptModel != null || _selectedPrompt != null)) UsePrompt(onClose: _hideUsePrompt, promptModel: widget.promptModel ?? _selectedPrompt!, addToChatInput: addToChatInput, quickPrompt: widget.promptModel != null ? false : true,),
         ],
       ),
     );
