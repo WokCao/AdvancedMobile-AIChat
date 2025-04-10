@@ -64,7 +64,11 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
           !_isFetchingMore &&
           _hasNext) {
         setState(() => _isFetchingMore = true);
-        _fetchPublicPrompts();
+        if (prompt == Prompt.public) {
+          _fetchPublicPrompts();
+        } else {
+          _fetchPrivatePrompts();
+        }
       }
     });
   }
@@ -96,6 +100,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
     final data = await apiService.getPrivatePrompts(
       offset: _offset,
       query: _searchQuery,
+      limit: 8
     );
 
     setState(() {
@@ -105,7 +110,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
             .toList(),
       );
       _hasNext = data['hasNext'] ?? false;
-      _offset += 20;
+      _offset += 8;
       _isLoading = false;
       _isFetchingMore = false;
     });
