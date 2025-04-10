@@ -1,6 +1,8 @@
+import 'package:ai_chat/models/prompt_model.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/home_screen.dart';
+import '../utils/get_api_utils.dart';
 
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
@@ -11,6 +13,29 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> {
   bool _isTrialFocused = false;
+  final List<PromptModel> _suggestedPrompts = [];
+
+  Future<void> _fetchPublicPrompts() async {
+    final apiService = getApiService(context);
+    final data = await apiService.getPublicPrompts(
+      offset: 0,
+      limit: 5
+    );
+
+    setState(() {
+      _suggestedPrompts.addAll(
+        (data['items'] as List)
+            .map((item) => PromptModel.fromJson(item))
+            .toList(),
+      );
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPublicPrompts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,25 +147,26 @@ class _WelcomeState extends State<Welcome> {
             ],
           ),
           const SizedBox(height: 8),
-
-          // Prompt Suggestions
-          ...[
-            'Grammar corrector',
-            // 'Learn Code FAST!',
-            // 'Story generator',
-          ].map((prompt) => _buildSectionWithArrow(
-            title: prompt,
-            onTap: () {
-              /// Handle selecting prompt
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen(showUsePrompt: true),
-                ),
-              );
-            },
-            compact: true,
-          )),
+          SizedBox(
+            height: 90,
+            child: ListView(
+              children: _suggestedPrompts.map((PromptModel prompt) => _buildSectionWithArrow(
+                title: prompt.title,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomeScreen(
+                        showUsePrompt: true,
+                        promptModel: prompt,
+                      ),
+                    ),
+                  );
+                },
+                compact: true,
+              )).toList(),
+            ),
+          )
         ],
       ),
     );
@@ -168,8 +194,10 @@ class _WelcomeState extends State<Welcome> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.8,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -178,6 +206,7 @@ class _WelcomeState extends State<Welcome> {
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
+                        overflow: TextOverflow.ellipsis
                       ),
                     ),
                     if (subtitle != null) ...[
