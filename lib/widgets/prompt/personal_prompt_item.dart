@@ -8,12 +8,14 @@ import 'add_prompt.dart';
 class PersonalPromptItem extends StatefulWidget {
   final PromptModel promptModel;
   final void Function(String) removePrivatePromptCallback;
+  final void Function(String, String, String) updatePrivatePromptCallback;
 
 
   const PersonalPromptItem({
     super.key,
     required this.promptModel,
     required this.removePrivatePromptCallback,
+    required this.updatePrivatePromptCallback,
   });
 
   @override
@@ -39,7 +41,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AddPrompt(name: widget.promptModel.title, prompt: widget.promptModel.content,);
+        return AddPrompt(title: widget.promptModel.title, prompt: widget.promptModel.content, id: widget.promptModel.id, updatePrivatePromptCallback: widget.updatePrivatePromptCallback,);
       },
     );
   }

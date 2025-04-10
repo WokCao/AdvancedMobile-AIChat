@@ -213,6 +213,38 @@ class ApiService {
     }
   }
 
+  Future<bool> updatePrivatePrompt({
+    required String title,
+    required String content,
+    required String id,
+    String description = "User-created prompt",
+    String category = "other",
+    String language = "English",
+  }) async {
+    try {
+      final response = await _dio.patch(
+        '/api/v1/prompts/$id',
+        data: {
+          "title": title,
+          "content": content,
+          "description": description,
+          "category": category,
+          "language": language,
+          "isPublic": false,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } on DioException catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
   Future<bool> deletePrivatePrompt({required String id}) async {
     try {
       final response = await _dio.delete('/api/v1/prompts/$id');
@@ -224,7 +256,9 @@ class ApiService {
       }
     } on DioException catch (e) {
       return false;
-      throw Exception("Failed to delete prompt: ${e.response?.data ?? e.message}");
+      throw Exception(
+        "Failed to delete prompt: ${e.response?.data ?? e.message}",
+      );
     }
   }
 }

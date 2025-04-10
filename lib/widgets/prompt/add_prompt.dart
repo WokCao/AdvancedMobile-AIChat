@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../../utils/get_api_utils.dart';
 
 class AddPrompt extends StatefulWidget {
-  final String name;
+  final String title;
   final String prompt;
-  const AddPrompt({super.key, this.name = "", this.prompt = ""});
+  final String id;
+  final void Function(String, String, String)? updatePrivatePromptCallback;
+  const AddPrompt({super.key, this.title = "", this.prompt = "", this.id = "", this.updatePrivatePromptCallback});
 
   @override
   State<AddPrompt> createState() => _AddPrompt();
@@ -20,7 +22,7 @@ class _AddPrompt extends State<AddPrompt> {
 
   @override
   void initState() {
-    _textController = TextEditingController(text: widget.name);
+    _textController = TextEditingController(text: widget.title);
     _promptTextController = TextEditingController(text: widget.prompt);
     _textController.addListener(() {
       setState(() {
@@ -72,7 +74,7 @@ class _AddPrompt extends State<AddPrompt> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.name.isEmpty ? "New Prompt" : "Update Prompt",
+                widget.title.isEmpty ? "New Prompt" : "Update Prompt",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -147,7 +149,7 @@ class _AddPrompt extends State<AddPrompt> {
                         ),
                       ),
                     ),
-                    counterText: ''
+                    counterText: '',
                   ),
                   maxLines: 1,
                   autofocus: true,
@@ -185,7 +187,11 @@ class _AddPrompt extends State<AddPrompt> {
                     ),
                     hintText:
                         "e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]",
-                    hintStyle: TextStyle(fontSize: 14, color: Colors.grey, height: 1.3),
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                      height: 1.3,
+                    ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 12,
@@ -253,26 +259,50 @@ class _AddPrompt extends State<AddPrompt> {
 
                     if (title.isEmpty || content.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please fill out all required fields")),
+                        SnackBar(
+                          content: Text("Please fill out all required fields"),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (title == widget.title || content == widget.prompt) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Title or Prompt is unchanged"),
+                        ),
                       );
                       return;
                     }
 
                     final apiService = getApiService(context);
-                    final success = await apiService.createPrivatePrompt(
-                      title: title,
-                      content: content,
-                      description: "User-created prompt",
-                    );
+                    bool success = false;
+
+                    if (widget.title != "") {
+                      success = await apiService.updatePrivatePrompt(
+                        title: title,
+                        content: content,
+                        id: widget.id,
+                      );
+                    } else {
+                      success = await apiService.createPrivatePrompt(
+                        title: title,
+                        content: content,
+                        description: "User-created prompt",
+                      );
+                    }
 
                     if (success) {
                       Navigator.of(context).pop(true);
+                      if (widget.updatePrivatePromptCallback != null) {
+                        widget.updatePrivatePromptCallback!(widget.id, title, content);
+                      }
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Prompt created successfully")),
+                        SnackBar(content: Text("Prompt ${widget.title != "" ? "updated" : "created"} successfully")),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Failed to create prompt")),
+                        SnackBar(content: Text("Failed to ${widget.title != "" ? "update" : "create"} prompt")),
                       );
                     }
                   },
@@ -294,8 +324,8 @@ class _AddPrompt extends State<AddPrompt> {
                         end: Alignment.centerRight,
                       ),
                     ),
-                    child: const Text(
-                      'Create',
+                    child: Text(
+                      widget.title != '' ? 'Update' : 'Create',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

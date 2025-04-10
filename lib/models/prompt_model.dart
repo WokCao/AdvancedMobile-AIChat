@@ -60,4 +60,21 @@ class PromptModel {
       'isFavorite': isFavorite,
     };
   }
+
+  PromptModel copyWith({required String title, required String content}) {
+    return PromptModel(
+      id: id,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      category: category,
+      content: content,
+      description: description,
+      isPublic: isPublic,
+      language: language,
+      title: title,
+      userId: userId,
+      userName: userName,
+      isFavorite: isFavorite,
+    );
+  }
 }

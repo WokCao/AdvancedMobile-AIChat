@@ -164,6 +164,18 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
     });
   }
 
+  void updatePrivatePromptCallback(String id, String title, String content) {
+    setState(() {
+      final index = _privatePrompts.indexWhere((prompt) => prompt.id == id);
+      if (index != -1) {
+        _privatePrompts[index] = _privatePrompts[index].copyWith(
+          title: title,
+          content: content,
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -494,6 +506,8 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                               promptModel: p,
                               removePrivatePromptCallback:
                                   removePrivatePromptCallback,
+                              updatePrivatePromptCallback:
+                                  updatePrivatePromptCallback,
                             );
                       }).toList();
                     })(),
