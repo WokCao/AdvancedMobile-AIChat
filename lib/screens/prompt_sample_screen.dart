@@ -282,6 +282,8 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                     child: TextField(
                       controller: _searchController,
                       onChanged: (value) {
+                        final isPublic = prompt == Prompt.public;
+
                         if (_debounce?.isActive ?? false) _debounce!.cancel();
                         _debounce = Timer(Duration(milliseconds: 500), () {
                           setState(() {
@@ -289,9 +291,9 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                             _offset = 0;
                             _hasNext = true;
                             _isLoading = true;
-                            _publicPrompts.clear();
+                            isPublic ? _publicPrompts.clear() : _privatePrompts.clear();
                           });
-                          _fetchPublicPrompts(); // 🔁 refresh with query
+                          isPublic ? _fetchPublicPrompts() : _fetchPrivatePrompts(); // 🔁 refresh with query
                         });
                       },
                       decoration: InputDecoration(

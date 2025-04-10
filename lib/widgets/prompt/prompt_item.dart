@@ -33,7 +33,7 @@ class _PromptItemState extends State<PromptItem> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return ViewPromptInfo(title: widget.promptModel.title, description: widget.promptModel.description ?? 'No description', content: widget.promptModel.content, topic: widget.promptModel.category, author: widget.promptModel.userName,);
+        return ViewPromptInfo(promptModel: widget.promptModel,);
       },
     );
   }
@@ -76,6 +76,7 @@ class _PromptItemState extends State<PromptItem> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
+                                overflow: TextOverflow.ellipsis
                               ),
                             ),
                             SizedBox(height: 5,),
