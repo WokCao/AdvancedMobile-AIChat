@@ -496,12 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           showDialog(
                             context: context,
-                            builder:
-                                (context) => CreateBotDialog(
-                                  onSubmit: (name, instructions) {
-                                    // Handle bot creation
-                                  },
-                                ),
+                            builder: (context) => CreateBotDialog(),
                           );
                         },
                         borderRadius: BorderRadius.circular(24),

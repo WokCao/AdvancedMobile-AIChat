@@ -2,11 +2,19 @@ import 'package:ai_chat/utils/get_api_utils.dart';
 import 'package:flutter/material.dart';
 
 class CreateBotDialog extends StatefulWidget {
-  final Function(String name, String instructions) onSubmit;
+  final bool isEditing;
+  final String? botId;
+  final String? initialName;
+  final String? initialInstructions;
+  final String? initialDescription;
 
   const CreateBotDialog({
     super.key,
-    required this.onSubmit,
+    this.isEditing = false,
+    this.botId,
+    this.initialName,
+    this.initialInstructions,
+    this.initialDescription,
   });
 
   @override
@@ -17,24 +25,17 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _instructionsController = TextEditingController();
+  final _descriptionController = TextEditingController();
+
   bool _isCreateFocused = false;
   bool _loading = false;
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _instructionsController.dispose();
-    super.dispose();
-  }
-
-  void _handleSubmit() {
-    if (_formKey.currentState!.validate()) {
-      widget.onSubmit(
-        _nameController.text,
-        _instructionsController.text,
-      );
-      Navigator.of(context).pop();
-    }
+  void initState() {
+    super.initState();
+    _nameController.text = widget.initialName ?? '';
+    _instructionsController.text = widget.initialInstructions ?? '';
+    _descriptionController.text = widget.initialDescription ?? '';
   }
 
   @override
@@ -54,9 +55,9 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
             // Header
             Row(
               children: [
-                const Text(
-                  'Create Your Own Bot',
-                  style: TextStyle(
+                Text(
+                  widget.isEditing ? 'Edit Your Bot' : 'Create Your Own Bot',
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -102,7 +103,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
-                      hintText: 'Enter a name for your bot...',
+                      hintText: 'Enter a name for your bot (e.g \'Customer Support Bot\')',
                       hintStyle: TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -144,7 +145,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                   TextFormField(
                     controller: _instructionsController,
                     decoration: InputDecoration(
-                      hintText: 'Enter instructions for the bot...',
+                      hintText: 'Describe how your bot should behave and respond. Add guidelines or specific rules if needed. (e.g \'Always respond with a pirate accent\')',
                       hintStyle: TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -156,10 +157,62 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                   const SizedBox(height: 16),
 
                   // Knowledge base section
+                  if (!widget.isEditing) ...[
+                    Row(
+                      children: [
+                        Text(
+                          'Knowledge base',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '(Optional)',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Enhance your bot\'s responses by adding custom knowledge.',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity, // Make button full width
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          /// Handle adding knowledge source
+                          Navigator.pushNamed(context, '/source');
+                        },
+                        icon: Icon(Icons.add, color: Colors.purple.shade700),
+                        label: const Text('Add knowledge source'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.purple.shade700,
+                          side: BorderSide(color: Colors.purple.shade200),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          alignment: Alignment.center,
+                        ),
+                      )
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Description field
                   Row(
                     children: [
-                      Text(
-                        'Knowledge base',
+                      const Text(
+                        'Description',
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                         ),
@@ -174,36 +227,20 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Enhance your bot\'s responses by adding custom knowledge.',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity, // Make button full width
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        /// Handle adding knowledge source
-                        Navigator.pushNamed(context, '/source');
-                      },
-                      icon: Icon(Icons.add, color: Colors.purple.shade700),
-                      label: const Text('Add knowledge source'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.purple.shade700,
-                        side: BorderSide(color: Colors.purple.shade200),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        alignment: Alignment.center,
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _descriptionController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter a description for your bot (e.g \'A helpful customer support assistant\')',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    )
+                      contentPadding: const EdgeInsets.all(12),
+                    ),
+                    maxLines: 4,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Action buttons
                   Row(
@@ -249,22 +286,27 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                                   setState(() => _loading = true);
 
                                   final api = getKBApiService(context);
-                                  final success = await api.createBot(
-                                    assistantName: _nameController.text.trim(),
-                                    instructions: _instructionsController.text.trim(),
-                                    description: '',
-                                  );
-
-                                  setState(() => _loading = false);
+                                  final success = widget.isEditing
+                                    ? await api.updateBot(
+                                        id: widget.botId!,
+                                        assistantName: _nameController.text.trim(),
+                                        instructions: _instructionsController.text.trim(),
+                                        description: _descriptionController.text.trim(),
+                                      )
+                                    : await api.createBot(
+                                        assistantName: _nameController.text.trim(),
+                                        instructions: _instructionsController.text.trim(),
+                                        description: _descriptionController.text.trim(),
+                                      );
 
                                   if (success) {
-                                    Navigator.of(context).pop(true); // Signal parent to refresh bot list
+                                    Navigator.of(context).pop(true);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("Bot created successfully")),
+                                      SnackBar(content: Text("Bot ${widget.isEditing ? "saved" : "created"} successfully")),
                                     );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("Failed to create bot")),
+                                      SnackBar(content: Text("Failed to ${widget.isEditing ? "save" : "create"} bot")),
                                     );
                                   }
                                 }
@@ -276,7 +318,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                                     height: 20,
                                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                                   )
-                                  : const Text('Create', style: TextStyle(color: Colors.white)),
+                                  : Text(widget.isEditing ? 'Save' : 'Create', style: const TextStyle(color: Colors.white)),
                             )
                         ),
                       ),

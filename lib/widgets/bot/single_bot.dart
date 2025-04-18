@@ -1,10 +1,24 @@
 import 'package:ai_chat/widgets/bot/remove_bot.dart';
 import 'package:flutter/material.dart';
 
+import '../../utils/get_api_utils.dart';
+import 'create_bot_dialog.dart';
+
 class SingleBot extends StatefulWidget {
+  final String id;
   final String name;
+  final String instructions;
   final String description;
-  const SingleBot({super.key, required this.name, required this.description});
+  final VoidCallback? onBotUpdated;
+
+  const SingleBot({
+    super.key,
+    required this.id,
+    required this.name,
+    required this.instructions,
+    required this.description,
+    this.onBotUpdated,
+  });
 
   @override
   State<SingleBot> createState() => _SingleBotState();
@@ -66,6 +80,28 @@ class _SingleBotState extends State<SingleBot> {
                         Tooltip(
                           message: "Favorite",
                           child: Icon(Icons.star_border_outlined, color: Colors.purple.shade200,),
+                        ),
+                        SizedBox(width: 12),
+                        Tooltip(
+                          message: "Edit",
+                          child: GestureDetector(
+                            onTap: () async {
+                              final result = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => CreateBotDialog(
+                                  isEditing: true,
+                                  botId: widget.id,
+                                  initialName: widget.name,
+                                  initialInstructions: widget.instructions,
+                                  initialDescription: widget.description,
+                                ),
+                              );
+                              if (result == true) {
+                                widget.onBotUpdated?.call();
+                              }
+                            },
+                            child: Icon(Icons.edit_outlined, color: Colors.purple.shade200),
+                          ),
                         ),
                         SizedBox(width: 12),
                         Tooltip(

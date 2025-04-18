@@ -55,4 +55,28 @@ class KnowledgeApiService {
       throw Exception('Get bots failed: ${e.response?.data ?? e.message}');
     }
   }
+
+  Future<bool> updateBot({
+    required String id,
+    required String assistantName,
+    String? instructions,
+    String? description,
+  }) async {
+    try {
+      final response = await _dio.patch(
+        '/kb-core/v1/ai-assistant/$id',
+        data: {
+          'assistantName': assistantName,
+          if (instructions != null && instructions.isNotEmpty)
+            'instructions': instructions,
+          if (description != null && description.isNotEmpty)
+            'description': description,
+        },
+      );
+
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      throw Exception('Update bot failed: ${e.response?.data ?? e.message}');
+    }
+  }
 }

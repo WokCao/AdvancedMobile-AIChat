@@ -105,15 +105,14 @@ class _BotListState extends State<BotList> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: ElevatedButton(
-                  onPressed: () {
-                    showDialog(
+                  onPressed: () async {
+                    final result = await showDialog<bool>(
                       context: context,
-                      builder: (context) => CreateBotDialog(
-                        onSubmit: (name, instructions) {
-                          // Handle bot creation
-                        },
-                      ),
+                      builder: (context) => CreateBotDialog(),
                     );
+                    if (result == true) {
+                      _fetchBots();
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
@@ -171,8 +170,11 @@ class _BotListState extends State<BotList> {
                         itemBuilder: (context, index) {
                           final bot = _bots[index];
                           return SingleBot(
+                            id: bot['id'],
                             name: bot['assistantName'] ?? 'Untitled Bot',
+                            instructions: bot['instructions'] ?? '',
                             description: bot['description'] ?? '',
+                            onBotUpdated: _fetchBots,
                           );
                         },
                       ),
