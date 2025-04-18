@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:ai_chat/widgets/bot/single_bot.dart';
 import 'package:ai_chat/widgets/bot/type_drop_down.dart';
 import 'package:flutter/material.dart';
 
+import '../../utils/get_api_utils.dart';
 import 'create_bot_dialog.dart';
 
 class BotList extends StatefulWidget {
@@ -12,6 +15,30 @@ class BotList extends StatefulWidget {
 }
 
 class _BotListState extends State<BotList> {
+  List<Map<String, dynamic>> _bots = [];
+  bool _loading = true;
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBots();
+  }
+
+  Future<void> _fetchBots() async {
+    setState(() => _loading = true);
+
+    final api = getKBApiService(context);
+    final bots = await api.getBots(search: _searchQuery);
+
+    setState(() {
+      _bots = bots;
+      _loading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -32,6 +59,14 @@ class _BotListState extends State<BotList> {
                         maxWidth: MediaQuery.of(context).size.width * 0.3,
                       ),
                       child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) {
+                          if (_debounce?.isActive ?? false) _debounce!.cancel();
+                          _debounce = Timer(const Duration(milliseconds: 400), () {
+                            setState(() => _searchQuery = value.trim());
+                            _fetchBots();
+                          });
+                        },
                         style: TextStyle(fontSize: 14),
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.search_sharp, size: 24),
@@ -101,22 +136,46 @@ class _BotListState extends State<BotList> {
           ),
           SizedBox(height: 16),
           Expanded(
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 800,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 4,
-              ),
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return SingleBot(
-                  name: "Bot $index",
-                  description:
-                      "his example shows a custom implementation of selection in list and grid views. Use the button in the top right (possibly hidden under the DEBUG banner) to toggle between ListView and GridView. Long press any ListTile or GridTile to enable selection mode.",
-                );
-              },
-            ),
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _bots.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'binoculars.png',
+                              width: 128,
+                              height: 128,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              "No bots found",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : GridView.builder(
+                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 800,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 4,
+                        ),
+                        itemCount: _bots.length,
+                        itemBuilder: (context, index) {
+                          final bot = _bots[index];
+                          return SingleBot(
+                            name: bot['assistantName'] ?? 'Untitled Bot',
+                            description: bot['description'] ?? '',
+                          );
+                        },
+                      ),
           ),
         ],
       ),

@@ -37,4 +37,22 @@ class KnowledgeApiService {
       throw Exception('Create bot error: ${e.response?.data ?? e.message}');
     }
   }
+
+  Future<List<Map<String, dynamic>>> getBots({String? search}) async {
+    try {
+      final response = await _dio.get(
+        '/kb-core/v1/ai-assistant',
+        queryParameters: {
+          if (search != null && search.isNotEmpty) 'q': search,
+          'limit': 50,
+          'order': 'DESC',
+          'order_field': 'createdAt',
+        },
+      );
+
+      return List<Map<String, dynamic>>.from(response.data['data']);
+    } on DioException catch (e) {
+      throw Exception('Get bots failed: ${e.response?.data ?? e.message}');
+    }
+  }
 }
