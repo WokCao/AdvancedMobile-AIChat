@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/get_api_utils.dart';
+
 class RemoveBot extends StatefulWidget {
-  const RemoveBot({super.key});
+  final String id;
+  final VoidCallback? onBotRemoved;
+
+  const RemoveBot({
+    super.key,
+    required this.id,
+    this.onBotRemoved,
+  });
 
   @override
   State<RemoveBot> createState() => _RemoveBotState();
@@ -10,6 +19,7 @@ class RemoveBot extends StatefulWidget {
 class _RemoveBotState extends State<RemoveBot> {
   bool isDeleteHovered = false;
   bool isCancelHovered = false;
+  bool _loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -110,14 +120,25 @@ class _RemoveBotState extends State<RemoveBot> {
                 ),
               ),
               const SizedBox(width: 8),
-              // Save button
+              // Delete button
               MouseRegion(
                 cursor: SystemMouseCursors.click,
                 onEnter: (_) => (setState(() => isDeleteHovered = true)),
                 onExit: (_) => (setState(() => isDeleteHovered = false)),
                 child: GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
+                  onTap: () async {
+                    setState(() => _loading = true);
+
+                    final api = getKBApiService(context);
+                    final success = await api.deleteBot(widget.id);
+
+                    if (success) {
+                      widget.onBotRemoved?.call();
+                      Navigator.of(context).pop(true);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Bot deleted")));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to delete bot")));
+                    }
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 6, horizontal: 18),
@@ -126,9 +147,13 @@ class _RemoveBotState extends State<RemoveBot> {
                         border: Border.all(color: Colors.purple.shade200),
                         color: isDeleteHovered ? Colors.purple.shade600 : Colors.purple.shade400
                     ),
-                    child: const Text(
-                      'Delete',
-                      style: TextStyle(color: Colors.white),
+                    child: _loading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                          : const Text('Delete', style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),

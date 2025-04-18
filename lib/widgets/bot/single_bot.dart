@@ -109,10 +109,13 @@ class _SingleBotState extends State<SingleBot> {
                           child: GestureDetector(
                             onTap: () {
                               showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return RemoveBot();
-                                  }
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return RemoveBot(
+                                    id: widget.id,
+                                    onBotRemoved: widget.onBotUpdated,
+                                  );
+                                }
                               );
                             },
                             child: Icon(Icons.delete_outline_outlined, color: Colors.purple.shade200,),

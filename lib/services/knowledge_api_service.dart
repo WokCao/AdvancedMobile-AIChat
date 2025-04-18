@@ -79,4 +79,13 @@ class KnowledgeApiService {
       throw Exception('Update bot failed: ${e.response?.data ?? e.message}');
     }
   }
+
+  Future<bool> deleteBot(String id) async {
+    try {
+      final response = await _dio.delete('/kb-core/v1/ai-assistant/$id');
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      throw Exception('Delete bot failed: ${e.response?.data ?? e.message}');
+    }
+  }
 }
