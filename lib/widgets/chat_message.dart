@@ -1,3 +1,4 @@
+import 'package:ai_chat/widgets/typing_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -127,9 +128,13 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
             // Message Content
             Padding(
               padding: EdgeInsets.only(left: 24.0, top: 4.0),
-              child: _isEditing
-                  ? _buildEditField()
-                  : _buildFormattedMessage(widget.message.message),
+              child: widget.message.message == 'Typing...' && widget.message.type == MessageType.ai
+                ? TypingIndicatorBubble()
+                : (_isEditing
+                    ? _buildEditField()
+                    : _buildFormattedMessage(widget.message.message
+                  )
+              ),
             ),
 
             // Action buttons

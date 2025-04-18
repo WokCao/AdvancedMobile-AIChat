@@ -1,3 +1,4 @@
+import 'package:ai_chat/models/prompt_model.dart';
 import 'package:ai_chat/widgets/prompt/remove_prompt.dart';
 import 'package:flutter/material.dart';
 
@@ -5,12 +6,16 @@ import '../../screens/home_screen.dart';
 import 'add_prompt.dart';
 
 class PersonalPromptItem extends StatefulWidget {
-  final String name;
-  final String prompt;
+  final PromptModel promptModel;
+  final void Function(String) removePrivatePromptCallback;
+  final void Function(String, String, String) updatePrivatePromptCallback;
+
+
   const PersonalPromptItem({
     super.key,
-    required this.name,
-    required this.prompt,
+    required this.promptModel,
+    required this.removePrivatePromptCallback,
+    required this.updatePrivatePromptCallback,
   });
 
   @override
@@ -27,7 +32,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return RemovePrompt();
+        return RemovePrompt(id: widget.promptModel.id, removePrivatePromptCallback: widget.removePrivatePromptCallback,);
       },
     );
   }
@@ -36,7 +41,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AddPrompt(name: widget.name, prompt: widget.prompt,);
+        return AddPrompt(title: widget.promptModel.title, prompt: widget.promptModel.content, id: widget.promptModel.id, updatePrivatePromptCallback: widget.updatePrivatePromptCallback,);
       },
     );
   }
@@ -48,7 +53,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(showUsePrompt: true),
+            builder: (context) => HomeScreen(showUsePrompt: true, promptModel: widget.promptModel,),
           ),
         );
       },
@@ -73,7 +78,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.name,
+                            widget.promptModel.title,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -153,7 +158,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HomeScreen(showUsePrompt: true),
+                                builder: (context) => HomeScreen(showUsePrompt: true, promptModel: widget.promptModel,),
                               ),
                             );
                           },

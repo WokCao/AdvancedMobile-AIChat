@@ -1,4 +1,8 @@
+import 'package:ai_chat/utils/token_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/auth_provider.dart';
 
 class AppSidebar extends StatelessWidget {
   final bool isExpanded;
@@ -185,8 +189,31 @@ class AppSidebar extends StatelessWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.logout),
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/');
+                          onPressed: () async {
+                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                            final user = authProvider.user;
+
+                            if (user == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('No user found')),
+                              );
+                              Navigator.pushReplacementNamed(context, '/login');
+                              return;
+                            }
+
+                            final success = await authProvider.logout(
+                              user.refreshToken
+                            );
+
+                            await clearTokens();
+
+                            if (success) {
+                              Navigator.pushReplacementNamed(context, '/login');
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(authProvider.error ?? 'Logout failed. Please try again')),
+                              );
+                            }
                           },
                           tooltip: 'Logout',
                         ),

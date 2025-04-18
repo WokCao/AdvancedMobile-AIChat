@@ -1,21 +1,14 @@
+import 'package:ai_chat/models/prompt_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../screens/home_screen.dart';
 
 class ViewPromptInfo extends StatefulWidget {
-  final String title;
-  final String description;
-  final String content;
-  final String topic;
-  final String author;
+  final PromptModel promptModel;
 
   const ViewPromptInfo({
     super.key,
-    required this.title,
-    required this.description,
-    required this.content,
-    required this.topic,
-    required this.author,
+    required this.promptModel,
   });
 
   @override
@@ -31,7 +24,7 @@ class _ViewPromptInfoState extends State<ViewPromptInfo> {
 
   @override
   void initState() {
-    _textController = TextEditingController(text: widget.content);
+    _textController = TextEditingController(text: widget.promptModel.content);
     super.initState();
   }
 
@@ -74,11 +67,15 @@ class _ViewPromptInfoState extends State<ViewPromptInfo> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                widget.title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.4 * 0.7,
+                child: Text(
+                  widget.promptModel.title,
+                  style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis
+                  ),
                 ),
               ),
               // Close icon button
@@ -126,20 +123,20 @@ class _ViewPromptInfoState extends State<ViewPromptInfo> {
           Row(
             children: [
               Text(
-                widget.topic,
+                widget.promptModel.category,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               SizedBox(width: 8,),
               Icon(Icons.circle, size: 8,),
               SizedBox(width: 8,),
               Text(
-                widget.author,
+                widget.promptModel.userName,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               )
             ],
           ),
           SizedBox(height: 4),
-          Text(widget.description, style: TextStyle(color: Colors.grey.shade600),),
+          Text(widget.promptModel.description ?? 'No description', style: TextStyle(color: Colors.grey.shade600),),
           SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -246,7 +243,7 @@ class _ViewPromptInfoState extends State<ViewPromptInfo> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => HomeScreen(showUsePrompt: true),
+                        builder: (context) => HomeScreen(showUsePrompt: true, promptModel: widget.promptModel,),
                       ),
                     );
                   },

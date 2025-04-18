@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../utils/token_storage.dart';
 import '../../widgets/auth/auth_button.dart';
 import '../../widgets/auth/auth_header.dart';
 import '../../widgets/auth/custom_text_field.dart';
@@ -19,11 +22,40 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _rememberMe = false;
+  bool _isLoading = false;
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       // Handle login
-      Navigator.pushReplacementNamed(context, '/home');
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      final success = await authProvider.signIn(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (success) {
+        final user = authProvider.user;
+        if (user == null) {
+          return;
+        }
+
+        await saveTokens(user.accessToken, user.refreshToken);
+        Navigator.pushNamed(context, '/home');
+      } else {
+        // Show error returned from the server
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(authProvider.error ?? 'Signup failed. Please try again')),
+        );
+      }
     }
   }
 
@@ -70,12 +102,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           prefixIcon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
-                            // if (value == null || value.isEmpty) {
-                            //   return 'Please enter your email';
-                            // }
-                            // if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                            //   return 'Please enter a valid email';
-                            // }
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your email';
+                            }
+                            if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                              return 'Please enter a valid email';
+                            }
                             return null;
                           },
                         ),
@@ -100,12 +132,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           obscureText: _obscurePassword,
                           textInputAction: TextInputAction.done,
                           validator: (value) {
-                            // if (value == null || value.isEmpty) {
-                            //   return 'Please enter your password';
-                            // }
-                            // if (value.length < 6) {
-                            //   return 'Password must be at least 6 characters';
-                            // }
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your password';
+                            }
+                            if (value.length < 8) {
+                              return 'Password must be at least 8 characters';
+                            }
                             return null;
                           },
                           onFieldSubmitted: (_) => _submitForm(),
@@ -137,8 +169,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         // Login button
                         AuthButton(
-                          text: 'Sign In',
+                          text: _isLoading ? 'Logging in...' : 'Sign In',
                           onPressed: _submitForm,
+                          isLoading: _isLoading,
                         ),
                       ],
                     ),
