@@ -1,3 +1,4 @@
+import 'package:ai_chat/utils/get_api_utils.dart';
 import 'package:flutter/material.dart';
 
 class CreateBotDialog extends StatefulWidget {
@@ -17,6 +18,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
   final _nameController = TextEditingController();
   final _instructionsController = TextEditingController();
   bool _isCreateFocused = false;
+  bool _loading = false;
 
   @override
   void dispose() {
@@ -242,10 +244,39 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                               borderRadius: BorderRadius.circular(24),
                             ),
                             child: InkWell(
-                              onTap: () {
-                                // Handle create bot
+                              onTap: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() => _loading = true);
+
+                                  final api = getKBApiService(context);
+                                  final success = await api.createBot(
+                                    assistantName: _nameController.text.trim(),
+                                    instructions: _instructionsController.text.trim(),
+                                    description: '',
+                                  );
+
+                                  setState(() => _loading = false);
+
+                                  if (success) {
+                                    Navigator.of(context).pop(true); // Signal parent to refresh bot list
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Bot created successfully")),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Failed to create bot")),
+                                    );
+                                  }
+                                }
                               },
-                              child: const Text('Create', style: TextStyle(color: Colors.white)),
+                              child:
+                                _loading
+                                  ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                  : const Text('Create', style: TextStyle(color: Colors.white)),
                             )
                         ),
                       ),
