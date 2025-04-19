@@ -301,11 +301,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model
-      
+      final modelName = _currentModel['name'];
+
       final apiService = getApiService(context);
       final result = await apiService.sendMessage(
         content: text,
         modelId: modelId,
+        modelName: modelName,
+        conversationId: _lastConversationId,
       );
       
       final reply = result['message'];
