@@ -21,14 +21,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isSidebarVisible = false;
+  final ScrollController _scrollController = ScrollController();
+
   final TextEditingController _textController = TextEditingController();
   bool _isInputFocused = false;
   bool _isInputHasText = false;
+
   bool _isAISelectorFocused = false;
   bool _isBotCreateFocused = false;
-  final ScrollController _scrollController = ScrollController();
+
   bool _isUsePromptVisible = false;
   late PromptModel? _selectedPrompt;
+
+  bool _fetchingBots = false;
 
   // Selector items
   int _offset = 0;
@@ -94,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'tokenCount': 'Cost 3 Tokens',
     },
   ];
+  List<Map<String, dynamic>> _botData = [];
 
   late String _selectedModel;
   final GlobalKey _modelSelectorKey = GlobalKey();
@@ -114,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
       _loadTokenCount();
+      _fetchBots();
     });
   }
 
@@ -139,27 +146,44 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _showModelSelector() {
-    // Convert model data to selector items
-    final items =
-        _modelData.map((model) {
-          return SelectorItem<String>(
-            title: model['name'],
-            leading: Icon(model['icon'], size: 20, color: model['iconColor']),
-            subtitle: model['description'],
-            trailing: model['tokenCount'],
-            value: model['name'],
-          );
-        }).toList();
+  Future<void> _showModelSelector() async {
+    final modelItems = _modelData.map((model) {
+      return SelectorItem<String>(
+        title: model['name'],
+        leading: Icon(model['icon'], size: 20, color: model['iconColor']),
+        subtitle: model['description'],
+        trailing: model['tokenCount'],
+        value: model['name'],
+      );
+    }).toList();
 
-    // Get the position of the button
-    final RenderBox? renderBox =
-        _modelSelectorKey.currentContext?.findRenderObject() as RenderBox?;
+    final botItems = _botData.map((bot) {
+      return SelectorItem<String>(
+        title: bot['name'],
+        leading: Icon(bot['icon'], size: 20, color: bot['iconColor']),
+        subtitle: bot['description'],
+        value: 'bot:${bot['apiId']}',
+      );
+    }).toList();
+
+    final items = [
+      SelectorItem<String>(
+        title: 'title:Base AI Models',
+      ),
+      ...modelItems,
+      if (botItems.isNotEmpty) ...[
+        SelectorItem<String>(
+          title: 'title:Your Bots',
+        ),
+        ...botItems,
+      ],
+    ];
+
+    final renderBox = _modelSelectorKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
     final offset = renderBox.localToGlobal(Offset.zero);
 
-    // Show the menu above the button
     SelectorMenuHelper.showMenu<String>(
       context: context,
       items: items,
@@ -167,13 +191,10 @@ class _HomeScreenState extends State<HomeScreen> {
       onItemSelected: (value) {
         setState(() {
           _selectedModel = value;
+          // Optional: track if this is a bot via value.startsWith("bot:")
         });
       },
-      title: 'Base AI Models',
-      offset: Offset(
-        offset.dx + 16,
-        offset.dy - 320,
-      ), // Position above the button
+      offset: Offset(offset.dx + 16, offset.dy - 320 - (botItems.length * 28)),
     );
   }
 
@@ -194,7 +215,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return fetched;
   }
-
 
   Future<void> _showPromptSelector() async {
     final scrollController = ScrollController();
@@ -234,12 +254,33 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _fetchBots() async {
+    setState(() => _fetchingBots = true);
+
+    final api = getKBApiService(context);
+    final bots = await api.getBots();
+
+    setState(() {
+      _botData = bots.map((bot) => {
+        'apiId': bot['id'],
+        'name': bot['assistantName'],
+        'description': bot['description'] ?? '',
+        'type': 'bot',
+        'icon': Icons.smart_toy_outlined,
+        'iconColor': Colors.blue,
+      }).toList();
+      _fetchingBots = false;
+    });
+  }
+
   // Get the current model data
   Map<String, dynamic> get _currentModel {
-    return _modelData.firstWhere(
-      (model) => model['name'] == _selectedModel,
-      orElse: () => _modelData[0],
-    );
+    if (_selectedModel.startsWith("bot:")) {
+      final id = _selectedModel.split(":")[1];
+      return _botData.firstWhere((b) => b['apiId'] == id, orElse: () => _botData[0]);
+    } else {
+      return _modelData.firstWhere((m) => m['name'] == _selectedModel, orElse: () => _modelData[0]);
+    }
   }
 
   void _handleTextChange() {
@@ -261,6 +302,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _handleSendMessage() async {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
+
+    final isUsingBot = _selectedModel.startsWith("bot:");
+    final assistantId = isUsingBot ? _selectedModel.split(":")[1] : null;
 
     setState(() {
       // Add user message
@@ -298,14 +342,27 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model
-      
-      final apiService = getApiService(context);
-      final result = await apiService.sendMessage(
-        content: text,
-        modelId: modelId,
-      );
-      
+      Map<String, dynamic> result;
+
+      if (isUsingBot && assistantId != null) {
+        final api = getKBApiService(context);
+        result = await api.askBot(
+          assistantId: assistantId,
+          message: text,
+          openAiThreadId: "thread_ewcmtpDJwtDPcCeoDjtydmcW", // generate one if not set
+          additionalInstruction: "",
+        );
+      }
+
+      else {
+        final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model
+        final apiService = getApiService(context);
+        result = await apiService.sendMessage(
+          content: text,
+          modelId: modelId,
+        );
+      }
+
       final reply = result['message'];
       final remaining = result['remainingUsage'];
       
@@ -461,7 +518,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             const SizedBox(width: 4),
-                            const Icon(Icons.expand_more, size: 20),
+                            _fetchingBots
+                                ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                                : const Icon(Icons.expand_more, size: 20),
                           ],
                         ),
                       ),
@@ -493,11 +556,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: InkWell(
-                        onTap: () {
-                          showDialog(
+                        onTap: () async {
+                          final result = await showDialog<bool>(
                             context: context,
                             builder: (context) => CreateBotDialog(),
                           );
+                          if (result == true) {
+                            _fetchBots();
+                          }
                         },
                         borderRadius: BorderRadius.circular(24),
                         child: Row(

@@ -88,4 +88,25 @@ class KnowledgeApiService {
       throw Exception('Delete bot failed: ${e.response?.data ?? e.message}');
     }
   }
+
+  Future<Map<String, dynamic>> askBot({
+    required String assistantId,
+    required String message,
+    required String openAiThreadId,
+    String additionalInstruction = "",
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/kb-core/v1/ai-assistant/$assistantId/ask',
+        data: {
+          "message": message,
+          "openAiThreadId": openAiThreadId,
+          "additionalInstruction": additionalInstruction,
+        },
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw Exception('Bot ask failed: ${e.response?.data ?? e.message}');
+    }
+  }
 }

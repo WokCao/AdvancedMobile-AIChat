@@ -37,19 +37,6 @@ class SelectorMenu<T> extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header (optional)
-            if (title != null)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  title!,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
             // Item List
             Flexible(
               child: ListView.builder(
@@ -62,6 +49,19 @@ class SelectorMenu<T> extends StatelessWidget {
                   if (index < items.length) {
                     final item = itemList[index];
                     final isSelected = item.value == selectedValue;
+
+                    if (item.title.startsWith('title:')) {
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          item.title.replaceFirst('title:', ''),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    }
 
                     return HoverMenuItem<T>(
                       item: item,
