@@ -89,6 +89,29 @@ class ApiService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getConversationHistory({
+    required String conversationId,
+    String? modelId,
+    String? cursor,
+    int limit = 100,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/ai-chat/conversations/$conversationId/messages',
+        queryParameters: {
+          'cursor': cursor,
+          'limit': limit,
+          'assistantId': modelId,
+          'assistantModel': 'dify',
+        },
+      );
+
+      return List<Map<String, dynamic>>.from(response.data['items']);
+    } on DioException catch (e) {
+      throw Exception("Error fetching messages: ${e.response?.data ?? e.message}");
+    }
+  }
+
   Future<int?> getAvailableTokens() async {
     try {
       final response = await _dio.get('/api/v1/tokens/usage');

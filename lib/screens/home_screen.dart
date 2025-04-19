@@ -29,12 +29,14 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isUsePromptVisible = false;
   late PromptModel? _selectedPrompt;
+  String _lastConversationId = '';
+  bool _loadingConversation = false;
 
   // Selector items
   int _offset = 0;
   bool _hasMore = true;
 
-  final List<ChatMessage> _messages = [];
+  List<ChatMessage> _messages = [];
   int _remainingTokens = -1;
 
   // AI Models data
@@ -114,6 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
       _loadTokenCount();
+      _loadLastConversation();
     });
   }
 
@@ -194,7 +197,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return fetched;
   }
-
 
   Future<void> _showPromptSelector() async {
     final scrollController = ScrollController();
@@ -368,6 +370,38 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _loadLastConversation() async {
+    setState(() => _loadingConversation = true);
+
+    final api = getApiService(context);
+
+    // Get most recent conversation ID
+    final conversations = await api.getConversations(modelId: _currentModel['apiId'], limit: 1);
+    if (conversations.isEmpty) return setState(() => _loadingConversation = false);
+
+    final conversationId = conversations[0]['id'];
+
+    // Get messages for that conversation
+    final messages = await api.getConversationHistory(conversationId: conversationId, modelId: _currentModel['apiId']);
+
+    // Parse into chat model
+    final parsed = messages.expand((msg) {
+      final createdAt = msg['createdAt'].toString();
+      return [
+        ChatMessage(id: '$createdAt-user', message: msg['query'], type: MessageType.user),
+        ChatMessage(id: '$createdAt-bot', message: msg['answer'], type: MessageType.ai),
+      ];
+    }).toList();
+
+    setState(() {
+      _messages = parsed;
+      _lastConversationId = conversationId; // store for future use
+      _loadingConversation = false;
+    });
+
+    _scrollToBottom();
+  }
+
   @override
   void dispose() {
     _textController.dispose();
@@ -397,26 +431,34 @@ class _HomeScreenState extends State<HomeScreen> {
               // Chat messages
               Expanded(
                 child:
-                  _messages.isEmpty
-                    ? Welcome()
-                    : ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.only(top: 16, bottom: 16),
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) {
-                        final message = _messages[index];
-                        // Adds a gap below each item
-                        return Padding(
-                          padding: const EdgeInsets.only(
-                            bottom: 10,
-                          ),
-                          child: ChatMessageWidget(
-                            message: message,
-                            onEditMessage: _handleEditMessage,
-                          ),
-                        );
-                      },
-                    ),
+                  _loadingConversation
+                    ? Center(
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                    : _messages.isEmpty
+                      ? Welcome()
+                      : ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.only(top: 16, bottom: 16),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, index) {
+                          final message = _messages[index];
+                          // Adds a gap below each item
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: 10,
+                            ),
+                            child: ChatMessageWidget(
+                              message: message,
+                              onEditMessage: _handleEditMessage,
+                            ),
+                          );
+                        },
+                      ),
               ),
 
               // Above input
