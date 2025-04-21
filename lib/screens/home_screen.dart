@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isUsePromptVisible = false;
   late PromptModel? _selectedPrompt;
-  String _lastConversationId = '';
+  String? _lastConversationId;
   bool _loadingConversation = false;
 
   // Selector items
@@ -607,7 +607,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: IconButton(
                       icon: const Icon(Icons.add),
                       color: Colors.white,
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          _messages = [];
+                          _lastConversationId = null;
+                        });
+                      },
                       tooltip: 'New chat',
                     ),
                   ),
