@@ -3,9 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../utils/get_api_utils.dart';
 import '../utils/time_utils.dart';
+import '../widgets/chat_message.dart';
 
 class ChatHistoryScreen extends StatefulWidget {
-  const ChatHistoryScreen({super.key});
+  final String? lastConversationId;
+
+  const ChatHistoryScreen({super.key, this.lastConversationId});
 
   @override
   State<ChatHistoryScreen> createState() => _ChatHistoryScreenState();
@@ -25,7 +28,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     try {
       final apiService = getApiService(context);
       final conversations = await apiService.getConversations(
-        modelId: 'gpt-4o-mini', // or any valid model
+        modelId: 'gpt-4o-mini',
       );
 
       setState(() {
@@ -96,6 +99,26 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                           return ChatItem(
                             content: item['title'] ?? 'Untitled',
                             time: formatRelativeTime(item['createdAt']),
+                            isCurrent: widget.lastConversationId == item['id'],
+                            onTap: () async {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (_) => Center(child: CircularProgressIndicator(color: Colors.purple.shade200)),
+                              );
+
+                              final api = getApiService(context);
+
+                              final conversationId = item['id'];
+                              final messages = await api.getConversationHistory(conversationId: conversationId);
+
+                              if (context.mounted) Navigator.of(context).pop();
+
+                              Navigator.pop(context, {
+                                'messages': messages,
+                                'conversationId': conversationId,
+                              });
+                            },
                           );
                         },
                       ),

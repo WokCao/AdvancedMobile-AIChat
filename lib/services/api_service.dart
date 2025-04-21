@@ -19,34 +19,64 @@ class ApiService {
     _dio.interceptors.add(AuthInterceptor(_dio, navigatorKey));
   }
 
-  String? _conversationId;
-
   Future<Map<String, dynamic>> sendMessage({
     required String content,
     required String modelId,
+    required String modelName,
+    String? conversationId,
   }) async {
     try {
+      final List<Map<String, dynamic>> messageHistory = [];
+      final assistant = {
+        'id': modelId,
+        'model': 'dify',
+        'name': modelName,
+      };
+
+      // If conversation exists, load previous messages
+      if (conversationId != null) {
+        final previous = await getConversationHistory(conversationId: conversationId);
+
+        for (var msg in previous) {
+          messageHistory.add({
+            'role': 'user',
+            'content': msg['query'],
+            'files': msg['files'],
+            'assistant': assistant,
+          });
+
+          messageHistory.add({
+            'role': 'model',
+            'content': msg['answer'],
+            'assistant': assistant,
+          });
+        }
+      }
+
       final response = await _dio.post(
         '/api/v1/ai-chat/messages',
         data: {
           "content": content,
           "files": [],
           "metadata": {
-            "conversation": {"messages": []},
+            "conversation": {
+              "id": conversationId,
+              "messages": messageHistory,
+            }
           },
           "assistant": {
-            "id": modelId, // e.g. "gpt-4o-mini"
-            "model": "dify", // required
+            "id": modelId,
+            "model": "dify",
+            "name": modelName,
           },
         },
       );
 
       if (response.statusCode == 200) {
         final data = response.data;
-        _conversationId = data['conversationId'];
         return {
           'message': data['message'],
-          'remainingUsage': response.data['remainingUsage'] ?? 0,
+          'remainingUsage': data['remainingUsage'] ?? 0,
         };
       } else {
         throw Exception("Unexpected status: ${response.statusCode}");
@@ -84,6 +114,29 @@ class ApiService {
       }
     } on DioException catch (e) {
       throw Exception("Dio error: ${e.response?.data ?? e.message}");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getConversationHistory({
+    required String conversationId,
+    String? modelId,
+    String? cursor,
+    int limit = 100,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/ai-chat/conversations/$conversationId/messages',
+        queryParameters: {
+          'cursor': cursor,
+          'limit': limit,
+          'assistantId': modelId,
+          'assistantModel': 'dify',
+        },
+      );
+
+      return List<Map<String, dynamic>>.from(response.data['items']);
+    } on DioException catch (e) {
+      throw Exception("Error fetching messages: ${e.response?.data ?? e.message}");
     }
   }
 

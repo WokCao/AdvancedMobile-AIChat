@@ -66,7 +66,9 @@ class RouteGuard {
               case '/home':
                 return const HomeScreen();
               case '/history':
-                return const ChatHistoryScreen();
+                final args = settings.arguments as Map<String, dynamic>?;
+                final lastConversationId = args?['lastConversationId'] as String?;
+                return ChatHistoryScreen(lastConversationId: lastConversationId);
               case '/prompts':
                 return const PromptSampleScreen();
               case '/bots':

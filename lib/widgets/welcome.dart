@@ -22,6 +22,8 @@ class _WelcomeState extends State<Welcome> {
       limit: 5
     );
 
+    if (!mounted) return;
+
     setState(() {
       _suggestedPrompts.addAll(
         (data['items'] as List)
