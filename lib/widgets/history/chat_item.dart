@@ -61,7 +61,7 @@ class _ChatItemState extends State<ChatItem> {
         onExit: (_) => setState(() => isHovered = false),
         cursor: SystemMouseCursors.click,
         child: Container(
-          padding: EdgeInsets.all(10.0),
+          padding: EdgeInsets.only(left: 10.0, top: 10.0, right: 20.0, bottom: 10.0),
           decoration: BoxDecoration(
             color: isHovered ? Colors.purple[50] : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
@@ -70,7 +70,7 @@ class _ChatItemState extends State<ChatItem> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: EdgeInsets.only(right: 150.0),
+                padding: EdgeInsets.only(right: 15.0),
                 child: Row(
                   children: [
                     if (widget.isCurrent)
