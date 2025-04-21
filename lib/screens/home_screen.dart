@@ -388,13 +388,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final messages = await api.getConversationHistory(conversationId: conversationId, modelId: _currentModel['apiId']);
 
     // Parse into chat model
-    final parsed = messages.expand((msg) {
-      final createdAt = msg['createdAt'].toString();
-      return [
-        ChatMessage(id: '$createdAt-user', message: msg['query'], type: MessageType.user),
-        ChatMessage(id: '$createdAt-bot', message: msg['answer'], type: MessageType.ai),
-      ];
-    }).toList();
+    final parsed = parseConversationHistory(messages);
 
     setState(() {
       _messages = parsed;
@@ -403,6 +397,19 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     _scrollToBottom();
+  }
+
+  List<ChatMessage> parseConversationHistory(List<Map<String, dynamic>> messages) {
+    return messages.expand((msg) {
+      final createdAt = msg['createdAt'].toString();
+      return [
+        ChatMessage(id: '$createdAt-user', message: msg['query'], type: MessageType.user),
+        ChatMessage(id: '$createdAt-bot', message: msg['answer'], type: MessageType.ai,
+            senderName: _currentModel['name'],
+            senderIcon: _currentModel['icon'],
+            iconColor: _currentModel['iconColor']),
+      ];
+    }).toList();
   }
 
   @override
@@ -567,8 +574,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   IconButton(
                     icon: const Icon(Icons.history),
                     iconSize: 32,
-                    onPressed: () {
-                      Navigator.pushNamed(context, "/history");
+                    onPressed: () async {
+                      final result = await Navigator.pushNamed(context, "/history");
+                      if (result != null && result is Map) {
+                        final messages = result['messages'];
+                        final conversationId = result['conversationId'] as String;
+
+                        final parsed = parseConversationHistory(messages);
+
+                        setState(() {
+                          _messages = parsed;
+                          _lastConversationId = conversationId;
+                        });
+
+                        _scrollToBottom();
+                      }
                     },
                     tooltip: 'Chat history',
                   ),
