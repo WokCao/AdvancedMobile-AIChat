@@ -349,6 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (isUsingBot && assistantId != null) {
         final api = getKBApiService(context);
+
         result = await api.askBot(
           assistantId: assistantId,
           message: text,
@@ -361,8 +362,8 @@ class _HomeScreenState extends State<HomeScreen> {
         final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model
 				final modelName = _currentModel['name'];
 
-				final apiService = getApiService(context);
-				final result = await apiService.sendMessage(
+				final api = getApiService(context);
+				result = await api.sendMessage(
 					content: text,
 					modelId: modelId,
 					modelName: modelName,
