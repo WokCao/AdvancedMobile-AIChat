@@ -76,6 +76,7 @@ class ApiService {
         final data = response.data;
         return {
           'message': data['message'],
+          'conversationId': data['conversationId'],
           'remainingUsage': data['remainingUsage'] ?? 0,
         };
       } else {
