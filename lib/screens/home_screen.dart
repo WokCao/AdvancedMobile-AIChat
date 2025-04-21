@@ -318,6 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // Remove loading message
         _messages.removeWhere((msg) => msg.id == loadingMessageId);
         _messages.add(botMessage(DateTime.now().millisecondsSinceEpoch.toString(), reply));
+        _lastConversationId = result['conversationId'];
       });
       
       _remainingTokens = remaining ?? _remainingTokens;
