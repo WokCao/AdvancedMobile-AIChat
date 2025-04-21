@@ -6,7 +6,9 @@ import '../utils/time_utils.dart';
 import '../widgets/chat_message.dart';
 
 class ChatHistoryScreen extends StatefulWidget {
-  const ChatHistoryScreen({super.key});
+  final String? lastConversationId;
+
+  const ChatHistoryScreen({super.key, this.lastConversationId});
 
   @override
   State<ChatHistoryScreen> createState() => _ChatHistoryScreenState();
@@ -97,6 +99,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                           return ChatItem(
                             content: item['title'] ?? 'Untitled',
                             time: formatRelativeTime(item['createdAt']),
+                            isCurrent: widget.lastConversationId == item['id'],
                             onTap: () async {
                               showDialog(
                                 context: context,

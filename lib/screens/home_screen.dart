@@ -575,7 +575,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(Icons.history),
                     iconSize: 32,
                     onPressed: () async {
-                      final result = await Navigator.pushNamed(context, "/history");
+                      final result = await Navigator.pushNamed(context, "/history", arguments: {
+                        'lastConversationId': _lastConversationId,
+                      });
                       if (result != null && result is Map) {
                         final messages = result['messages'];
                         final conversationId = result['conversationId'] as String;
