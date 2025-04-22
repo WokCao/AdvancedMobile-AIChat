@@ -1,26 +1,22 @@
 import 'dart:math';
 import 'package:ai_chat/widgets/knowledge/remove_knowledge.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../../models/knowledge_model.dart';
 
 class MyDataWithActions extends DataTableSource {
   final BuildContext context;
-  final List<Map<String, dynamic>> _data;
+  final List<KnowledgeModel> data;
+  final int totalKnowledge;
+  final void Function(String) _handleDeleteKnowledge;
 
-  MyDataWithActions(this.context)
-      : _data = List.generate(
-    50,
-        (index) => {
-      "knowledge": "Knowledge ${index + 1}",
-      "units": index,
-      "size": "${Random.secure().nextInt(2000)} Kb",
-      "edit_time": DateTime.now().toString(),
-    },
-  );
+  MyDataWithActions(this.context, this.data, this.totalKnowledge, this._handleDeleteKnowledge);
 
   @override
   DataRow? getRow(int index) {
-    if (index >= _data.length) return null;
-    final item = _data[index];
+    if (index >= data.length) return null;
+    final item = data[index];
 
     return DataRow.byIndex(
       onSelectChanged: (selected) {
@@ -39,7 +35,7 @@ class MyDataWithActions extends DataTableSource {
       cells: [
         DataCell(
           ConstrainedBox(
-            constraints: BoxConstraints(minWidth: 300),
+            constraints: BoxConstraints(minWidth: 300, maxWidth: 400),
             child: Row(
               children: [
                 Container(
@@ -55,14 +51,21 @@ class MyDataWithActions extends DataTableSource {
                   child: Icon(Icons.data_object_outlined, color: Colors.white),
                 ),
                 SizedBox(width: 8),
-                Text(item["knowledge"], overflow: TextOverflow.ellipsis),
+                Expanded(
+                  child: Text(
+                    item.knowledgeName,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                SizedBox(width: 24,)
               ],
             ),
           ),
         ),
-        DataCell(SizedBox(width: 60, child: Text(item["units"].toString()))),
-        DataCell(SizedBox(width: 120, child: Text(item["size"]))),
-        DataCell(SizedBox(width: 180, child: Text(item["edit_time"]))),
+        DataCell(SizedBox(width: 60, child: Text(item.numUnits.toString()))),
+        DataCell(SizedBox(width: 120, child: Text(item.totalSize.toString()))),
+        DataCell(SizedBox(width: 180, child: Text(DateFormat('yyyy-MM-dd HH:mm:ss').format(item.updatedAt.toLocal())))),
         DataCell(
           Tooltip(
             message: "Delete",
@@ -72,7 +75,7 @@ class MyDataWithActions extends DataTableSource {
                 showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return RemoveKnowledge();
+                      return RemoveKnowledge(handleDeleteKnowledge: _handleDeleteKnowledge, id: item.id,);
                     }
                 );
               },
@@ -87,7 +90,7 @@ class MyDataWithActions extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => _data.length;
+  int get rowCount => totalKnowledge;
 
   @override
   int get selectedRowCount => 0;

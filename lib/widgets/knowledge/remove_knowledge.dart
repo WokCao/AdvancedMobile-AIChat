@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class RemoveKnowledge extends StatefulWidget {
-  const RemoveKnowledge({super.key});
+  final void Function(String)? handleDeleteKnowledge;
+  final String? id;
+  const RemoveKnowledge({super.key, this.handleDeleteKnowledge, this.id});
 
   @override
   State<RemoveKnowledge> createState() => _RemoveKnowledgeState();
@@ -117,6 +119,9 @@ class _RemoveKnowledgeState extends State<RemoveKnowledge> {
                 onExit: (_) => (setState(() => isDeleteHovered = false)),
                 child: GestureDetector(
                   onTap: () {
+                    if (widget.handleDeleteKnowledge != null && widget.id != null) {
+                      widget.handleDeleteKnowledge!(widget.id!);
+                    }
                     Navigator.of(context).pop();
                   },
                   child: Container(

@@ -1,5 +1,6 @@
 import 'package:ai_chat/providers/auth_provider.dart';
 import 'package:ai_chat/screens/auth/route_guard.dart';
+import 'package:ai_chat/services/knowledge_base_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +10,12 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        Provider<KnowledgeBaseService>(
+          create: (_) => KnowledgeBaseService(),
+        ),
+      ],
       child: MyApp(),
     ),
   );

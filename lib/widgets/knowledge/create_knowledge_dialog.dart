@@ -189,6 +189,7 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
                             child: InkWell(
                               onTap: () {
                                 // Handle create bot
+                                _handleSubmit();
                               },
                               child: const Text('Confirm', style: TextStyle(color: Colors.white)),
                             )
