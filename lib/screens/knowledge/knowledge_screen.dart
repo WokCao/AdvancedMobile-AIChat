@@ -33,7 +33,6 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
     final result = await kbService.getKnowledge(
       query: _textEditingController.text,
       offset: offset,
-      limit: limit,
     );
     final metaData =
         result["success"]
@@ -67,7 +66,6 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
     final result = await kbService.getKnowledge(
       query: _textEditingController.text,
       offset: offset,
-      limit: limit,
     );
     if (result["success"]) {
       final newItems = List<KnowledgeModel>.from(
@@ -103,9 +101,6 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
     bool result = await kbService.deleteKnowledge(id: id);
     if (result) {
       setState(() {
-        // _data.removeWhere((item) => item.id == id);
-        // total--;
-        // offset--;
         _data.clear();
         offset = 0;
         _dataFuture = _loadData();

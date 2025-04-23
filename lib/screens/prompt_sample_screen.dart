@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:js_interop';
 
 import 'package:ai_chat/models/prompt_model.dart';
 import 'package:ai_chat/widgets/prompt/add_prompt.dart';
@@ -7,7 +6,6 @@ import 'package:ai_chat/widgets/prompt/prompt_item.dart';
 import 'package:ai_chat/widgets/prompt/segmented_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../utils/get_api_utils.dart';
 import '../widgets/prompt/personal_prompt_item.dart';
 

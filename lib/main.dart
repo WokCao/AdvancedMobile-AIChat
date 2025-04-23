@@ -1,5 +1,7 @@
 import 'package:ai_chat/providers/auth_provider.dart';
+import 'package:ai_chat/providers/knowledge_provider.dart';
 import 'package:ai_chat/screens/auth/route_guard.dart';
+import 'package:ai_chat/services/data_source_service.dart';
 import 'package:ai_chat/services/knowledge_base_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,8 +14,12 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => KnowledgeProvider()),
         Provider<KnowledgeBaseService>(
           create: (_) => KnowledgeBaseService(),
+        ),
+        Provider<DataSourceService>(
+          create: (_) => DataSourceService(),
         ),
       ],
       child: MyApp(),

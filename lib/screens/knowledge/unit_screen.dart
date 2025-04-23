@@ -1,4 +1,13 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:ai_chat/models/knowledge_model.dart';
+import 'package:ai_chat/models/unit_model.dart';
+import 'package:ai_chat/providers/knowledge_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../models/knowledge_meta_model.dart';
+import '../../services/knowledge_base_service.dart';
 import '../../widgets/knowledge/create_knowledge_dialog.dart';
 import '../../widgets/knowledge/unit_table.dart';
 
@@ -10,6 +19,118 @@ class UnitScreen extends StatefulWidget {
 }
 
 class _UnitScreenState extends State<UnitScreen> {
+  late Future<List<UnitModel>> _dataFuture;
+  final List<UnitModel> _data = [];
+  late TextEditingController _textEditingController;
+  Timer? _debounce;
+  String _lastQuery = '';
+  int offset = 0;
+  static const limit = 7;
+  bool hasNext = true;
+  int total = 0;
+  late KnowledgeModel selectedKnowledgeModel;
+
+  Future<List<UnitModel>> _loadData() async {
+    final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
+    final result = await kbService.getUnitsOfKnowledge(
+      query: _textEditingController.text,
+      offset: offset,
+      id: selectedKnowledgeModel.id,
+    );
+    final metaData =
+        result["success"]
+            ? KnowledgeMetaModel.fromJson(result["data"]["meta"])
+            : KnowledgeMetaModel(
+              limit: limit,
+              offset: offset,
+              total: total,
+              hasNext: hasNext,
+            );
+
+    if (result["success"]) {
+      final newItems = List<UnitModel>.from(
+        result["data"]["data"].map((e) => UnitModel.fromJson(e)),
+      );
+      setState(() {
+        _data.addAll(newItems);
+        total = metaData.total;
+        hasNext = metaData.hasNext;
+        offset += newItems.length;
+      });
+    }
+
+    return _data;
+  }
+
+  void _fetchMoreData(int firstIndexOfPage) async {
+    if (firstIndexOfPage < _data.length) return;
+
+    final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
+    final result = await kbService.getUnitsOfKnowledge(
+      query: _textEditingController.text,
+      offset: offset,
+      id: selectedKnowledgeModel.id,
+    );
+    if (result["success"]) {
+      final newItems = List<UnitModel>.from(
+        result["data"]["data"].map((e) => UnitModel.fromJson(e)),
+      );
+
+      setState(() {
+        _data.addAll(newItems);
+        offset += newItems.length;
+      });
+    }
+  }
+
+  void _onTextChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      final newQuery = _textEditingController.text.trim();
+      if (newQuery != _lastQuery) {
+        _lastQuery = newQuery;
+
+        setState(() {
+          _data.clear();
+          offset = 0;
+          _dataFuture = _loadData();
+        });
+      }
+    });
+  }
+
+  void _handleDeleteUnit(String id) async {
+
+  }
+
+  String _getReadableFileSize(int bytes) {
+    if (bytes <= 0) return "0 B";
+    const suffixes = ["B", "KB", "MB", "GB", "TB"];
+    final i = (bytes != 0) ? (log(bytes) / log(1024)).floor() : 0;
+    return '${(bytes / pow(1024, i)).toStringAsFixed(1)} ${suffixes[i]}';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    selectedKnowledgeModel =
+        Provider.of<KnowledgeProvider>(
+          context,
+          listen: false,
+        ).selectedKnowledge;
+    _textEditingController = TextEditingController(text: '');
+    _textEditingController.addListener(_onTextChanged);
+    _dataFuture = _loadData();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,21 +155,40 @@ class _UnitScreenState extends State<UnitScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(4),
                             gradient: LinearGradient(
-                              colors: [Colors.yellow.shade300, Colors.orange.shade300],
+                              colors: [
+                                Colors.yellow.shade300,
+                                Colors.orange.shade300,
+                              ],
                               begin: Alignment.bottomLeft,
                               end: Alignment.topRight,
                             ),
                           ),
-                          child: Icon(Icons.data_object_outlined, color: Colors.white, size: 36,),
+                          child: Icon(
+                            Icons.data_object_outlined,
+                            color: Colors.white,
+                            size: 36,
+                          ),
                         ),
-                        SizedBox(width: 16,),
+                        SizedBox(width: 16),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Text("Knowledge 1", style: TextStyle(fontWeight: FontWeight.bold),),
-                                SizedBox(width: 8,),
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth:
+                                        MediaQuery.of(context).size.width * 0.3,
+                                  ),
+                                  child: Text(
+                                    selectedKnowledgeModel.knowledgeName,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 8),
                                 MouseRegion(
                                   cursor: SystemMouseCursors.click,
                                   child: Tooltip(
@@ -57,46 +197,70 @@ class _UnitScreenState extends State<UnitScreen> {
                                       onTap: () {
                                         showDialog(
                                           context: context,
-                                          builder: (context) => CreateKnowledgeDialog(
-                                            onSubmit: (name, instructions) {
-                                              // Handle knowledge edit
-                                            },
-                                            type: "Update",
-                                          ),
+                                          builder:
+                                              (context) =>
+                                                  CreateKnowledgeDialog(
+                                                    onSubmit: (
+                                                      name,
+                                                      instructions,
+                                                    ) {
+                                                      // Handle knowledge edit
+                                                    },
+                                                    type: "Update",
+                                                  ),
                                         );
                                       },
-                                      child: Icon(Icons.edit_outlined, size: 16,),
+                                      child: Icon(
+                                        Icons.edit_outlined,
+                                        size: 16,
+                                      ),
                                     ),
                                   ),
-                                )
+                                ),
                               ],
                             ),
-                            SizedBox(height: 8,),
+                            SizedBox(height: 8),
                             Row(
                               children: [
                                 Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.purple.shade50,
                                     borderRadius: BorderRadius.circular(4),
-                                    border: Border.all(color: Colors.purple.shade200)
+                                    border: Border.all(
+                                      color: Colors.purple.shade200,
+                                    ),
                                   ),
-                                  child: Text("2 Units", style: TextStyle(color: Colors.purple),),
+                                  child: Text(
+                                    "${selectedKnowledgeModel.numUnits} Units",
+                                    style: TextStyle(color: Colors.purple),
+                                  ),
                                 ),
-                                SizedBox(width: 8,),
+                                SizedBox(width: 8),
                                 Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(
-                                      color: Colors.pink.shade50,
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(color: Colors.pink.shade200)
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
                                   ),
-                                  child: Text("28382 Kb", style: TextStyle(color: Colors.pink),),
-                                )
+                                  decoration: BoxDecoration(
+                                    color: Colors.pink.shade50,
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color: Colors.pink.shade200,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _getReadableFileSize(selectedKnowledgeModel.totalSize),
+                                    style: TextStyle(color: Colors.pink),
+                                  ),
+                                ),
                               ],
-                            )
+                            ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -125,7 +289,10 @@ class _UnitScreenState extends State<UnitScreen> {
                         children: [
                           Icon(Icons.add_circle_outline, color: Colors.white),
                           SizedBox(width: 5),
-                          Text("Add unit", style: TextStyle(color: Colors.white)),
+                          Text(
+                            "Add unit",
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ],
                       ),
                     ),
@@ -134,26 +301,102 @@ class _UnitScreenState extends State<UnitScreen> {
               ),
               SizedBox(height: 16),
               Expanded(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-                    child: PaginatedDataTable(
-                      columnSpacing: 0,
-                      showFirstLastButtons: true,
-                      showCheckboxColumn: false,
-                      columns: [
-                        DataColumn(label: Text("Unit", style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Source", style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Size", style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Create time", style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Latest update", style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Enable", style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Action", style: TextStyle(fontWeight: FontWeight.bold))),
-                      ],
-                      source: MyUnitDataWithActions(context),
-                      rowsPerPage: 8,
-                      dividerThickness: 0.2,
-                    ),
-                  )
+                child: FutureBuilder<List<UnitModel>>(
+                  future: _dataFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'binoculars.png',
+                              width: 128,
+                              height: 128,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              "No units found",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: MediaQuery.of(context).size.width,
+                      ),
+                      child: PaginatedDataTable(
+                        onPageChanged: (int rowIndex) {
+                          _fetchMoreData(rowIndex);
+                        },
+                        columnSpacing: 0,
+                        showFirstLastButtons: true,
+                        showCheckboxColumn: false,
+                        columns: [
+                          DataColumn(
+                            label: Text(
+                              "Unit",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Source",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Size",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Create time",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Latest update",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Enable",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Action",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                        source: MyUnitDataWithActions(context, _data, total, _handleDeleteUnit),
+                        rowsPerPage: 7,
+                        dividerThickness: 0.2,
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),

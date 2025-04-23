@@ -14,6 +14,7 @@ import 'package:ai_chat/screens/knowledge/unit_screen.dart';
 import 'package:ai_chat/screens/knowledge/website_screen.dart';
 import 'package:ai_chat/screens/prompt_sample_screen.dart';
 
+import '../../models/knowledge_model.dart';
 import '../../providers/auth_provider.dart';
 
 class RouteGuard {
@@ -78,7 +79,7 @@ class RouteGuard {
               case '/knowledge':
                 return const BotsScreen(initialTabIndex: 1);
               case '/units':
-                return const UnitScreen();
+                return UnitScreen();
               case '/source':
                 return const SourceListScreen();
               case '/local':

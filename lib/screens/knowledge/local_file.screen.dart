@@ -1,7 +1,14 @@
+import 'dart:io';
+
+import 'package:ai_chat/models/knowledge_model.dart';
+import 'package:ai_chat/services/data_source_service.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/knowledge_provider.dart';
 import '../../widgets/knowledge/file_item.dart';
 
 class LocalFileScreen extends StatefulWidget {
@@ -12,8 +19,63 @@ class LocalFileScreen extends StatefulWidget {
 }
 
 class _LocalFileScreenState extends State<LocalFileScreen> {
-  Future<void> _pickFile() async {
+  final List<PlatformFile> _selectedFiles = [];
 
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: [
+        'c', 'cpp', 'docx', 'html', 'java', 'json', 'md',
+        'pdf', 'php', 'pptx', 'py', 'rb', 'tex', 'txt',
+      ],
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedFiles.addAll(result.files);
+      });
+    }
+  }
+
+  void _removeFile(PlatformFile file) {
+    setState(() {
+      _selectedFiles.remove(file);
+    });
+  }
+
+  void _handleConnectFile() async {
+    bool allSuccess = true;
+
+    KnowledgeModel knowledgeModel = Provider.of<KnowledgeProvider>(context, listen: false).selectedKnowledge;
+    final dtService = Provider.of<DataSourceService>(context, listen: false);
+
+    for (PlatformFile platformFile in _selectedFiles) {
+      final file = File(platformFile.path!);
+      final response = await dtService.createUnitFileType(knowledgeId: knowledgeModel.id, file: file);
+
+      if (!response["success"]) {
+        allSuccess = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload ${file.path.split("/").last}. Please try again.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+        continue;
+      }
+    }
+
+    if (allSuccess) {
+      _selectedFiles.clear();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All files uploaded successfully!'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -131,7 +193,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
                           ),
                           SizedBox(height: 12),
                           Text(
-                            'Click or drag file to this area to upload',
+                            'Click this area to upload',
                             style: TextStyle(
                               color: Colors.grey.shade800,
                               fontSize: 14,
@@ -157,9 +219,10 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
                 height: 5 * 36.0,
                 child: ListView.builder(
                   controller: ScrollController(keepScrollOffset: false),
-                  itemCount: 20,
+                  itemCount: _selectedFiles.length,
                   itemBuilder: (context, index) {
-                    return FileItem(name: "A package ${index + 1}.pdf");
+                    final file = _selectedFiles[index];
+                    return FileItem(file: file, removeFile: _removeFile,);
                   },
                 ),
               ),
@@ -177,9 +240,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    onPressed: _handleConnectFile,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
