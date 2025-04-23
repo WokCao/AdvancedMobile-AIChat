@@ -40,6 +40,35 @@ class KnowledgeBaseService {
     }
   }
 
+  Future<Map<String, dynamic>> updateKnowledge(
+      String knowledgeName,
+      String description,
+      String knowledgeId
+      ) async {
+    try {
+      final response = await _dio.patch(
+        "/kb-core/v1/knowledge/$knowledgeId",
+        data: {"knowledgeName": knowledgeName, "description": description},
+        options: Options(headers: headers),
+      );
+
+      return {"success": true, "data": response.data};
+    } on DioException catch (e) {
+      final errorMessage =
+          e.response?.data['error'] ??
+              e.response?.data['message'] ??
+              "Something went wrong";
+      return {
+        "success": false,
+        "error": errorMessage,
+        "code": e.response?.data['code'],
+        "statusCode": e.response?.statusCode,
+      };
+    } catch (e) {
+      return {"success": false, "error": "Unexpected error: $e"};
+    }
+  }
+
   Future<Map<String, dynamic>> getKnowledge({
     String query = '',
     required int offset,

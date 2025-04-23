@@ -5,6 +5,7 @@ import 'package:ai_chat/models/knowledge_model.dart';
 import 'package:ai_chat/models/unit_model.dart';
 import 'package:ai_chat/providers/knowledge_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../models/knowledge_meta_model.dart';
 import '../../services/knowledge_base_service.dart';
@@ -100,8 +101,19 @@ class _UnitScreenState extends State<UnitScreen> {
     });
   }
 
-  void _handleDeleteUnit(String id) async {
+  void _handleDeleteUnit(String id) async {}
 
+  void _handleUpdateKnowledge(String name, String instructions) async {
+    final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
+    final response = await kbService.updateKnowledge(name, instructions, selectedKnowledgeModel.id);
+    final updatedKnowledgeModel = KnowledgeModel(id: selectedKnowledgeModel.id, knowledgeName: response["data"]["knowledgeName"], description: response["data"]["description"], userId: selectedKnowledgeModel.userId, numUnits: selectedKnowledgeModel.numUnits, totalSize: selectedKnowledgeModel.totalSize, createdAt: selectedKnowledgeModel.createdAt, updatedAt: DateTime.parse(response["data"]["updatedAt"]));
+    Provider.of<KnowledgeProvider>(
+      context,
+      listen: false,
+    ).setSelectedKnowledgeRow(updatedKnowledgeModel, updated: true);
+    setState(() {
+      selectedKnowledgeModel = updatedKnowledgeModel;
+    });
   }
 
   String _getReadableFileSize(int bytes) {
@@ -200,12 +212,8 @@ class _UnitScreenState extends State<UnitScreen> {
                                           builder:
                                               (context) =>
                                                   CreateKnowledgeDialog(
-                                                    onSubmit: (
-                                                      name,
-                                                      instructions,
-                                                    ) {
-                                                      // Handle knowledge edit
-                                                    },
+                                                    onSubmit:
+                                                        _handleUpdateKnowledge,
                                                     type: "Update",
                                                   ),
                                         );
@@ -253,7 +261,9 @@ class _UnitScreenState extends State<UnitScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    _getReadableFileSize(selectedKnowledgeModel.totalSize),
+                                    _getReadableFileSize(
+                                      selectedKnowledgeModel.totalSize,
+                                    ),
                                     style: TextStyle(color: Colors.pink),
                                   ),
                                 ),
@@ -298,6 +308,49 @@ class _UnitScreenState extends State<UnitScreen> {
                     ),
                   ),
                 ],
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: _textEditingController,
+                enabled: false,
+                style: TextStyle(fontSize: 14),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search_sharp, size: 24),
+                  suffixIcon:
+                      _textEditingController.text.isNotEmpty
+                          ? IconButton(
+                            icon: const FaIcon(FontAwesomeIcons.x, size: 12),
+                            hoverColor: Colors.transparent,
+                            onPressed: () {
+                              _textEditingController.clear();
+                              setState(() {
+                                _data.clear();
+                                offset = 0;
+                                _dataFuture = _loadData();
+                              });
+                            },
+                          )
+                          : null,
+                  hintText: "Search...",
+                  hintStyle: TextStyle(color: Colors.grey),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Colors.purpleAccent,
+                      width: 2.0,
+                    ),
+                  ),
+                ),
               ),
               SizedBox(height: 16),
               Expanded(
@@ -390,7 +443,12 @@ class _UnitScreenState extends State<UnitScreen> {
                             ),
                           ),
                         ],
-                        source: MyUnitDataWithActions(context, _data, total, _handleDeleteUnit),
+                        source: MyUnitDataWithActions(
+                          context,
+                          _data,
+                          total,
+                          _handleDeleteUnit,
+                        ),
                         rowsPerPage: 7,
                         dividerThickness: 0.2,
                       ),

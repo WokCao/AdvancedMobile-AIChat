@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +40,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.purple, useMaterial3: true),
       navigatorKey: navigatorKey,
       onGenerateRoute: (settings) => RouteGuard.generateRoute(settings),
+      navigatorObservers: [routeObserver],
     );
   }
 }

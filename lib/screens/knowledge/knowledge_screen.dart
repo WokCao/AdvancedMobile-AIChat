@@ -6,18 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../main.dart';
+import '../../providers/knowledge_provider.dart';
 import '../../services/knowledge_base_service.dart';
 import '../../widgets/knowledge/create_knowledge_dialog.dart';
 import '../../widgets/knowledge/knowledge_table.dart';
 
-class KnowledgeScreen extends StatefulWidget {
+class KnowledgeScreen extends StatefulWidget  {
   const KnowledgeScreen({super.key});
 
   @override
   State<KnowledgeScreen> createState() => _KnowledgeScreenState();
 }
 
-class _KnowledgeScreenState extends State<KnowledgeScreen> {
+class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
   late Future<List<KnowledgeModel>> _dataFuture;
   final List<KnowledgeModel> _data = [];
   late TextEditingController _textEditingController;
@@ -118,9 +120,32 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     _debounce?.cancel();
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    final provider = Provider.of<KnowledgeProvider>(context, listen: false);
+
+    if (provider.wasUpdated) {
+      final updated = provider.selectedKnowledge;
+      final index = _data.indexWhere((k) => k.id == updated.id);
+      if (index != -1) {
+        setState(() {
+          _data[index] = updated;
+        });
+      }
+      provider.clearUpdateFlag();
+    }
   }
 
   @override
@@ -138,7 +163,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                   children: [
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.3,
+                        maxWidth: MediaQuery.of(context).size.width * 0.6,
                       ),
                       child: TextField(
                         controller: _textEditingController,

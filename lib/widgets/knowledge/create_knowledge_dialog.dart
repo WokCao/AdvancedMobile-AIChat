@@ -1,4 +1,7 @@
+import 'package:ai_chat/models/knowledge_model.dart';
+import 'package:ai_chat/providers/knowledge_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CreateKnowledgeDialog extends StatefulWidget {
   final Function(String name, String instructions) onSubmit;
@@ -10,10 +13,19 @@ class CreateKnowledgeDialog extends StatefulWidget {
 }
 
 class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
+  late KnowledgeModel selectedKnowledgeModel;
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late TextEditingController _nameController;
+  late TextEditingController _descriptionController;
   bool _isCreateFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedKnowledgeModel = Provider.of<KnowledgeProvider>(context, listen: false).selectedKnowledge;
+    _nameController = TextEditingController(text: selectedKnowledgeModel.knowledgeName);
+    _descriptionController = TextEditingController(text: selectedKnowledgeModel.description);
+  }
 
   @override
   void dispose() {
@@ -188,7 +200,6 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
                             ),
                             child: InkWell(
                               onTap: () {
-                                // Handle create bot
                                 _handleSubmit();
                               },
                               child: const Text('Confirm', style: TextStyle(color: Colors.white)),
