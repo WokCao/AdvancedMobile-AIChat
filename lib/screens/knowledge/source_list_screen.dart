@@ -25,32 +25,25 @@ class _SourceListScreenState extends State<SourceListScreen> {
       iconColor: Colors.blue,
     ),
     DataSourceOption(
-      icon: FontAwesomeIcons.github,
-      title: 'Github repositories',
-      description: 'Connect Github repositories to get data',
-      iconColor: Colors.black,
-      disabled: true,
-    ),
-    DataSourceOption(
-      icon: FontAwesomeIcons.gitlab,
-      title: 'Gitlab repositories',
-      description: 'Connect Gitlab repositories to get data',
-      iconColor: Colors.orange,
-      disabled: true,
-    ),
-    DataSourceOption(
       icon: FontAwesomeIcons.googleDrive,
       title: 'Google drive',
       description: 'Connect Google drive to get data',
       iconColor: Colors.blue,
-      disabled: true,
+      disabled: false,
     ),
     DataSourceOption(
       icon: FontAwesomeIcons.slack,
       title: 'Slack',
       description: 'Connect Slack to get data',
       iconColor: Colors.purple,
-      disabled: true,
+      disabled: false,
+    ),
+    DataSourceOption(
+      icon: FontAwesomeIcons.confluence,
+      title: 'Confluence',
+      description: 'Connect Confluence to get data',
+      iconColor: Colors.purple,
+      disabled: false,
     ),
     DataSourceOption(
       icon: FontAwesomeIcons.jira,
@@ -71,6 +64,20 @@ class _SourceListScreenState extends State<SourceListScreen> {
       title: 'Notion',
       description: 'Connect Notion to get data',
       iconColor: Colors.black,
+      disabled: true,
+    ),
+    DataSourceOption(
+      icon: FontAwesomeIcons.github,
+      title: 'Github repositories',
+      description: 'Connect Github repositories to get data',
+      iconColor: Colors.black,
+      disabled: true,
+    ),
+    DataSourceOption(
+      icon: FontAwesomeIcons.gitlab,
+      title: 'Gitlab repositories',
+      description: 'Connect Gitlab repositories to get data',
+      iconColor: Colors.orange,
       disabled: true,
     ),
   ];
@@ -111,6 +118,12 @@ class _SourceListScreenState extends State<SourceListScreen> {
                           Navigator.pushNamed(context, '/local');
                         } else if (index == 1) {
                           Navigator.pushNamed(context, '/website');
+                        } else if (index == 2) {
+                          Navigator.pushNamed(context, '/google-drive');
+                        } else if (index == 3) {
+                          Navigator.pushNamed(context, '/slack');
+                        } else if (index == 4) {
+                          Navigator.pushNamed(context, '/confluence');
                         }
                       }
                     },

@@ -6,22 +6,23 @@ import '../../models/knowledge_model.dart';
 import '../../providers/knowledge_provider.dart';
 import '../../services/data_source_service.dart';
 
-class WebsiteScreen extends StatefulWidget {
-  const WebsiteScreen({super.key});
+class SlackScreen extends StatefulWidget {
+  const SlackScreen({super.key});
 
   @override
-  State<WebsiteScreen> createState() => _WebsiteScreenState();
+  State<SlackScreen> createState() => _SlackScreenState();
 }
 
-class _WebsiteScreenState extends State<WebsiteScreen> {
+class _SlackScreenState extends State<SlackScreen> {
   final _unitNameController = TextEditingController();
-  final _urlController = TextEditingController();
+  final _slackWorkspaceController = TextEditingController();
+  final _slackBotTokenController = TextEditingController();
 
-  void _handleUploadWebsite() async {
-    if (_unitNameController.text.isEmpty || _urlController.text.isEmpty) {
+  void _handleUploadSlack() async {
+    if (_unitNameController.text.isEmpty || _slackWorkspaceController.text.isEmpty || _slackBotTokenController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Unit name and Web URL can't be empty!"),
+          content: Text("Unit name, Slack workspace and Slack bot token can't be empty!"),
           duration: Duration(seconds: 2),
         ),
       );
@@ -32,11 +33,13 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
           context,
           listen: false,
         ).selectedKnowledge;
+
     final dtService = Provider.of<DataSourceService>(context, listen: false);
-    await dtService.createUnitWebURL(
+    await dtService.createUnitSlack(
       knowledgeId: knowledgeModel.id,
       unitName: _unitNameController.text,
-      webUrl: _urlController.text,
+      slackWorkspace: _slackWorkspaceController.text,
+      slackBotToken: _slackBotTokenController.text
     );
   }
 
@@ -44,7 +47,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Website URL"),
+        title: Text("Slack"),
         backgroundColor: Colors.purple.shade200,
       ),
       body: Center(
@@ -71,10 +74,10 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  FaIcon(FontAwesomeIcons.globe, size: 32, color: Colors.blue),
+                  FaIcon(FontAwesomeIcons.slack, size: 32, color: Colors.blue),
                   SizedBox(width: 12),
                   Text(
-                    'Website',
+                    'Slack',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -136,7 +139,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: 'Web URL: ',
+                            text: 'Workspace: ',
                             style: TextStyle(
                               color: Colors.grey.shade800,
                               fontSize: 14,
@@ -152,9 +155,53 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                     ),
                     SizedBox(height: 12),
                     TextField(
-                      controller: _urlController,
+                      controller: _slackWorkspaceController,
                       decoration: InputDecoration(
-                        hintText: 'https://example.com',
+                        hintText: 'Your workspace',
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.purpleAccent,
+                            width: 2.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Bot token: ',
+                            style: TextStyle(
+                              color: Colors.grey.shade800,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(color: Colors.red, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    TextField(
+                      controller: _slackBotTokenController,
+                      decoration: InputDecoration(
+                        hintText: 'Your bot token',
                         isDense: true,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -193,7 +240,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                            _handleUploadWebsite();
+                            _handleUploadSlack();
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(

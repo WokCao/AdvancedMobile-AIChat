@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ai_chat/models/base_unit_model.dart';
 import 'package:ai_chat/models/knowledge_model.dart';
 import 'package:ai_chat/models/unit_model.dart';
 import 'package:ai_chat/providers/knowledge_provider.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../models/knowledge_meta_model.dart';
+import '../../models/slack_unit_model.dart';
 import '../../services/knowledge_base_service.dart';
 import '../../widgets/knowledge/create_knowledge_dialog.dart';
 import '../../widgets/knowledge/unit_table.dart';
@@ -20,8 +22,8 @@ class UnitScreen extends StatefulWidget {
 }
 
 class _UnitScreenState extends State<UnitScreen> {
-  late Future<List<UnitModel>> _dataFuture;
-  final List<UnitModel> _data = [];
+  late Future<List<BaseUnitModel>> _dataFuture;
+  final List<BaseUnitModel> _data = [];
   late TextEditingController _textEditingController;
   Timer? _debounce;
   String _lastQuery = '';
@@ -31,13 +33,15 @@ class _UnitScreenState extends State<UnitScreen> {
   int total = 0;
   late KnowledgeModel selectedKnowledgeModel;
 
-  Future<List<UnitModel>> _loadData() async {
+  Future<List<BaseUnitModel>> _loadData() async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
     final result = await kbService.getUnitsOfKnowledge(
       query: _textEditingController.text,
       offset: offset,
       id: selectedKnowledgeModel.id,
     );
+
+    print(result["data"]);
     final metaData =
         result["success"]
             ? KnowledgeMetaModel.fromJson(result["data"]["meta"])
@@ -49,9 +53,14 @@ class _UnitScreenState extends State<UnitScreen> {
             );
 
     if (result["success"]) {
-      final newItems = List<UnitModel>.from(
-        result["data"]["data"].map((e) => UnitModel.fromJson(e)),
+      final newItems = List<BaseUnitModel>.from(
+        result["data"]["data"].map<BaseUnitModel>((e) {
+          return e['metadata']['slack_bot_token'] != null
+              ? SlackUnitModel.fromJson(e)
+              : UnitModel.fromJson(e);
+        }),
       );
+
       setState(() {
         _data.addAll(newItems);
         total = metaData.total;
@@ -73,8 +82,12 @@ class _UnitScreenState extends State<UnitScreen> {
       id: selectedKnowledgeModel.id,
     );
     if (result["success"]) {
-      final newItems = List<UnitModel>.from(
-        result["data"]["data"].map((e) => UnitModel.fromJson(e)),
+      final newItems = List<BaseUnitModel>.from(
+        result["data"]["data"].map<BaseUnitModel>((e) {
+          return e['metadata']['slack_bot_token'] != null
+              ? SlackUnitModel.fromJson(e)
+              : UnitModel.fromJson(e);
+        }),
       );
 
       setState(() {
@@ -354,7 +367,7 @@ class _UnitScreenState extends State<UnitScreen> {
               ),
               SizedBox(height: 16),
               Expanded(
-                child: FutureBuilder<List<UnitModel>>(
+                child: FutureBuilder<List<BaseUnitModel>>(
                   future: _dataFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {

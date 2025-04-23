@@ -8,13 +8,14 @@ import 'package:ai_chat/screens/bot_playground_screen.dart';
 import 'package:ai_chat/screens/bots_screen.dart';
 import 'package:ai_chat/screens/home_screen.dart';
 import 'package:ai_chat/screens/chat_history_screen.dart';
-import 'package:ai_chat/screens/knowledge/local_file.screen.dart';
+import 'package:ai_chat/screens/knowledge/local_file_screen.dart';
 import 'package:ai_chat/screens/knowledge/source_list_screen.dart';
 import 'package:ai_chat/screens/knowledge/unit_screen.dart';
 import 'package:ai_chat/screens/knowledge/website_screen.dart';
 import 'package:ai_chat/screens/prompt_sample_screen.dart';
 
 import '../../providers/auth_provider.dart';
+import 'package:ai_chat/screens/knowledge/slack_screen.dart';
 
 class RouteGuard {
   static Future<bool> isLoggedIn(BuildContext context) async {
@@ -84,6 +85,12 @@ class RouteGuard {
               case '/local':
                 return const LocalFileScreen();
               case '/website':
+                return const WebsiteScreen();
+              case '/google-drive':
+                return const WebsiteScreen();
+              case '/slack':
+                return const SlackScreen();
+              case '/confluence':
                 return const WebsiteScreen();
               default:
                 return const LoginScreen();

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:ai_chat/models/base_unit_model.dart';
 import 'package:ai_chat/models/unit_model.dart';
 import 'package:ai_chat/widgets/knowledge/remove_unit.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ import 'package:intl/intl.dart';
 
 class MyUnitDataWithActions extends DataTableSource {
   final BuildContext context;
-  final List<UnitModel> data;
+  final List<BaseUnitModel> data;
   final int totalUnit;
   final void Function(String) _handleDeleteKnowledge;
 
@@ -18,6 +19,21 @@ class MyUnitDataWithActions extends DataTableSource {
     const suffixes = ["B", "KB", "MB", "GB", "TB"];
     final i = (bytes != 0) ? (log(bytes) / log(1024)).floor() : 0;
     return '${(bytes / pow(1024, i)).toStringAsFixed(1)} ${suffixes[i]}';
+  }
+
+  IconData _getIconForType(String type) {
+    switch (type) {
+      case 'local_file':
+        return FontAwesomeIcons.fileLines;
+      case 'web':
+        return FontAwesomeIcons.globe;
+      case 'slack':
+        return FontAwesomeIcons.slack;
+      case 'confluence':
+        return FontAwesomeIcons.confluence;
+      default:
+        return FontAwesomeIcons.googleDrive;
+    }
   }
 
   @override
@@ -48,10 +64,10 @@ class MyUnitDataWithActions extends DataTableSource {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Icon(item.type == "local_file" ? FontAwesomeIcons.fileLines : FontAwesomeIcons.globe, color: Colors.blue),
+                  child: Icon(_getIconForType(item.type), color: Colors.blue),
                 ),
                 SizedBox(width: 8),
-                Text(item.metadata.name, overflow: TextOverflow.ellipsis),
+                Text(item.displayName, overflow: TextOverflow.ellipsis),
                 SizedBox(width: 24,)
               ],
             ),

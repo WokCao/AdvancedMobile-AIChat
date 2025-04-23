@@ -1,7 +1,7 @@
 import 'base_unit_model.dart';
 import 'metadata_classes.dart';
 
-class UnitModel implements BaseUnitModel {
+class SlackUnitModel implements BaseUnitModel {
   @override final String id, name, type, userId, knowledgeId;
   @override final int size;
   @override final bool status;
@@ -9,9 +9,9 @@ class UnitModel implements BaseUnitModel {
   @override final DateTime createdAt, updatedAt;
   @override final DateTime? deletedAt;
   @override final String? createdBy, updatedBy;
-  @override final FileMetadata metadata;
+  @override final SlackMetadata metadata;
 
-  UnitModel({
+  SlackUnitModel({
     required this.id,
     required this.name,
     required this.type,
@@ -28,7 +28,7 @@ class UnitModel implements BaseUnitModel {
     this.updatedBy,
   });
 
-  factory UnitModel.fromJson(Map<String, dynamic> json) => UnitModel(
+  factory SlackUnitModel.fromJson(Map<String, dynamic> json) => SlackUnitModel(
     id: json['id'],
     name: json['name'],
     type: json['type'],
@@ -37,7 +37,7 @@ class UnitModel implements BaseUnitModel {
     userId: json['userId'],
     knowledgeId: json['knowledgeId'],
     openAiFileIds: List<String>.from(json['openAiFileIds']),
-    metadata: FileMetadata.fromJson(json['metadata']),
+    metadata: SlackMetadata.fromJson(json['metadata']),
     createdAt: DateTime.parse(json['createdAt']),
     updatedAt: DateTime.parse(json['updatedAt']),
     deletedAt: json['deletedAt'] != null ? DateTime.parse(json['deletedAt']) : null,
@@ -46,5 +46,5 @@ class UnitModel implements BaseUnitModel {
   );
 
   @override
-  String get displayName => metadata.name;
+  String get displayName => name;
 }

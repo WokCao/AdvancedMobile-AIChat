@@ -21,13 +21,83 @@ class DataSourceService {
     try {
       String mimeType = _getMimeType(file.path);
       final formData = FormData.fromMap({
-        "file": await MultipartFile.fromFile(file.path, filename: file.path.split('/').last, contentType: DioMediaType.parse(mimeType)),
+        "file": await MultipartFile.fromFile(
+          file.path,
+          filename: file.path.split('/').last,
+          contentType: DioMediaType.parse(mimeType),
+        ),
       });
 
       final response = await _dio.post(
         "/kb-core/v1/knowledge/$knowledgeId/local-file",
         data: formData,
         options: Options(headers: headers),
+      );
+
+      return {"success": true, "data": response.data};
+    } on DioException catch (e) {
+      final errorMessage =
+          e.response?.data['error'] ??
+          e.response?.data['message'] ??
+          "Something went wrong";
+      return {
+        "success": false,
+        "error": errorMessage,
+        "code": e.response?.data['code'],
+        "statusCode": e.response?.statusCode,
+      };
+    } catch (e) {
+      return {"success": false, "error": "Unexpected error: $e"};
+    }
+  }
+
+  Future<Map<String, dynamic>> createUnitWebURL({
+    required String knowledgeId,
+    required String unitName,
+    required String webUrl,
+  }) async {
+    try {
+      final response = await _dio.post(
+        "/kb-core/v1/knowledge/$knowledgeId/web",
+        data: {
+          "unitName": unitName,
+          "webUrl": webUrl
+        },
+        options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
+      );
+
+      return {"success": true, "data": response.data};
+    } on DioException catch (e) {
+      final errorMessage =
+          e.response?.data['error'] ??
+              e.response?.data['message'] ??
+              "Something went wrong";
+      return {
+        "success": false,
+        "error": errorMessage,
+        "code": e.response?.data['code'],
+        "statusCode": e.response?.statusCode,
+      };
+    } catch (e) {
+      return {"success": false, "error": "Unexpected error: $e"};
+    }
+  }
+
+  Future<Map<String, dynamic>> createUnitSlack({
+    required String knowledgeId,
+    required String unitName,
+    required String slackWorkspace,
+    required String slackBotToken,
+  }) async {
+    try {
+      final response = await _dio.post(
+        "/kb-core/v1/knowledge/$knowledgeId/slack",
+        data: {
+          "unitName": unitName,
+          "slackWorkspace": slackWorkspace,
+          "slackBotToken": slackBotToken
+        },
+        options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
       );
 
       return {"success": true, "data": response.data};
@@ -51,7 +121,7 @@ class DataSourceService {
     'X-Stack-Access-Type': 'client',
     'X-Stack-Project-Id': 'a914f06b-5e46-4966-8693-80e4b9f4f409',
     'X-Stack-Publishable-Client-Key':
-    'pck_tqsy29b64a585km2g4wnpc57ypjprzzdch8xzpq0xhayr',
+        'pck_tqsy29b64a585km2g4wnpc57ypjprzzdch8xzpq0xhayr',
   };
 
   String _getMimeType(String filePath) {
