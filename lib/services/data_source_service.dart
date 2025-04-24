@@ -117,6 +117,42 @@ class DataSourceService {
     }
   }
 
+  Future<Map<String, dynamic>> createUnitConfluence({
+    required String knowledgeId,
+    required String unitName,
+    required String wikiPageUrl,
+    required String confluenceUsername,
+    required String confluenceAccessToken,
+  }) async {
+    try {
+      final response = await _dio.post(
+        "/kb-core/v1/knowledge/$knowledgeId/confluence",
+        data: {
+          "unitName": unitName,
+          "wikiPageUrl": wikiPageUrl,
+          "confluenceUsername": confluenceUsername,
+          "confluenceAccessToken": confluenceAccessToken
+        },
+        options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
+      );
+
+      return {"success": true, "data": response.data};
+    } on DioException catch (e) {
+      final errorMessage =
+          e.response?.data['error'] ??
+              e.response?.data['message'] ??
+              "Something went wrong";
+      return {
+        "success": false,
+        "error": errorMessage,
+        "code": e.response?.data['code'],
+        "statusCode": e.response?.statusCode,
+      };
+    } catch (e) {
+      return {"success": false, "error": "Unexpected error: $e"};
+    }
+  }
+
   static const headers = {
     'X-Stack-Access-Type': 'client',
     'X-Stack-Project-Id': 'a914f06b-5e46-4966-8693-80e4b9f4f409',

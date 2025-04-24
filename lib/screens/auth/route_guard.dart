@@ -1,3 +1,4 @@
+import 'package:ai_chat/screens/knowledge/confluence_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -91,7 +92,7 @@ class RouteGuard {
               case '/slack':
                 return const SlackScreen();
               case '/confluence':
-                return const WebsiteScreen();
+                return const ConfluenceScreen();
               default:
                 return const LoginScreen();
             }

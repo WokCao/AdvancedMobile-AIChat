@@ -41,7 +41,6 @@ class _UnitScreenState extends State<UnitScreen> {
       id: selectedKnowledgeModel.id,
     );
 
-    print(result["data"]);
     final metaData =
         result["success"]
             ? KnowledgeMetaModel.fromJson(result["data"]["meta"])
