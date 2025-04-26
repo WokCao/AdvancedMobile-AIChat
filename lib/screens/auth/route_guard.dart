@@ -18,6 +18,8 @@ import 'package:ai_chat/screens/prompt_sample_screen.dart';
 import '../../providers/auth_provider.dart';
 import 'package:ai_chat/screens/knowledge/slack_screen.dart';
 
+import '../email_screen.dart';
+
 class RouteGuard {
   static Future<bool> isLoggedIn(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
@@ -93,6 +95,8 @@ class RouteGuard {
                 return const SlackScreen();
               case '/confluence':
                 return const ConfluenceScreen();
+              case '/email':
+                return const EmailScreen();
               default:
                 return const LoginScreen();
             }

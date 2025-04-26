@@ -313,4 +313,64 @@ class ApiService {
       );
     }
   }
+
+  Future<String> generateEmailResponse({
+    required String modelId,
+    required String mainIdea,
+    required String action,
+    required String emailContent,
+    required String subject,
+    required String sender,
+    required String receiver,
+    String length = 'long',
+    String formality = 'neutral',
+    String tone = 'friendly',
+    String language = 'english',
+  }) async {
+    try {
+      print({
+        "assistant": {
+          "id": modelId,
+          "model": 'dify',
+        },
+        "mainIdea": mainIdea,
+        "action": action,
+        "email": emailContent,
+        "metadata": {
+          "context": [],
+          "subject": subject,
+          "sender": sender,
+          "receiver": receiver,
+          "style": {
+            "length": length,
+            "formality": formality,
+            "tone": tone,
+          },
+          "language": language,
+        }
+      });
+
+      final response = await _dio.post('/api/v1/ai-email', data: {
+        "mainIdea": mainIdea,
+        "action": action,
+        "email": emailContent,
+        "metadata": {
+          "context": [],
+          "subject": subject,
+          "sender": sender,
+          "receiver": receiver,
+          "style": {
+            "length": length,
+            "formality": formality,
+            "tone": tone,
+          },
+          "language": language,
+        }
+      });
+
+      return response.data['email'] as String;
+    } on DioException catch (e) {
+      throw Exception('Error generating email: ${e.response?.data ?? e.message}');
+    }
+  }
 }

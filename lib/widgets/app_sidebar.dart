@@ -32,6 +32,7 @@ class AppSidebar extends StatelessWidget {
     final menuItems = [
       {'icon': Icons.message, 'title': 'Chat'},
       {'icon': Icons.smart_toy_outlined, 'title': 'BOT'},
+      {'icon': Icons.email_outlined, 'title': 'Email'},
     ];
 
     return Material(
@@ -130,6 +131,8 @@ class AppSidebar extends StatelessWidget {
                             onItemSelected(index);
                             if (index == 1) {
                               Navigator.pushReplacementNamed(context, "/bots");
+                            } else if (index == 2) {
+                              Navigator.pushReplacementNamed(context, "/email");
                             } else {
                               Navigator.pushReplacementNamed(context, "/home");
                             }

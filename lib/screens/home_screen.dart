@@ -194,7 +194,6 @@ class _HomeScreenState extends State<HomeScreen> {
       onItemSelected: (value) {
         setState(() {
           _selectedModel = value;
-          // Optional: track if this is a bot via value.startsWith("bot:")
         });
       },
       offset: Offset(offset.dx + 16, offset.dy - 320 - (botItems.length * 28)),
