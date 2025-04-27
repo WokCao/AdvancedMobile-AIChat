@@ -48,10 +48,8 @@ class _WelcomeState extends State<Welcome> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Greetings
-          Text(
-            '👋',
-            style: TextStyle(fontSize: 32),
-          ),
+          Icon(Icons.waving_hand, color: Colors.purple.shade300, size: 40),
+          const SizedBox(height: 4),
           Text(
             'Hi, good afternoon!',
             style: TextStyle(
