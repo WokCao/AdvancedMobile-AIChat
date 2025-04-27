@@ -20,10 +20,10 @@ class _EmailScreenState extends State<EmailScreen> {
   final _senderController = TextEditingController();
   final _receiverController = TextEditingController();
 
-  String _length = 'Long';
-  String _formality = 'Neutral';
-  String _tone = 'Friendly';
-  String _language = 'Vietnamese';
+  String _length = 'long';
+  String _formality = 'neutral';
+  String _tone = 'friendly';
+  String _language = '';
   String? _selectedModel;
   String? _generatedResponse;
 
@@ -106,10 +106,10 @@ class _EmailScreenState extends State<EmailScreen> {
         subject: _subjectController.text.trim(),
         sender: _senderController.text.trim(),
         receiver: _receiverController.text.trim(),
-        length: _length.toLowerCase(),
-        formality: _formality.toLowerCase(),
-        tone: _tone.toLowerCase(),
-        language: _language.toLowerCase(),
+        length: _length,
+        formality: _formality,
+        tone: _tone,
+        language: _language,
       );
       setState(() {
         _generatedResponse = response;
@@ -197,6 +197,9 @@ class _EmailScreenState extends State<EmailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const Text('Main Idea & Email Content', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+
                 // Main idea
                 TextField(
                   controller: _mainIdeaController,
@@ -216,6 +219,9 @@ class _EmailScreenState extends State<EmailScreen> {
                     border: OutlineInputBorder(),
                   ),
                 ),
+                const SizedBox(height: 24),
+
+                const Text('Email Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
 
                 // Subject, Sender, Receiver
@@ -252,18 +258,53 @@ class _EmailScreenState extends State<EmailScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
+
+                const Text('Style, Length & Language', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
 
                 // Style options
                 Row(
                   children: [
-                    _buildDropdown('Length', _length, ['Short', 'Medium', 'Long'], (value) => _length = value),
+                    _buildDropdown('Length', _length, [
+                      {'value': 'short', 'label': 'Short'},
+                      {'value': 'medium', 'label': 'Medium'},
+                      {'value': 'long', 'label': 'Long'}
+                    ], (value) => _length = value),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _buildDropdown('Formality', _formality, [
+                      {'value': 'casual', 'label': '👍🏻 Casual'},
+                      {'value': 'neutral', 'label': '📄 Neutral'},
+                      {'value': 'formal', 'label': '💼 Formal'},
+                    ], (value) => _formality = value),
                     const SizedBox(width: 8),
-                    _buildDropdown('Formality', _formality, ['Formal', 'Informal', 'Neutral'], (value) => _formality = value),
-                    const SizedBox(width: 8),
-                    _buildDropdown('Tone', _tone, ['Friendly', 'Serious', 'Polite'], (value) => _tone = value),
-                    const SizedBox(width: 8),
-                    _buildDropdown('Language', _language, ['Vietnamese', 'English'], (value) => _language = value),
+                    _buildDropdown('Tone', _tone, [
+                      {'value': 'witty', 'label': '😜 Witty'},
+                      {'value': 'direct', 'label': '😳 Direct'},
+                      {'value': 'personable', 'label': '😋 Personable'},
+                      {'value': 'informational', 'label': '🤓 Informational'},
+                      {'value': 'friendly', 'label': '😀 Friendly'},
+                      {'value': 'confident', 'label': '😎 Confident'},
+                      {'value': 'sincere', 'label': '😔 Sincere'},
+                      {'value': 'enthusiastic', 'label': '🤩 Enthusiastic'},
+                      {'value': 'optimistic', 'label': '😇 Optimistic'},
+                      {'value': 'concerned', 'label': '😟 Concerned'},
+                      {'value': 'empathetic', 'label': '😢 Empathetic'},
+                    ], (value) => _tone = value),
+                  ]
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _buildDropdown('Language', _language, [
+                      {'value': '', 'label': 'Auto'},
+                      {'value': 'Vietnamese', 'label': 'Vietnamese'},
+                      {'value': 'English', 'label': 'English'},
+                    ], (value) => _language = value),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -397,11 +438,14 @@ class _EmailScreenState extends State<EmailScreen> {
     );
   }
 
-  Widget _buildDropdown(String label, String current, List<String> options, Function(String) onChanged) {
+  Widget _buildDropdown(String label, String current, List<Map<String, String>> options, Function(String) onChanged) {
     return Expanded(
       child: DropdownButtonFormField<String>(
         value: current,
-        items: options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
+        items: options.map((opt) => DropdownMenuItem(
+          value: opt['value'],
+          child: Text(opt['label'] ?? opt['value']!),
+        )).toList(),
         onChanged: (value) {
           if (value != null) setState(() => onChanged(value));
         },

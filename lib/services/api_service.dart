@@ -325,31 +325,9 @@ class ApiService {
     String length = 'long',
     String formality = 'neutral',
     String tone = 'friendly',
-    String language = 'english',
+    String language = '',
   }) async {
     try {
-      print({
-        "assistant": {
-          "id": modelId,
-          "model": 'dify',
-        },
-        "mainIdea": mainIdea,
-        "action": action,
-        "email": emailContent,
-        "metadata": {
-          "context": [],
-          "subject": subject,
-          "sender": sender,
-          "receiver": receiver,
-          "style": {
-            "length": length,
-            "formality": formality,
-            "tone": tone,
-          },
-          "language": language,
-        }
-      });
-
       final response = await _dio.post('/api/v1/ai-email', data: {
         "mainIdea": mainIdea,
         "action": action,
@@ -364,8 +342,24 @@ class ApiService {
             "formality": formality,
             "tone": tone,
           },
-          "language": language,
-        }
+          if (language.isNotEmpty) "language": language,
+        },
+        "availableImprovedActions":[
+          "More engaging",
+          "More Informative",
+          "Add humor",
+          "Add details",
+          "More apologetic",
+          "Make it polite",
+          "Add clarification",
+          "Simplify language",
+          "Improve structure",
+          "Add empathy",
+          "Add a summary",
+          "Insert professional jargon",
+          "Make longer",
+          "Make shorter"
+        ]
       });
 
       return response.data['email'] as String;
