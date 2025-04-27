@@ -329,6 +329,10 @@ class ApiService {
   }) async {
     try {
       final response = await _dio.post('/api/v1/ai-email', data: {
+        // "assistant": {
+        //   "id": modelId,
+        //   "model": 'dify',
+        // },
         "mainIdea": mainIdea,
         "action": action,
         "email": emailContent,
@@ -365,6 +369,41 @@ class ApiService {
       return response.data['email'] as String;
     } on DioException catch (e) {
       throw Exception('Error generating email: ${e.response?.data ?? e.message}');
+    }
+  }
+
+  Future<List<String>> suggestReplyIdeas({
+    required String modelId,
+    required String emailContent,
+    required String subject,
+    required String sender,
+    required String receiver,
+    String language = '',
+  }) async {
+    try {
+      final response = await _dio.post('/api/v1/ai-email/reply-ideas', data: {
+        // "assistant": {
+        //   "id": modelId,
+        //   "model": 'dify',
+        // },
+        "action": "Reply to this email",
+        "email": emailContent,
+        "metadata": {
+          "context": [],
+          "subject": subject,
+          "sender": sender,
+          "receiver": receiver,
+          if (language.isNotEmpty) "language": language,
+        }
+      });
+
+      if (response.data is Map && response.data['ideas'] is List) {
+        return List<String>.from(response.data['ideas']);
+      } else {
+        throw Exception('Invalid response format');
+      }
+    } on DioException catch (e) {
+      throw Exception('Error fetching ideas: ${e.response?.data ?? e.message}');
     }
   }
 }

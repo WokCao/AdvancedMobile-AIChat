@@ -31,7 +31,11 @@ class _EmailScreenState extends State<EmailScreen> {
   final GlobalKey _modelSelectorKey = GlobalKey();
 
   bool _isGenerateFocused = false;
+  bool _isSuggestFocused = false;
   bool _loading = false;
+
+  bool _loadingIdeas = false;
+  List<String> _suggestedIdeas = [];
 
   final List<Map<String, dynamic>> _modelData = [
     {
@@ -91,7 +95,12 @@ class _EmailScreenState extends State<EmailScreen> {
   ];
 
   Future<void> _generateEmail() async {
-    if (_mainIdeaController.text.trim().isEmpty || _emailController.text.trim().isEmpty) return;
+    if (_mainIdeaController.text.trim().isEmpty || _emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in the Main Idea and Original Email Content first.')),
+      );
+      return;
+    }
 
     setState(() => _loading = true);
 
@@ -123,6 +132,73 @@ class _EmailScreenState extends State<EmailScreen> {
         setState(() => _loading = false);
       }
     }
+  }
+
+  Future<void> _fetchMainIdeas() async {
+    if (_emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in the Original Email Content first.')),
+      );
+      return;
+    }
+
+    setState(() => _loadingIdeas = true);
+
+    final api = getApiService(context);
+
+    try {
+      final ideas = await api.suggestReplyIdeas(
+        modelId: _currentModel['apiId'],
+        emailContent: _emailController.text.trim(),
+        subject: _subjectController.text.trim(),
+        sender: _senderController.text.trim(),
+        receiver: _receiverController.text.trim(),
+        language: _language,
+      );
+
+      if (ideas.isNotEmpty) {
+        setState(() {
+          _suggestedIdeas = ideas;
+        });
+
+        _showIdeaPicker();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No suggestions found.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error suggesting ideas: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _loadingIdeas = false);
+      }
+    }
+  }
+
+  void _showIdeaPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return ListView.builder(
+          itemCount: _suggestedIdeas.length,
+          itemBuilder: (context, index) {
+            final idea = _suggestedIdeas[index];
+            return ListTile(
+              title: Text(idea),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _mainIdeaController.text = idea;
+                });
+              },
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _showModelSelector() async {
@@ -197,17 +273,7 @@ class _EmailScreenState extends State<EmailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Main Idea & Email Content', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-
-                // Main idea
-                TextField(
-                  controller: _mainIdeaController,
-                  decoration: const InputDecoration(
-                    labelText: 'Main Idea (required)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+                const Text('Email Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
 
                 // Original email
@@ -219,9 +285,6 @@ class _EmailScreenState extends State<EmailScreen> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 24),
-
-                const Text('Email Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
 
                 // Subject, Sender, Receiver
@@ -241,7 +304,7 @@ class _EmailScreenState extends State<EmailScreen> {
                       child: TextField(
                         controller: _senderController,
                         decoration: const InputDecoration(
-                          labelText: 'Sender Name',
+                          labelText: 'Sender',
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -251,8 +314,65 @@ class _EmailScreenState extends State<EmailScreen> {
                       child: TextField(
                         controller: _receiverController,
                         decoration: const InputDecoration(
-                          labelText: 'Receiver Email',
+                          labelText: 'Receiver',
                           border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Main idea
+                TextField(
+                  controller: _mainIdeaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Main Idea (required)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Suggest idea
+                Row(
+                  children: [
+                    Expanded(
+                      child: MouseRegion(
+                        onEnter: (_) => setState(() => _isSuggestFocused = true),
+                        onExit: (_) => setState(() => _isSuggestFocused = false),
+                        child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  _isSuggestFocused
+                                      ? Colors.pink.shade400
+                                      : Colors.pink.shade300,
+                                  _isSuggestFocused
+                                      ? Colors.purple.shade400
+                                      : Colors.purple.shade300,
+                                ], // Gradient colors
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: InkWell(
+                              onTap: _loadingIdeas ? null : _fetchMainIdeas,
+                              child:
+                              _loadingIdeas
+                                  ? const Center(
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                    ),
+                                  )
+                                  : Text('Suggest Reply Ideas', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
+                            )
                         ),
                       ),
                     ),
@@ -260,7 +380,7 @@ class _EmailScreenState extends State<EmailScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                const Text('Style, Length & Language', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('Customization', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
 
                 // Style options
