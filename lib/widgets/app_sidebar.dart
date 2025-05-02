@@ -22,8 +22,43 @@ class AppSidebar extends StatelessWidget {
     required this.onClose,
   });
 
+  Future<void> _handleLogout(BuildContext context) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+
+    if (user == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No user found')));
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+      return;
+    }
+
+    final isSuccess = await authProvider.logout(
+      refreshToken: user.refreshToken,
+    );
+    await clearTokens();
+
+    if (!context.mounted) return;
+
+    if (isSuccess) {
+      Navigator.pushReplacementNamed(context, '/login');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            authProvider.error ?? 'Logout failed. Please try again',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final userEmail = Provider.of<AuthProvider>(context, listen: false).email;
     // If sidebar is not visible, return an empty container
     if (!isVisible) {
       return const SizedBox.shrink();
@@ -32,6 +67,7 @@ class AppSidebar extends StatelessWidget {
     final menuItems = [
       {'icon': Icons.message, 'title': 'Chat'},
       {'icon': Icons.smart_toy_outlined, 'title': 'BOT'},
+      {'icon': Icons.subscriptions, 'title': 'Subscriptions'},
       {'icon': Icons.email_outlined, 'title': 'Email'},
     ];
 
@@ -46,9 +82,7 @@ class AppSidebar extends StatelessWidget {
               child: AnimatedOpacity(
                 opacity: isVisible ? 0.5 : 0,
                 duration: const Duration(milliseconds: 300),
-                child: Container(
-                  color: Colors.black,
-                ),
+                child: Container(color: Colors.black),
               ),
             ),
           ),
@@ -68,7 +102,11 @@ class AppSidebar extends StatelessWidget {
                 children: [
                   // App Name Section
                   Container(
-                    padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 10.0),
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      top: 16.0,
+                      bottom: 10.0,
+                    ),
                     child: Row(
                       children: [
                         const Icon(
@@ -109,17 +147,28 @@ class AppSidebar extends StatelessWidget {
                         return ListTile(
                           leading: Icon(
                             item['icon'] as IconData,
-                            color: isSelected ? Colors.purple[700] : Colors.grey[700],
+                            color:
+                                isSelected
+                                    ? Colors.purple[700]
+                                    : Colors.grey[700],
                           ),
                           title: Text(
                             item['title'] as String,
                             style: TextStyle(
-                              color: isSelected ? Colors.purple[700] : Colors.grey[800],
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color:
+                                  isSelected
+                                      ? Colors.purple[700]
+                                      : Colors.grey[800],
+                              fontWeight:
+                                  isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                             ),
                           ),
                           selected: isSelected,
-                          selectedTileColor: Colors.purple.withValues(alpha: 0.1),
+                          selectedTileColor: Colors.purple.withValues(
+                            alpha: 0.1,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -129,13 +178,14 @@ class AppSidebar extends StatelessWidget {
                           ),
                           onTap: () {
                             onItemSelected(index);
-                            if (index == 1) {
-                              Navigator.pushReplacementNamed(context, "/bots");
-                            } else if (index == 2) {
-                              Navigator.pushReplacementNamed(context, "/email");
-                            } else {
-                              Navigator.pushReplacementNamed(context, "/home");
-                            }
+                            final route = switch (index) {
+                              0 => "/home",
+                              1 => "/bots",
+                              2 => "/email",
+                              3 => "/subscription",
+                              _ => "/home",
+                            };
+                            Navigator.pushReplacementNamed(context, route);
                             // Close sidebar after selection on mobile
                             if (MediaQuery.of(context).size.width < 600) {
                               onClose();
@@ -148,12 +198,15 @@ class AppSidebar extends StatelessWidget {
 
                   // Footer
                   Container(
-                    padding: const EdgeInsets.only(top: 16, bottom: 16, left: 16, right: 10),
+                    padding: const EdgeInsets.only(
+                      top: 16,
+                      bottom: 16,
+                      left: 16,
+                      right: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
-                      border: Border(
-                        top: BorderSide(color: Colors.grey[300]!),
-                      ),
+                      border: Border(top: BorderSide(color: Colors.grey[300]!)),
                     ),
                     child: Row(
                       children: [
@@ -169,19 +222,17 @@ class AppSidebar extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'User Name',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                'Account',
+                                style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                'user@example.com',
+                                userEmail ?? 'Undefined',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
@@ -192,32 +243,7 @@ class AppSidebar extends StatelessWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.logout),
-                          onPressed: () async {
-                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                            final user = authProvider.user;
-
-                            if (user == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('No user found')),
-                              );
-                              Navigator.pushReplacementNamed(context, '/login');
-                              return;
-                            }
-
-                            final success = await authProvider.logout(
-                              user.refreshToken
-                            );
-
-                            await clearTokens();
-
-                            if (success) {
-                              Navigator.pushReplacementNamed(context, '/login');
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(authProvider.error ?? 'Logout failed. Please try again')),
-                              );
-                            }
-                          },
+                          onPressed: () => _handleLogout(context),
                           tooltip: 'Logout',
                         ),
                       ],

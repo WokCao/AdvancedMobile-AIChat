@@ -22,17 +22,15 @@ import '../email_screen.dart';
 
 class RouteGuard {
   static Future<bool> isLoggedIn(BuildContext context) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('accessToken');
-    if (accessToken == null) return false;
-
     final refreshToken = prefs.getString('refreshToken');
-    if (refreshToken == null) return false;
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final result = await authProvider.isLoggedIn(accessToken, refreshToken);
+    if (accessToken == null || refreshToken == null) return false;
 
-    return result;
+    return await authProvider.isLoggedIn(accessToken: accessToken, refreshToken: refreshToken);
   }
 
   static Route<dynamic> generateRoute(RouteSettings settings) {

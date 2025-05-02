@@ -2,19 +2,20 @@ import 'package:ai_chat/utils/auth_interceptor.dart';
 import 'package:dio/dio.dart';
 
 import '../main.dart';
+import '../utils/auth_exception.dart';
 
 class AuthService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: "https://auth-api.dev.jarvis.cx"));
+  final Dio _dioAuthApi = Dio(BaseOptions(baseUrl: "https://auth-api.dev.jarvis.cx"));
   final Dio _dioApi = Dio(BaseOptions(baseUrl: "https://api.dev.jarvis.cx"));
 
   AuthService() {
-    _dio.interceptors.add(AuthInterceptor(_dio, navigatorKey));
-    _dioApi.interceptors.add(AuthInterceptor(_dio, navigatorKey));
+    _dioAuthApi.interceptors.add(AuthInterceptor(_dioAuthApi, navigatorKey));
+    _dioApi.interceptors.add(AuthInterceptor(_dioApi, navigatorKey));
   }
 
   Future<Map<String, dynamic>> signUp(String email, String password) async {
     try {
-      final response = await _dio.post(
+      final response = await _dioAuthApi.post(
         "/api/v1/auth/password/sign-up",
         data: {
           "email": email,
@@ -24,70 +25,49 @@ class AuthService {
         },
         options: Options(headers: headers),
       );
-      return {"success": true, "data": response.data};
+      return response.data;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-          e.response?.data['message'] ??
-          "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Sign-up failed";
+      throw AuthException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 
   Future<Map<String, dynamic>> signIn(String email, String password) async {
     try {
-      final response = await _dio.post(
+      final response = await _dioAuthApi.post(
         "/api/v1/auth/password/sign-in",
         data: {"email": email, "password": password},
         options: Options(headers: headers),
       );
-      return {"success": true, "data": response.data};
+      return response.data;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-          e.response?.data['message'] ??
-          "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Sign-in failed";
+      throw AuthException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 
-  Future<Map<String, dynamic>> isLoggedIn(String token) async {
+  Future<Map<String, dynamic>> isLoggedIn() async {
     try {
       final response = await _dioApi.get(
         "/api/v1/auth/me",
         options: Options(
           headers: {
             'x-jarvis-guid': '361331f8-fc9b-4dfe-a3f7-6d9a1e8b289b',
-            'Authorization': 'Bearer $token'
           },
         ),
       );
       final data = response.data;
-      return {'isLoggedIn': true, 'id': data['id']};
-    } catch (e) {
-      return {'isLoggedIn': false};
+      return {'isLoggedIn': true, 'id': data['id'], 'email': data['email']};
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data['error'] ?? "Invalid access token";
+      throw AuthException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 
-  Future<Map<String, dynamic>> logout(String refreshToken) async {
+  Future<void> logout(String refreshToken) async {
     try {
-      await _dio.delete(
+      await _dioAuthApi.delete(
         "/api/v1/auth/sessions/current",
-        data: {},
         options: Options(
           headers: {
             ...headers,
@@ -95,21 +75,9 @@ class AuthService {
           },
         ),
       );
-
-      return {"success": true};
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-          e.response?.data['message'] ??
-          "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Log-out failed";
+      throw AuthException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 

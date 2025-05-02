@@ -33,22 +33,20 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = true;
       });
 
-      final success = await authProvider.signIn(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
+      final isSuccess = await authProvider.signIn(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
 
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
 
-      if (success) {
+      if (isSuccess) {
         final user = authProvider.user;
-        if (user == null) {
-          return;
-        }
-
-        await saveTokens(user.accessToken, user.refreshToken);
+        await saveTokens(user!.accessToken, user.refreshToken);
+        if (!mounted) return;
         Navigator.pushNamed(context, '/home');
       } else {
         // Show error returned from the server

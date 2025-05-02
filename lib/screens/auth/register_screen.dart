@@ -35,21 +35,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _isLoading = true;
       });
 
-      final success = await authProvider.signUp(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
+      final isSuccess = await authProvider.signUp(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
 
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
 
-      if (success) {
+      if (isSuccess) {
         final user = authProvider.user;
-        if (user == null) {
-          return;
-        }
-        await saveTokens(user.accessToken, user.refreshToken);
+        await saveTokens(user!.accessToken, user.refreshToken);
+
+        if (!mounted) return;
         Navigator.pushNamed(context, '/home');
       } else {
         // Show error returned from the server
@@ -58,6 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
     } else if (!_acceptTerms) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please accept the terms and conditions')),
       );
