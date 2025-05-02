@@ -47,7 +47,9 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
   void _handleConnectFile() async {
     bool allSuccess = true;
 
-    KnowledgeModel knowledgeModel = Provider.of<KnowledgeProvider>(context, listen: false).selectedKnowledge;
+    KnowledgeModel? knowledgeModel = Provider.of<KnowledgeProvider>(context, listen: false).selectedKnowledge;
+    if (knowledgeModel == null) return;
+
     final dtService = Provider.of<DataSourceService>(context, listen: false);
 
     for (PlatformFile platformFile in _selectedFiles) {
@@ -56,6 +58,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
 
       if (!response["success"]) {
         allSuccess = false;
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to upload ${file.path.split("/").last}. Please try again.'),
@@ -68,6 +71,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
 
     if (allSuccess) {
       _selectedFiles.clear();
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('All files uploaded successfully!'),

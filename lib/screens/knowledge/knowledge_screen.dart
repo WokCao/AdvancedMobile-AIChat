@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_chat/models/meta_model.dart';
 import 'package:ai_chat/models/knowledge_model.dart';
+import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -22,33 +23,23 @@ class KnowledgeScreen extends StatefulWidget  {
 class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
   late Future<List<KnowledgeModel>> _dataFuture;
   final List<KnowledgeModel> _data = [];
-  late TextEditingController _textEditingController;
+  final TextEditingController _textEditingController = TextEditingController();
   Timer? _debounce;
   String _lastQuery = '';
-  int offset = 0;
-  static const limit = 7;
+  int offset = 0, total = 0;
   bool hasNext = true;
-  int total = 0;
 
+  /* To load knowledge first time */
   Future<List<KnowledgeModel>> _loadData() async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
-    final result = await kbService.getKnowledge(
-      query: _textEditingController.text,
-      offset: offset,
-    );
-    final metaData =
-        result["success"]
-            ? MetaModel.fromJson(result["data"]["meta"])
-            : MetaModel(
-              limit: limit,
-              offset: offset,
-              total: total,
-              hasNext: hasNext,
-            );
-
-    if (result["success"]) {
+    try {
+      final result = await kbService.getKnowledge(
+        query: _textEditingController.text,
+        offset: offset,
+      );
+      final metaData = MetaModel.fromJson(result["meta"]);
       final newItems = List<KnowledgeModel>.from(
-        result["data"]["data"].map((e) => KnowledgeModel.fromJson(e)),
+        result["data"].map((e) => KnowledgeModel.fromJson(e)),
       );
       setState(() {
         _data.addAll(newItems);
@@ -56,28 +47,48 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
         hasNext = metaData.hasNext;
         offset += newItems.length;
       });
+    } on KnowledgeException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     }
 
     return _data;
   }
 
-  void _fetchMoreData(int firstIndexOfPage) async {
+  /* To load more knowledge */
+  Future<void> _fetchMoreData(int firstIndexOfPage) async {
     if (firstIndexOfPage < _data.length) return;
 
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
-    final result = await kbService.getKnowledge(
-      query: _textEditingController.text,
-      offset: offset,
-    );
-    if (result["success"]) {
+    try {
+      final result = await kbService.getKnowledge(
+        query: _textEditingController.text,
+        offset: offset,
+      );
+
       final newItems = List<KnowledgeModel>.from(
-        result["data"]["data"].map((e) => KnowledgeModel.fromJson(e)),
+        result["data"].map((e) => KnowledgeModel.fromJson(e)),
       );
 
       setState(() {
         _data.addAll(newItems);
         offset += newItems.length;
       });
+    } on KnowledgeException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -100,20 +111,68 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
 
   void _handleDeleteKnowledge(String id) async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
-    bool result = await kbService.deleteKnowledge(id: id);
-    if (result) {
+    try {
+      await kbService.deleteKnowledge(id: id);
       setState(() {
         _data.clear();
         offset = 0;
         _dataFuture = _loadData();
       });
+    } on KnowledgeException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+  void _handleDeleteQuery() {
+    _textEditingController.clear();
+    setState(() {
+      _data.clear();
+      offset = 0;
+      _dataFuture = _loadData();
+    });
+  }
+
+  void _handleCreateKnowledge(String knowledgeName, String description) async {
+    final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
+    try {
+      await kbService.createKnowledge(knowledgeName: knowledgeName, description: description,);
+
+      setState(() {
+        _data.clear();
+        offset = 0;
+        _dataFuture = _loadData();
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Knowledge has been created successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } on KnowledgeException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController(text: '');
     _textEditingController.addListener(_onTextChanged);
     _dataFuture = _loadData();
   }
@@ -138,6 +197,8 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
 
     if (provider.wasUpdated) {
       final updated = provider.selectedKnowledge;
+      if (updated == null) return;
+
       final index = _data.indexWhere((k) => k.id == updated.id);
       if (index != -1) {
         setState(() {
@@ -146,6 +207,8 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
       }
       provider.clearUpdateFlag();
     }
+
+    provider.setSelectedKnowledgeRow(null);
   }
 
   @override
@@ -169,6 +232,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
                         controller: _textEditingController,
                         style: TextStyle(fontSize: 14),
                         decoration: InputDecoration(
+                          isDense: true,
                           prefixIcon: const Icon(Icons.search_sharp, size: 24),
                           suffixIcon:
                               _textEditingController.text.isNotEmpty
@@ -178,14 +242,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
                                       size: 12,
                                     ),
                                     hoverColor: Colors.transparent,
-                                    onPressed: () {
-                                      _textEditingController.clear();
-                                      setState(() {
-                                        _data.clear();
-                                        offset = 0;
-                                        _dataFuture = _loadData();
-                                      });
-                                    },
+                                    onPressed: _handleDeleteQuery,
                                   )
                                   : null,
                           hintText: "Search...",
@@ -228,23 +285,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
                       context: context,
                       builder:
                           (context) => CreateKnowledgeDialog(
-                            onSubmit: (name, instructions) async {
-                              final kbService =
-                                  Provider.of<KnowledgeBaseService>(
-                                    context,
-                                    listen: false,
-                                  );
-                              await kbService.createKnowledge(
-                                name,
-                                instructions,
-                              );
-
-                              setState(() {
-                                _data.clear();
-                                offset = 0;
-                                _dataFuture = _loadData();
-                              });
-                            },
+                            onSubmit: _handleCreateKnowledge,
                             type: "Create",
                           ),
                     );

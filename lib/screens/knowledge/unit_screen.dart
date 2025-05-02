@@ -5,6 +5,7 @@ import 'package:ai_chat/models/base_unit_model.dart';
 import 'package:ai_chat/models/knowledge_model.dart';
 import 'package:ai_chat/models/file_unit_model.dart';
 import 'package:ai_chat/providers/knowledge_provider.dart';
+import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -24,37 +25,28 @@ class UnitScreen extends StatefulWidget {
 
 class _UnitScreenState extends State<UnitScreen> {
   late Future<List<BaseUnitModel>> _dataFuture;
+  final TextEditingController _textEditingController = TextEditingController();
   final List<BaseUnitModel> _data = [];
-  late TextEditingController _textEditingController;
   Timer? _debounce;
   String _lastQuery = '';
-  int offset = 0;
-  static const limit = 7;
+  int offset = 0, total = 0;
   bool hasNext = true;
-  int total = 0;
-  late KnowledgeModel selectedKnowledgeModel;
+  late KnowledgeModel? selectedKnowledgeModel;
 
   Future<List<BaseUnitModel>> _loadData() async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
-    final result = await kbService.getUnitsOfKnowledge(
-      query: _textEditingController.text,
-      offset: offset,
-      id: selectedKnowledgeModel.id,
-    );
+    try {
+      if (selectedKnowledgeModel == null) throw KnowledgeException('Unidentified knowledge model');
 
-    final metaData =
-        result["success"]
-            ? MetaModel.fromJson(result["data"]["meta"])
-            : MetaModel(
-              limit: limit,
-              offset: offset,
-              total: total,
-              hasNext: hasNext,
-            );
+      final result = await kbService.getUnitsOfKnowledge(
+        query: _textEditingController.text,
+        offset: offset,
+        id: selectedKnowledgeModel!.id,
+      );
 
-    if (result["success"]) {
+      final metaData = MetaModel.fromJson(result["meta"]);
       final newItems = List<BaseUnitModel>.from(
-        result["data"]["data"].map<BaseUnitModel>((e) {
+        result["data"].map<BaseUnitModel>((e) {
           return e['metadata']['slack_bot_token'] != null
               ? SlackUnitModel.fromJson(e)
               : e['metadata']['wiki_page_url'] != null
@@ -69,6 +61,12 @@ class _UnitScreenState extends State<UnitScreen> {
         hasNext = metaData.hasNext;
         offset += newItems.length;
       });
+    } on KnowledgeException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
+        );
+      }
     }
 
     return _data;
@@ -78,14 +76,16 @@ class _UnitScreenState extends State<UnitScreen> {
     if (firstIndexOfPage < _data.length) return;
 
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
-    final result = await kbService.getUnitsOfKnowledge(
-      query: _textEditingController.text,
-      offset: offset,
-      id: selectedKnowledgeModel.id,
-    );
-    if (result["success"]) {
+    try {
+      if (selectedKnowledgeModel == null) throw KnowledgeException('Unidentified knowledge model');
+
+      final result = await kbService.getUnitsOfKnowledge(
+        query: _textEditingController.text,
+        offset: offset,
+        id: selectedKnowledgeModel!.id,
+      );
       final newItems = List<BaseUnitModel>.from(
-        result["data"]["data"].map<BaseUnitModel>((e) {
+        result["data"].map<BaseUnitModel>((e) {
           return e['metadata']['slack_bot_token'] != null
               ? SlackUnitModel.fromJson(e)
               : e['metadata']['wiki_page_url'] != null
@@ -98,6 +98,12 @@ class _UnitScreenState extends State<UnitScreen> {
         _data.addAll(newItems);
         offset += newItems.length;
       });
+    } on KnowledgeException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
+        );
+      }
     }
   }
 
@@ -118,32 +124,54 @@ class _UnitScreenState extends State<UnitScreen> {
     });
   }
 
-  void _handleDeleteUnit(String id) async {}
+  void _handleDeleteUnit(String id) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Delete action is not now available"), duration: Duration(seconds: 2)),
+    );
+  }
 
-  void _handleUpdateKnowledge(String name, String instructions) async {
+  void _handleUpdateKnowledge(String knowledgeName, String description) async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
-    final response = await kbService.updateKnowledge(
-      name,
-      instructions,
-      selectedKnowledgeModel.id,
-    );
-    final updatedKnowledgeModel = KnowledgeModel(
-      id: selectedKnowledgeModel.id,
-      knowledgeName: response["data"]["knowledgeName"],
-      description: response["data"]["description"],
-      userId: selectedKnowledgeModel.userId,
-      numUnits: selectedKnowledgeModel.numUnits,
-      totalSize: selectedKnowledgeModel.totalSize,
-      createdAt: selectedKnowledgeModel.createdAt,
-      updatedAt: DateTime.parse(response["data"]["updatedAt"]),
-    );
-    Provider.of<KnowledgeProvider>(
-      context,
-      listen: false,
-    ).setSelectedKnowledgeRow(updatedKnowledgeModel, updated: true);
-    setState(() {
-      selectedKnowledgeModel = updatedKnowledgeModel;
-    });
+    try {
+      if (selectedKnowledgeModel == null) throw KnowledgeException('Unidentified knowledge model');
+
+      final response = await kbService.updateKnowledge(
+        knowledgeName: knowledgeName,
+        description: description,
+        knowledgeId: selectedKnowledgeModel!.id,
+      );
+
+      final updatedKnowledgeModel = KnowledgeModel(
+        id: selectedKnowledgeModel!.id,
+        knowledgeName: response["knowledgeName"],
+        description: response["description"],
+        userId: selectedKnowledgeModel!.userId,
+        numUnits: selectedKnowledgeModel!.numUnits,
+        totalSize: selectedKnowledgeModel!.totalSize,
+        createdAt: selectedKnowledgeModel!.createdAt,
+        updatedAt: DateTime.parse(response["updatedAt"]),
+      );
+
+      if (!mounted) return;
+
+      Provider.of<KnowledgeProvider>(
+        context,
+        listen: false,
+      ).setSelectedKnowledgeRow(updatedKnowledgeModel, updated: true);
+      setState(() {
+        selectedKnowledgeModel = updatedKnowledgeModel;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Knowledge has been updated successfully'), duration: Duration(seconds: 2)),
+      );
+    } on KnowledgeException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
+        );
+      }
+    }
   }
 
   String _getReadableFileSize(int bytes) {
@@ -161,7 +189,6 @@ class _UnitScreenState extends State<UnitScreen> {
           context,
           listen: false,
         ).selectedKnowledge;
-    _textEditingController = TextEditingController(text: '');
     _textEditingController.addListener(_onTextChanged);
     _dataFuture = _loadData();
   }
@@ -223,7 +250,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                         MediaQuery.of(context).size.width * 0.3,
                                   ),
                                   child: Text(
-                                    selectedKnowledgeModel.knowledgeName,
+                                    selectedKnowledgeModel!.knowledgeName,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -273,7 +300,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    "${selectedKnowledgeModel.numUnits} Units",
+                                    "${selectedKnowledgeModel!.numUnits} Units",
                                     style: TextStyle(color: Colors.purple),
                                   ),
                                 ),
@@ -292,7 +319,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                   ),
                                   child: Text(
                                     _getReadableFileSize(
-                                      selectedKnowledgeModel.totalSize,
+                                      selectedKnowledgeModel!.totalSize,
                                     ),
                                     style: TextStyle(color: Colors.pink),
                                   ),

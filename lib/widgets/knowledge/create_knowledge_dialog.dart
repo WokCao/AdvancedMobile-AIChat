@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CreateKnowledgeDialog extends StatefulWidget {
-  final Function(String name, String instructions) onSubmit;
+  final Function(String knowledgeName, String description) onSubmit;
   final String type;
   const CreateKnowledgeDialog({super.key, required this.onSubmit, required this.type});
 
@@ -13,7 +13,7 @@ class CreateKnowledgeDialog extends StatefulWidget {
 }
 
 class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
-  late KnowledgeModel selectedKnowledgeModel;
+  late KnowledgeModel? selectedKnowledgeModel;
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
@@ -23,8 +23,8 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
   void initState() {
     super.initState();
     selectedKnowledgeModel = Provider.of<KnowledgeProvider>(context, listen: false).selectedKnowledge;
-    _nameController = TextEditingController(text: selectedKnowledgeModel.knowledgeName);
-    _descriptionController = TextEditingController(text: selectedKnowledgeModel.description);
+    _nameController = TextEditingController(text: selectedKnowledgeModel?.knowledgeName ?? '');
+    _descriptionController = TextEditingController(text: selectedKnowledgeModel?.description ?? '');
   }
 
   @override
@@ -40,7 +40,8 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
         _nameController.text,
         _descriptionController.text,
       );
-      Navigator.of(context).pop();
+
+      Navigator.pop(context);
     }
   }
 
@@ -199,9 +200,7 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
                               borderRadius: BorderRadius.circular(24),
                             ),
                             child: InkWell(
-                              onTap: () {
-                                _handleSubmit();
-                              },
+                              onTap: _handleSubmit,
                               child: const Text('Confirm', style: TextStyle(color: Colors.white)),
                             )
                         ),

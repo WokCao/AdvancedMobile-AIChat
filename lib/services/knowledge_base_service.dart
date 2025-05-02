@@ -1,145 +1,85 @@
 import 'package:ai_chat/utils/auth_interceptor.dart';
+import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:dio/dio.dart';
 
 import '../main.dart';
 
 class KnowledgeBaseService {
-  final Dio _dio = Dio(
+  final Dio _dioKnowledgeApi = Dio(
     BaseOptions(baseUrl: "https://knowledge-api.dev.jarvis.cx"),
   );
 
   KnowledgeBaseService() {
-    _dio.interceptors.add(AuthInterceptor(_dio, navigatorKey));
+    _dioKnowledgeApi.interceptors.add(AuthInterceptor(_dioKnowledgeApi, navigatorKey));
   }
 
-  Future<Map<String, dynamic>> createKnowledge(
-    String knowledgeName,
-    String description,
-  ) async {
+  Future<Map<String, dynamic>> createKnowledge({required String knowledgeName, required String description}) async {
     try {
-      final response = await _dio.post(
+      final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/knowledge",
         data: {"knowledgeName": knowledgeName, "description": description},
         options: Options(headers: headers),
       );
 
-      return {"success": true, "data": response.data};
+      return response.data;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-          e.response?.data['message'] ??
-          "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Failed to create new knowledge";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 
-  Future<Map<String, dynamic>> updateKnowledge(
-      String knowledgeName,
-      String description,
-      String knowledgeId
-      ) async {
+  Future<Map<String, dynamic>> updateKnowledge({required String knowledgeName, required String description, required String knowledgeId}) async {
     try {
-      final response = await _dio.patch(
+      final response = await _dioKnowledgeApi.patch(
         "/kb-core/v1/knowledge/$knowledgeId",
         data: {"knowledgeName": knowledgeName, "description": description},
         options: Options(headers: headers),
       );
 
-      return {"success": true, "data": response.data};
+      return response.data;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-              e.response?.data['message'] ??
-              "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Failed to update existing knowledge";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 
-  Future<Map<String, dynamic>> getKnowledge({
-    String query = '',
-    required int offset,
-    int limit = 7,
-  }) async {
+  Future<Map<String, dynamic>> getKnowledge({String query = '', required int offset, int limit = 7,}) async {
     try {
-      final response = await _dio.get(
+      final response = await _dioKnowledgeApi.get(
         "/kb-core/v1/knowledge?q=$query&offset=$offset&limit=$limit",
         options: Options(headers: headers),
       );
 
-      return {"success": true, "data": response.data};
+      return response.data;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-          e.response?.data['message'] ??
-          "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Failed to load knowledge";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 
-  Future<bool> deleteKnowledge({required String id}) async {
+  Future<void> deleteKnowledge({required String id}) async {
     try {
-      await _dio.delete(
+      await _dioKnowledgeApi.delete(
         "/kb-core/v1/knowledge/$id",
         options: Options(headers: headers),
       );
-
-      return true;
     } on DioException catch (e) {
-      return false;
-    } catch (e) {
-      return false;
+      final errorMessage = e.response?.data['error'] ?? "Failed to delete knowledge";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 
-  Future<Map<String, dynamic>> getUnitsOfKnowledge({
-    String query = '',
-    required int offset,
-    int limit = 7,
-    required String id,
-  }) async {
+  Future<Map<String, dynamic>> getUnitsOfKnowledge({String query = '', required int offset, int limit = 7, required String id,}) async {
     try {
-      final response = await _dio.get(
+      final response = await _dioKnowledgeApi.get(
         "/kb-core/v1/knowledge/$id/units?q=$query&offset=$offset&limit=$limit",
         options: Options(headers: headers),
       );
 
-      print(response.data);
-
-      return {"success": true, "data": response.data};
+      return response.data;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-          e.response?.data['message'] ??
-          "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Failed to load knowledge's units";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 

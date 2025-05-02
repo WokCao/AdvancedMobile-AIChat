@@ -38,13 +38,15 @@ class _SlackScreenState extends State<SlackScreen> {
       _isLoading = true;
     });
 
-    KnowledgeModel knowledgeModel =
+    KnowledgeModel? knowledgeModel =
         Provider.of<KnowledgeProvider>(
           context,
           listen: false,
         ).selectedKnowledge;
 
     final dtService = Provider.of<DataSourceService>(context, listen: false);
+    if (knowledgeModel == null) return;
+
     final response = await dtService.createUnitSlack(
       knowledgeId: knowledgeModel.id,
       unitName: _unitNameController.text,
@@ -57,6 +59,7 @@ class _SlackScreenState extends State<SlackScreen> {
         Navigator.pop(context);
       }
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(response['error'] ?? 'Unknown error occurred.'),

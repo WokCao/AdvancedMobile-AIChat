@@ -40,8 +40,10 @@ class _ConfluenceScreenState extends State<ConfluenceScreen> {
       _isLoading = true;
     });
 
-    KnowledgeModel knowledgeModel =
+    KnowledgeModel? knowledgeModel =
         Provider.of<KnowledgeProvider>(context, listen: false).selectedKnowledge;
+
+    if (knowledgeModel == null) return;
 
     final dtService = Provider.of<DataSourceService>(context, listen: false);
     final response = await dtService.createUnitConfluence(
@@ -57,6 +59,7 @@ class _ConfluenceScreenState extends State<ConfluenceScreen> {
         Navigator.pop(context);
       }
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

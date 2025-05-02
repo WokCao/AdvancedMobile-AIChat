@@ -33,11 +33,13 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
       _isLoading = true;
     });
 
-    KnowledgeModel knowledgeModel =
+    KnowledgeModel? knowledgeModel =
         Provider.of<KnowledgeProvider>(
           context,
           listen: false,
         ).selectedKnowledge;
+    if (knowledgeModel == null) return;
+
     final dtService = Provider.of<DataSourceService>(context, listen: false);
     final response = await dtService.createUnitWebURL(
       knowledgeId: knowledgeModel.id,
@@ -50,6 +52,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
         Navigator.pop(context);
       }
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(response['error'] ?? 'Unknown error occurred.'),
