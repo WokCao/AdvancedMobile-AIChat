@@ -124,6 +124,8 @@ class KnowledgeBaseService {
         options: Options(headers: headers),
       );
 
+      print(response.data);
+
       return {"success": true, "data": response.data};
     } on DioException catch (e) {
       final errorMessage =

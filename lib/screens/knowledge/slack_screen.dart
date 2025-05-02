@@ -17,17 +17,27 @@ class _SlackScreenState extends State<SlackScreen> {
   final _unitNameController = TextEditingController();
   final _slackWorkspaceController = TextEditingController();
   final _slackBotTokenController = TextEditingController();
+  late bool _isLoading = false;
 
   void _handleUploadSlack() async {
-    if (_unitNameController.text.isEmpty || _slackWorkspaceController.text.isEmpty || _slackBotTokenController.text.isEmpty) {
+    if (_unitNameController.text.isEmpty ||
+        _slackWorkspaceController.text.isEmpty ||
+        _slackBotTokenController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Unit name, Slack workspace and Slack bot token can't be empty!"),
+          content: Text(
+            "Unit name, Slack workspace and Slack bot token can't be empty!",
+          ),
           duration: Duration(seconds: 2),
         ),
       );
       return;
     }
+
+    setState(() {
+      _isLoading = true;
+    });
+
     KnowledgeModel knowledgeModel =
         Provider.of<KnowledgeProvider>(
           context,
@@ -35,12 +45,31 @@ class _SlackScreenState extends State<SlackScreen> {
         ).selectedKnowledge;
 
     final dtService = Provider.of<DataSourceService>(context, listen: false);
-    await dtService.createUnitSlack(
+    final response = await dtService.createUnitSlack(
       knowledgeId: knowledgeModel.id,
       unitName: _unitNameController.text,
       slackWorkspace: _slackWorkspaceController.text,
-      slackBotToken: _slackBotTokenController.text
+      slackBotToken: _slackBotTokenController.text,
     );
+
+    if (response['success'] == true) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['error'] ?? 'Unknown error occurred.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -254,14 +283,26 @@ class _SlackScreenState extends State<SlackScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: Text(
-                            'Connect',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          child:
+                              _isLoading
+                                  ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : Text(
+                                    'Connect',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                         ),
                       ),
                     ),

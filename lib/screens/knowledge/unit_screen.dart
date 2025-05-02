@@ -3,12 +3,13 @@ import 'dart:math';
 
 import 'package:ai_chat/models/base_unit_model.dart';
 import 'package:ai_chat/models/knowledge_model.dart';
-import 'package:ai_chat/models/unit_model.dart';
+import 'package:ai_chat/models/file_unit_model.dart';
 import 'package:ai_chat/providers/knowledge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import '../../models/knowledge_meta_model.dart';
+import '../../models/confluence_unit_model.dart';
+import '../../models/meta_model.dart';
 import '../../models/slack_unit_model.dart';
 import '../../services/knowledge_base_service.dart';
 import '../../widgets/knowledge/create_knowledge_dialog.dart';
@@ -43,8 +44,8 @@ class _UnitScreenState extends State<UnitScreen> {
 
     final metaData =
         result["success"]
-            ? KnowledgeMetaModel.fromJson(result["data"]["meta"])
-            : KnowledgeMetaModel(
+            ? MetaModel.fromJson(result["data"]["meta"])
+            : MetaModel(
               limit: limit,
               offset: offset,
               total: total,
@@ -56,7 +57,9 @@ class _UnitScreenState extends State<UnitScreen> {
         result["data"]["data"].map<BaseUnitModel>((e) {
           return e['metadata']['slack_bot_token'] != null
               ? SlackUnitModel.fromJson(e)
-              : UnitModel.fromJson(e);
+              : e['metadata']['wiki_page_url'] != null
+              ? ConfluenceUnitModel.fromJson(e)
+              : FileUnitModel.fromJson(e);
         }),
       );
 
@@ -85,7 +88,9 @@ class _UnitScreenState extends State<UnitScreen> {
         result["data"]["data"].map<BaseUnitModel>((e) {
           return e['metadata']['slack_bot_token'] != null
               ? SlackUnitModel.fromJson(e)
-              : UnitModel.fromJson(e);
+              : e['metadata']['wiki_page_url'] != null
+              ? ConfluenceUnitModel.fromJson(e)
+              : FileUnitModel.fromJson(e);
         }),
       );
 
@@ -117,8 +122,21 @@ class _UnitScreenState extends State<UnitScreen> {
 
   void _handleUpdateKnowledge(String name, String instructions) async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
-    final response = await kbService.updateKnowledge(name, instructions, selectedKnowledgeModel.id);
-    final updatedKnowledgeModel = KnowledgeModel(id: selectedKnowledgeModel.id, knowledgeName: response["data"]["knowledgeName"], description: response["data"]["description"], userId: selectedKnowledgeModel.userId, numUnits: selectedKnowledgeModel.numUnits, totalSize: selectedKnowledgeModel.totalSize, createdAt: selectedKnowledgeModel.createdAt, updatedAt: DateTime.parse(response["data"]["updatedAt"]));
+    final response = await kbService.updateKnowledge(
+      name,
+      instructions,
+      selectedKnowledgeModel.id,
+    );
+    final updatedKnowledgeModel = KnowledgeModel(
+      id: selectedKnowledgeModel.id,
+      knowledgeName: response["data"]["knowledgeName"],
+      description: response["data"]["description"],
+      userId: selectedKnowledgeModel.userId,
+      numUnits: selectedKnowledgeModel.numUnits,
+      totalSize: selectedKnowledgeModel.totalSize,
+      createdAt: selectedKnowledgeModel.createdAt,
+      updatedAt: DateTime.parse(response["data"]["updatedAt"]),
+    );
     Provider.of<KnowledgeProvider>(
       context,
       listen: false,

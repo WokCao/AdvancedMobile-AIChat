@@ -1,18 +1,18 @@
-class KnowledgeMetaModel {
+class MetaModel {
   final int limit;
   final int offset;
   final int total;
   final bool hasNext;
 
-  KnowledgeMetaModel({
+  MetaModel({
     required this.limit,
     required this.offset,
     required this.total,
     required this.hasNext,
   });
 
-  factory KnowledgeMetaModel.fromJson(Map<String, dynamic> json) {
-    return KnowledgeMetaModel(
+  factory MetaModel.fromJson(Map<String, dynamic> json) {
+    return MetaModel(
       limit: json['limit'],
       offset: json['offset'],
       total: json['total'],

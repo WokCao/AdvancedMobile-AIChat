@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:ai_chat/models/knowledge_meta_model.dart';
+import 'package:ai_chat/models/meta_model.dart';
 import 'package:ai_chat/models/knowledge_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,8 +38,8 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
     );
     final metaData =
         result["success"]
-            ? KnowledgeMetaModel.fromJson(result["data"]["meta"])
-            : KnowledgeMetaModel(
+            ? MetaModel.fromJson(result["data"]["meta"])
+            : MetaModel(
               limit: limit,
               offset: offset,
               total: total,

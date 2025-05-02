@@ -1,7 +1,7 @@
 import 'base_unit_model.dart';
 import 'metadata_classes.dart';
 
-class UnitModel implements BaseUnitModel {
+class FileUnitModel implements BaseUnitModel {
   @override final String id, name, type, userId, knowledgeId;
   @override final int size;
   @override final bool status;
@@ -11,7 +11,7 @@ class UnitModel implements BaseUnitModel {
   @override final String? createdBy, updatedBy;
   @override final FileMetadata metadata;
 
-  UnitModel({
+  FileUnitModel({
     required this.id,
     required this.name,
     required this.type,
@@ -28,7 +28,7 @@ class UnitModel implements BaseUnitModel {
     this.updatedBy,
   });
 
-  factory UnitModel.fromJson(Map<String, dynamic> json) => UnitModel(
+  factory FileUnitModel.fromJson(Map<String, dynamic> json) => FileUnitModel(
     id: json['id'],
     name: json['name'],
     type: json['type'],

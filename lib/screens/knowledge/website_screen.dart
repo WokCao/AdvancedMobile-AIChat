@@ -16,6 +16,7 @@ class WebsiteScreen extends StatefulWidget {
 class _WebsiteScreenState extends State<WebsiteScreen> {
   final _unitNameController = TextEditingController();
   final _urlController = TextEditingController();
+  late bool _isLoading = false;
 
   void _handleUploadWebsite() async {
     if (_unitNameController.text.isEmpty || _urlController.text.isEmpty) {
@@ -27,17 +28,41 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
       );
       return;
     }
+
+    setState(() {
+      _isLoading = true;
+    });
+
     KnowledgeModel knowledgeModel =
         Provider.of<KnowledgeProvider>(
           context,
           listen: false,
         ).selectedKnowledge;
     final dtService = Provider.of<DataSourceService>(context, listen: false);
-    await dtService.createUnitWebURL(
+    final response = await dtService.createUnitWebURL(
       knowledgeId: knowledgeModel.id,
       unitName: _unitNameController.text,
       webUrl: _urlController.text,
     );
+
+    if (response['success'] == true) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['error'] ?? 'Unknown error occurred.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -192,10 +217,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: ElevatedButton(
-                          onPressed: () {
-                            _handleUploadWebsite();
-                            Navigator.pop(context);
-                          },
+                          onPressed: _isLoading ? null : _handleUploadWebsite,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
@@ -207,14 +229,26 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: Text(
-                            'Connect',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          child:
+                              _isLoading
+                                  ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : Text(
+                                    'Connect',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                         ),
                       ),
                     ),
