@@ -7,6 +7,7 @@ import '../utils/get_api_utils.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/bot/create_bot_dialog.dart';
 import '../widgets/chat_message.dart';
+import '../widgets/file_preview.dart';
 import '../widgets/prompt/use_prompt.dart';
 import '../widgets/selector_menu/selector_item.dart';
 import '../widgets/selector_menu/selector_menu_helper.dart';
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _fetchingBots = false;
 
-  String? _uploadedFileUrl;
+  PlatformFile? _selectedFile;
   bool _uploadingFile = false;
 
   // Selector items
@@ -314,23 +315,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final isUsingBot = _selectedModel.startsWith("bot:");
     final assistantId = isUsingBot ? _selectedModel.split(":")[1] : null;
 
-    setState(() {
-      // Add user message
-      _messages.add(
-        ChatMessage(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          message: text,
-          type: MessageType.user,
-        ),
-      );
-
-      // Clear input
-      _textController.clear();
-    });
-
-    // Scroll to bottom
-    _scrollToBottom();
-
     // Bot message template
     ChatMessage botMessage(String id, String message) {
       return ChatMessage(
@@ -343,11 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Show temporary loading message
     const loadingMessageId = 'loading';
-    setState(() {
-      _messages.add(botMessage(loadingMessageId, 'Typing...'));
-    });
 
     try {
       Map<String, dynamic> result;
@@ -367,13 +347,41 @@ class _HomeScreenState extends State<HomeScreen> {
         final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model
 				final modelName = _currentModel['name'];
 
+        String? uploadedUrl;
+        if (_selectedFile != null) {
+          uploadedUrl = await _uploadFile(_selectedFile!); // upload here
+        }
+
+        setState(() {
+          _selectedFile = null;
+
+          // Add user message
+          _messages.add(
+            ChatMessage(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              message: text,
+              type: MessageType.user,
+              files: uploadedUrl != null ? [uploadedUrl] : [],
+            ),
+          );
+
+          // Add temporary loading message
+          _messages.add(botMessage(loadingMessageId, 'Typing...'));
+
+          // Scroll to bottom
+          WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+
+          // Clear input
+          _textController.clear();
+        });
+
 				final api = getApiService(context);
 				result = await api.sendMessage(
 					content: text,
 					modelId: modelId,
 					modelName: modelName,
 					conversationId: _lastConversationId,
-          files: _uploadedFileUrl != null ? [_uploadedFileUrl!] : [],
+          files: uploadedUrl != null ? [uploadedUrl] : [],
 				);
       }
 
@@ -385,7 +393,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _messages.removeWhere((msg) => msg.id == loadingMessageId);
         _messages.add(botMessage(DateTime.now().millisecondsSinceEpoch.toString(), reply));
         _lastConversationId = result['conversationId'];
-        _uploadedFileUrl = null;
       });
       
       _remainingTokens = remaining ?? _remainingTokens;
@@ -396,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
 
-    _scrollToBottom();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
   void _handleEditMessage(String id, String newMessage) {
@@ -412,6 +419,7 @@ class _HomeScreenState extends State<HomeScreen> {
           senderName: oldMessage.senderName,
           senderIcon: oldMessage.senderIcon,
           iconColor: oldMessage.iconColor,
+          files: oldMessage.files,
         );
       }
     });
@@ -460,61 +468,78 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       _messages = parsed;
-      _lastConversationId = conversationId; // store for future use
+      _lastConversationId = conversationId;
       _loadingConversation = false;
     });
 
-    _scrollToBottom();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
   List<ChatMessage> parseConversationHistory(List<Map<String, dynamic>> messages) {
     return messages.expand((msg) {
       final createdAt = msg['createdAt'].toString();
       return [
-        ChatMessage(id: '$createdAt-user', message: msg['query'], type: MessageType.user),
-        ChatMessage(id: '$createdAt-bot', message: msg['answer'], type: MessageType.ai,
+        ChatMessage(
+            id: '$createdAt-user',
+            message: msg['query'],
+            type: MessageType.user,
+        ),
+        ChatMessage(
+            id: '$createdAt-bot',
+            message: msg['answer'],
+            type: MessageType.ai,
             senderName: _currentModel['name'],
             senderIcon: _currentModel['icon'],
-            iconColor: _currentModel['iconColor']),
+            iconColor: _currentModel['iconColor']
+        ),
       ];
     }).toList();
   }
 
-  Future<void> _pickAndUploadFile() async {
-    final result = await FilePicker.platform.pickFiles();
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: [
+        'txt', 'md', 'pdf', 'html', 'xlsx', 'xls', 'docx', 'csv', 'msg', 'pptx', 'ppt', 'xml', 'epub',
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
+      ],
+    );
 
-    if (result != null && result.files.single.path != null) {
-      setState(() => _uploadingFile = true);
-
-      final filePath = result.files.single.path!;
-      final file = File(filePath);
-
-      const cloudName = 'dtworggdn';
-      const uploadPreset = 'ai-chat-files';
-
-      final uploadUrl = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/auto/upload');
-
-      final fileBytes = result.files.first.bytes!;
-      final fileName = result.files.first.name;
-
-      final formData = FormData.fromMap({
-        'file': MultipartFile.fromBytes(fileBytes, filename: fileName),
-        'upload_preset': uploadPreset,
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _selectedFile = result.files.first;
       });
-
-      try {
-        final response = await Dio().postUri(uploadUrl, data: formData);
-        final uploadedUrl = response.data['secure_url'];
-
-        setState(() => _uploadedFileUrl = uploadedUrl);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Upload failed: ${e.toString()}')),
-        );
-      } finally {
-        setState(() => _uploadingFile = false);
-      }
     }
+  }
+
+  Future<String?> _uploadFile(PlatformFile file) async {
+    setState(() => _uploadingFile = true);
+
+    const cloudName = 'dtworggdn';
+    const uploadPreset = 'ai-chat-files';
+
+    final uploadUrl = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/auto/upload');
+
+    final fileBytes = file.bytes!;
+    final fileName = file.name;
+
+    final formData = FormData.fromMap({
+      'file': MultipartFile.fromBytes(fileBytes, filename: fileName),
+      'upload_preset': uploadPreset,
+    });
+
+    try {
+      final response = await Dio().postUri(uploadUrl, data: formData);
+      return response.data['secure_url'];
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Upload failed: ${e.toString()}')),
+      );
+    } finally {
+      setState(() => _uploadingFile = false);
+    }
+
+    return null;
   }
 
   @override
@@ -698,7 +723,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           _lastConversationId = conversationId;
                         });
 
-                        _scrollToBottom();
+                        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
                       }
                     },
                     tooltip: 'Chat history',
@@ -796,6 +821,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
 
+                        if (_selectedFile != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8, left: 8),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: FilePreview(
+                                file: _selectedFile,
+                                onRemove: () => setState(() => _selectedFile = null),
+                              ),
+                            ),
+                          ),
+
                         // Buttons row
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
@@ -804,7 +841,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               IconButton(
                                 icon: const Icon(Icons.attach_file),
                                 iconSize: 20,
-                                onPressed: _uploadingFile ? null : _pickAndUploadFile,
+                                onPressed: _pickFile,
                                 tooltip: 'Attach file',
                               ),
                               IconButton(
@@ -816,14 +853,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                 tooltip: 'View prompts',
                               ),
                               const Spacer(),
-                              IconButton(
-                                icon: const Icon(Icons.send),
-                                iconSize: 20,
-                                color: Colors.purple,
-                                onPressed:
-                                    _isInputHasText ? _handleSendMessage : null,
-                                tooltip: 'Send message',
-                              ),
+                              _uploadingFile
+                                  ? Padding(
+                                    padding: const EdgeInsets.only(right: 16.0),
+                                    child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.purple),
+                                      ),
+                                  )
+                                  : IconButton(
+                                      icon: const Icon(Icons.send),
+                                      iconSize: 20,
+                                      color: Colors.purple,
+                                      onPressed:
+                                          _isInputHasText ? _handleSendMessage : null,
+                                      tooltip: 'Send message',
+                                    ),
                             ],
                           ),
                         ),

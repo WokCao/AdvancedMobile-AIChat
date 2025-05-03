@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
+import 'file_preview.dart';
+
 enum MessageType {
   user,
   ai,
@@ -15,6 +17,7 @@ class ChatMessage {
   final String? senderName;
   final IconData? senderIcon;
   final Color? iconColor;
+  final List<String> files;
 
   ChatMessage({
     required this.id,
@@ -23,6 +26,7 @@ class ChatMessage {
     this.senderName,
     this.senderIcon,
     this.iconColor,
+    this.files = const [],
   });
 }
 
@@ -148,6 +152,20 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                       )
                   ),
             ),
+
+            if (!_isEditing && widget.message.files.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 24.0, top: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: widget.message.files.map((fileUrl) =>
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: FilePreview(url: fileUrl, size: 240),
+                      )
+                  ).toList(),
+                ),
+              ),
 
             // Action buttons
             Padding(
