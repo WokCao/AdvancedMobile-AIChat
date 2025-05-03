@@ -1,3 +1,4 @@
+import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -41,30 +42,27 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
     if (knowledgeModel == null) return;
 
     final dtService = Provider.of<DataSourceService>(context, listen: false);
-    final response = await dtService.createUnitWebURL(
-      knowledgeId: knowledgeModel.id,
-      unitName: _unitNameController.text,
-      webUrl: _urlController.text,
-    );
+    try {
+      await dtService.createUnitWebURL(
+        knowledgeId: knowledgeModel.id,
+        unitName: _unitNameController.text,
+        webUrl: _urlController.text,
+      );
 
-    if (response['success'] == true) {
       if (mounted) {
-        Navigator.pop(context);
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.popUntil(context, ModalRoute.withName('/unit'));
       }
-    } else {
+    } on KnowledgeException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(response['error'] ?? 'Unknown error occurred.'),
+          content: Text(e.message),
           duration: Duration(seconds: 2),
         ),
       );
-    }
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 

@@ -1,17 +1,18 @@
 import 'dart:io';
 
 import 'package:ai_chat/utils/auth_interceptor.dart';
+import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:dio/dio.dart';
 
 import '../main.dart';
 
 class DataSourceService {
-  final Dio _dio = Dio(
+  final Dio _dioKnowledgeApi = Dio(
     BaseOptions(baseUrl: "https://knowledge-api.dev.jarvis.cx"),
   );
 
   DataSourceService() {
-    _dio.interceptors.add(AuthInterceptor(_dio, navigatorKey));
+    _dioKnowledgeApi.interceptors.add(AuthInterceptor(_dioKnowledgeApi, navigatorKey));
   }
 
   Future<Map<String, dynamic>> createUnitFileType({
@@ -28,26 +29,16 @@ class DataSourceService {
         ),
       });
 
-      final response = await _dio.post(
+      final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/knowledge/$knowledgeId/local-file",
         data: formData,
         options: Options(headers: headers),
       );
 
-      return {"success": true, "data": response.data};
+      return response.data;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-          e.response?.data['message'] ??
-          "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Failed to create unit (File) - Path: ${file.path.split("/").last}";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 
@@ -57,7 +48,7 @@ class DataSourceService {
     required String webUrl,
   }) async {
     try {
-      final response = await _dio.post(
+      final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/knowledge/$knowledgeId/web",
         data: {
           "unitName": unitName,
@@ -66,20 +57,10 @@ class DataSourceService {
         options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
       );
 
-      return {"success": true, "data": response.data};
+      return response.data;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-              e.response?.data['message'] ??
-              "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Failed to create unit (Website) - Url: $webUrl";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 
@@ -90,7 +71,7 @@ class DataSourceService {
     required String slackBotToken,
   }) async {
     try {
-      final response = await _dio.post(
+      final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/knowledge/$knowledgeId/slack",
         data: {
           "unitName": unitName,
@@ -100,20 +81,10 @@ class DataSourceService {
         options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
       );
 
-      return {"success": true, "data": response.data};
+      return response.data;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-              e.response?.data['message'] ??
-              "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Failed to create unit (Slack)";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 
@@ -125,7 +96,7 @@ class DataSourceService {
     required String confluenceAccessToken,
   }) async {
     try {
-      final response = await _dio.post(
+      final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/knowledge/$knowledgeId/confluence",
         data: {
           "unitName": unitName,
@@ -136,20 +107,10 @@ class DataSourceService {
         options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
       );
 
-      return {"success": true, "data": response.data};
+      return response.data;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ??
-              e.response?.data['message'] ??
-              "Something went wrong";
-      return {
-        "success": false,
-        "error": errorMessage,
-        "code": e.response?.data['code'],
-        "statusCode": e.response?.statusCode,
-      };
-    } catch (e) {
-      return {"success": false, "error": "Unexpected error: $e"};
+      final errorMessage = e.response?.data['error'] ?? "Failed to create unit (Confluence)";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
 

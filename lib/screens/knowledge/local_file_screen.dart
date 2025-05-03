@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ai_chat/models/knowledge_model.dart';
 import 'package:ai_chat/services/data_source_service.dart';
+import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -26,8 +27,20 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: [
-        'c', 'cpp', 'docx', 'html', 'java', 'json', 'md',
-        'pdf', 'php', 'pptx', 'py', 'rb', 'tex', 'txt',
+        'c',
+        'cpp',
+        'docx',
+        'html',
+        'java',
+        'json',
+        'md',
+        'pdf',
+        'php',
+        'pptx',
+        'py',
+        'rb',
+        'tex',
+        'txt',
       ],
     );
 
@@ -47,25 +60,31 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
   void _handleConnectFile() async {
     bool allSuccess = true;
 
-    KnowledgeModel? knowledgeModel = Provider.of<KnowledgeProvider>(context, listen: false).selectedKnowledge;
+    KnowledgeModel? knowledgeModel =
+        Provider.of<KnowledgeProvider>(
+          context,
+          listen: false,
+        ).selectedKnowledge;
     if (knowledgeModel == null) return;
 
     final dtService = Provider.of<DataSourceService>(context, listen: false);
 
     for (PlatformFile platformFile in _selectedFiles) {
-      final file = File(platformFile.path!);
-      final response = await dtService.createUnitFileType(knowledgeId: knowledgeModel.id, file: file);
+      final path = platformFile.path;
+      if (path == null) continue;
+      final file = File(path);
 
-      if (!response["success"]) {
+      try {
+        await dtService.createUnitFileType(
+          knowledgeId: knowledgeModel.id,
+          file: file,
+        );
+      } on KnowledgeException catch (e) {
         allSuccess = false;
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to upload ${file.path.split("/").last}. Please try again.'),
-            duration: Duration(seconds: 3),
-          ),
+          SnackBar(content: Text(e.message), duration: Duration(seconds: 3)),
         );
-        continue;
       }
     }
 
@@ -78,7 +97,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
           duration: Duration(seconds: 3),
         ),
       );
-      Navigator.pop(context);
+      Navigator.popUntil(context, ModalRoute.withName('/unit'));
     }
   }
 
@@ -158,7 +177,10 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
                   children: [
                     TextSpan(
                       text: 'Upload local file: ',
-                      style: TextStyle(color: Colors.grey.shade800, fontSize: 14),
+                      style: TextStyle(
+                        color: Colors.grey.shade800,
+                        fontSize: 14,
+                      ),
                     ),
                     TextSpan(
                       text: '*',
@@ -226,7 +248,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
                   itemCount: _selectedFiles.length,
                   itemBuilder: (context, index) {
                     final file = _selectedFiles[index];
-                    return FileItem(file: file, removeFile: _removeFile,);
+                    return FileItem(file: file, removeFile: _removeFile);
                   },
                 ),
               ),

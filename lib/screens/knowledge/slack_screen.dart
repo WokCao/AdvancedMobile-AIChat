@@ -1,3 +1,4 @@
+import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -47,31 +48,28 @@ class _SlackScreenState extends State<SlackScreen> {
     final dtService = Provider.of<DataSourceService>(context, listen: false);
     if (knowledgeModel == null) return;
 
-    final response = await dtService.createUnitSlack(
-      knowledgeId: knowledgeModel.id,
-      unitName: _unitNameController.text,
-      slackWorkspace: _slackWorkspaceController.text,
-      slackBotToken: _slackBotTokenController.text,
-    );
+    try {
+      await dtService.createUnitSlack(
+        knowledgeId: knowledgeModel.id,
+        unitName: _unitNameController.text,
+        slackWorkspace: _slackWorkspaceController.text,
+        slackBotToken: _slackBotTokenController.text,
+      );
 
-    if (response['success'] == true) {
       if (mounted) {
-        Navigator.pop(context);
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.popUntil(context, ModalRoute.withName('/unit'));
       }
-    } else {
+    } on KnowledgeException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(response['error'] ?? 'Unknown error occurred.'),
+          content: Text(e.message),
           duration: Duration(seconds: 2),
         ),
       );
-    }
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 

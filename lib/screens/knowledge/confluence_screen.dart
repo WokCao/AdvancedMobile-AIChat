@@ -1,3 +1,4 @@
+import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -46,34 +47,31 @@ class _ConfluenceScreenState extends State<ConfluenceScreen> {
     if (knowledgeModel == null) return;
 
     final dtService = Provider.of<DataSourceService>(context, listen: false);
-    final response = await dtService.createUnitConfluence(
-      knowledgeId: knowledgeModel.id,
-      unitName: _unitNameController.text,
-      wikiPageUrl: _wikiPageUrlController.text,
-      confluenceUsername: _confluenceUsernameController.text,
-      confluenceAccessToken: _confluenceAccessTokenController.text,
-    );
+    try {
+      final response = await dtService.createUnitConfluence(
+        knowledgeId: knowledgeModel.id,
+        unitName: _unitNameController.text,
+        wikiPageUrl: _wikiPageUrlController.text,
+        confluenceUsername: _confluenceUsernameController.text,
+        confluenceAccessToken: _confluenceAccessTokenController.text,
+      );
 
-    if (response['success'] == true) {
       if (mounted) {
-        Navigator.pop(context);
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.popUntil(context, ModalRoute.withName('/units'));
       }
-    } else {
+    } on KnowledgeException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            response['error'] ?? 'Unknown error occurred.',
+            e.message
           ),
           duration: Duration(seconds: 2),
         ),
       );
-    }
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
