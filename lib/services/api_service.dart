@@ -24,6 +24,7 @@ class ApiService {
     required String modelId,
     required String modelName,
     String? conversationId,
+    List<String>? files = const [],
   }) async {
     try {
       final List<Map<String, dynamic>> messageHistory = [];
@@ -57,7 +58,7 @@ class ApiService {
         '/api/v1/ai-chat/messages',
         data: {
           "content": content,
-          "files": [],
+          "files": files,
           "metadata": {
             "conversation": {
               "id": conversationId,

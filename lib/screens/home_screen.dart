@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../models/prompt_model.dart';
 import '../utils/get_api_utils.dart';
@@ -36,6 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _loadingConversation = false;
 
   bool _fetchingBots = false;
+
+  String? _uploadedFileUrl;
+  bool _uploadingFile = false;
 
   // Selector items
   int _offset = 0;
@@ -367,6 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
 					modelId: modelId,
 					modelName: modelName,
 					conversationId: _lastConversationId,
+          files: _uploadedFileUrl != null ? [_uploadedFileUrl!] : [],
 				);
       }
 
@@ -378,6 +385,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _messages.removeWhere((msg) => msg.id == loadingMessageId);
         _messages.add(botMessage(DateTime.now().millisecondsSinceEpoch.toString(), reply));
         _lastConversationId = result['conversationId'];
+        _uploadedFileUrl = null;
       });
       
       _remainingTokens = remaining ?? _remainingTokens;
@@ -470,6 +478,43 @@ class _HomeScreenState extends State<HomeScreen> {
             iconColor: _currentModel['iconColor']),
       ];
     }).toList();
+  }
+
+  Future<void> _pickAndUploadFile() async {
+    final result = await FilePicker.platform.pickFiles();
+
+    if (result != null && result.files.single.path != null) {
+      setState(() => _uploadingFile = true);
+
+      final filePath = result.files.single.path!;
+      final file = File(filePath);
+
+      const cloudName = 'dtworggdn';
+      const uploadPreset = 'ai-chat-files';
+
+      final uploadUrl = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/auto/upload');
+
+      final fileBytes = result.files.first.bytes!;
+      final fileName = result.files.first.name;
+
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(fileBytes, filename: fileName),
+        'upload_preset': uploadPreset,
+      });
+
+      try {
+        final response = await Dio().postUri(uploadUrl, data: formData);
+        final uploadedUrl = response.data['secure_url'];
+
+        setState(() => _uploadedFileUrl = uploadedUrl);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Upload failed: ${e.toString()}')),
+        );
+      } finally {
+        setState(() => _uploadingFile = false);
+      }
+    }
   }
 
   @override
@@ -759,7 +804,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               IconButton(
                                 icon: const Icon(Icons.attach_file),
                                 iconSize: 20,
-                                onPressed: () {},
+                                onPressed: _uploadingFile ? null : _pickAndUploadFile,
                                 tooltip: 'Attach file',
                               ),
                               IconButton(
