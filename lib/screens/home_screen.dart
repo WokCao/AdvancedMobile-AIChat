@@ -8,6 +8,7 @@ import '../widgets/app_sidebar.dart';
 import '../widgets/bot/create_bot_dialog.dart';
 import '../widgets/chat_message.dart';
 import '../widgets/file_preview.dart';
+import '../widgets/file_preview_list.dart';
 import '../widgets/prompt/use_prompt.dart';
 import '../widgets/selector_menu/selector_item.dart';
 import '../widgets/selector_menu/selector_menu_helper.dart';
@@ -41,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _fetchingBots = false;
 
-  PlatformFile? _selectedFile;
+  List<PlatformFile> _selectedFiles = [];
   bool _uploadingFile = false;
 
   // Selector items
@@ -347,13 +348,15 @@ class _HomeScreenState extends State<HomeScreen> {
         final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model
 				final modelName = _currentModel['name'];
 
-        String? uploadedUrl;
-        if (_selectedFile != null) {
-          uploadedUrl = await _uploadFile(_selectedFile!); // upload here
+        List<String> uploadedUrls = [];
+
+        for (final file in _selectedFiles) {
+          final url = await _uploadFile(file);
+          if (url != null) uploadedUrls.add(url);
         }
 
         setState(() {
-          _selectedFile = null;
+          _selectedFiles.clear();
 
           // Add user message
           _messages.add(
@@ -361,7 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
               id: DateTime.now().millisecondsSinceEpoch.toString(),
               message: text,
               type: MessageType.user,
-              files: uploadedUrl != null ? [uploadedUrl] : [],
+              files: uploadedUrls,
             ),
           );
 
@@ -381,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
 					modelId: modelId,
 					modelName: modelName,
 					conversationId: _lastConversationId,
-          files: uploadedUrl != null ? [uploadedUrl] : [],
+          files: uploadedUrls,
 				);
       }
 
@@ -498,6 +501,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: [
         'txt', 'md', 'pdf', 'html', 'xlsx', 'xls', 'docx', 'csv', 'msg', 'pptx', 'ppt', 'xml', 'epub',
@@ -507,7 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (result != null && result.files.isNotEmpty) {
       setState(() {
-        _selectedFile = result.files.first;
+        _selectedFiles.addAll(result.files);
       });
     }
   }
@@ -821,15 +825,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
 
-                        if (_selectedFile != null)
+                        if (_selectedFiles.isNotEmpty)
                           Padding(
-                            padding: const EdgeInsets.only(top: 8, left: 8),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: FilePreview(
-                                file: _selectedFile,
-                                onRemove: () => setState(() => _selectedFile = null),
-                              ),
+                            padding: const EdgeInsets.only(left: 14.0),
+                            child: FilePreviewList(
+                              files: _selectedFiles,
+                              onRemove: (index) {
+                                setState(() => _selectedFiles.removeAt(index));
+                              },
                             ),
                           ),
 

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'file_preview.dart';
+import 'file_preview_list.dart';
 
 enum MessageType {
   user,
@@ -158,12 +159,12 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                 padding: const EdgeInsets.only(left: 24.0, top: 8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widget.message.files.map((fileUrl) =>
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: FilePreview(url: fileUrl, size: 240),
-                      )
-                  ).toList(),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: FilePreviewList(fileUrls: widget.message.files, size: 180),
+                    )
+                  ],
                 ),
               ),
 
