@@ -1,10 +1,21 @@
 String formatRelativeTime(dynamic createdAt) {
   if (createdAt == null) return "Unknown time";
 
-  final timestamp = int.tryParse(createdAt.toString());
-  if (timestamp == null) return "Invalid time";
+  DateTime? createdTime;
 
-  final createdTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+  // Try parsing as int (timestamp in seconds)
+  final timestamp = int.tryParse(createdAt.toString());
+  if (timestamp != null) {
+    createdTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+  } else {
+    // Try parsing as ISO 8601 string
+    try {
+      createdTime = DateTime.parse(createdAt.toString()).toLocal();
+    } catch (_) {
+      return "Invalid time";
+    }
+  }
+
   final now = DateTime.now();
   final diff = now.difference(createdTime);
 
