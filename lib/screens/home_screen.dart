@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/prompt_model.dart';
 import '../utils/get_api_utils.dart';
 import '../widgets/app_sidebar.dart';
@@ -42,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _fetchingBots = false;
 
-  List<PlatformFile> _selectedFiles = [];
+  final List<PlatformFile> _selectedFiles = [];
   bool _uploadingFile = false;
 
   // Selector items
@@ -546,6 +548,46 @@ class _HomeScreenState extends State<HomeScreen> {
     return null;
   }
 
+  Future<void> _takePhoto() async {
+    try {
+      PlatformFile? platformFile;
+
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        // 📱 Mobile (Android/iOS)
+        final ImagePicker picker = ImagePicker();
+        final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+
+        if (photo != null) {
+          final bytes = await photo.readAsBytes();
+          platformFile = PlatformFile(
+            name: photo.name,
+            size: bytes.length,
+            bytes: bytes,
+            path: photo.path,
+          );
+        }
+      } else {
+        // 🌐 Web or Desktop fallback: open image file
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.image,
+          withData: true,
+        );
+
+        if (result != null && result.files.isNotEmpty) {
+          platformFile = result.files.first;
+        }
+      }
+
+      if (platformFile != null) {
+        setState(() {
+          _selectedFiles.add(platformFile!);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
   @override
   void dispose() {
     _textController.dispose();
@@ -846,6 +888,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 iconSize: 20,
                                 onPressed: _pickFile,
                                 tooltip: 'Attach file',
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.camera_alt),
+                                iconSize: 20,
+                                onPressed: _takePhoto,
+                                tooltip: 'Take photo',
                               ),
                               IconButton(
                                 icon: const Icon(Icons.auto_awesome),
