@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/prompt_model.dart';
+import '../services/openai_service.dart';
 import '../utils/get_api_utils.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/bot/create_bot_dialog.dart';
@@ -335,17 +336,42 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       Map<String, dynamic> result;
 
+      // Chat with AI bot
       if (isUsingBot && assistantId != null) {
+        setState(() {
+          _selectedFiles.clear();
+
+          // Add user message
+          _messages.add(
+            ChatMessage(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              message: text,
+              type: MessageType.user,
+            ),
+          );
+
+          // Add temporary loading message
+          _messages.add(botMessage(loadingMessageId, 'Typing...'));
+
+          // Scroll to bottom
+          WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+
+          // Clear input
+          _textController.clear();
+        });
+
         final api = getKBApiService(context);
+        final threadData = await createOpenAiThread();
 
         result = await api.askBot(
           assistantId: assistantId,
           message: text,
-          openAiThreadId: "thread_ewcmtpDJwtDPcCeoDjtydmcW", // generate one if not set
+          openAiThreadId: threadData['id'],
           additionalInstruction: "",
         );
       }
 
+      // Chat with AI model
       else {
         final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model
 				final modelName = _currentModel['name'];
