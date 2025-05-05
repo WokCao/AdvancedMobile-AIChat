@@ -31,17 +31,18 @@ class _UnitScreenState extends State<UnitScreen> {
   String _lastQuery = '';
   int offset = 0, total = 0;
   bool hasNext = true;
-  late KnowledgeModel? selectedKnowledgeModel;
 
   Future<List<BaseUnitModel>> _loadData() async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
+    final selectedKnowledgeModel = context.read<KnowledgeProvider>().selectedKnowledge;
+
     try {
       if (selectedKnowledgeModel == null) throw KnowledgeException('Unidentified knowledge model');
 
       final result = await kbService.getUnitsOfKnowledge(
         query: _textEditingController.text,
         offset: offset,
-        id: selectedKnowledgeModel!.id,
+        id: selectedKnowledgeModel.id,
       );
 
       final metaData = MetaModel.fromJson(result["meta"]);
@@ -76,13 +77,15 @@ class _UnitScreenState extends State<UnitScreen> {
     if (firstIndexOfPage < _data.length) return;
 
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
+    final selectedKnowledgeModel = context.read<KnowledgeProvider>().selectedKnowledge;
+
     try {
       if (selectedKnowledgeModel == null) throw KnowledgeException('Unidentified knowledge model');
 
       final result = await kbService.getUnitsOfKnowledge(
         query: _textEditingController.text,
         offset: offset,
-        id: selectedKnowledgeModel!.id,
+        id: selectedKnowledgeModel.id,
       );
       final newItems = List<BaseUnitModel>.from(
         result["data"].map<BaseUnitModel>((e) {
@@ -132,35 +135,30 @@ class _UnitScreenState extends State<UnitScreen> {
 
   void _handleUpdateKnowledge(String knowledgeName, String description) async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
+    final selectedKnowledgeModel = context.read<KnowledgeProvider>().selectedKnowledge;
+
     try {
       if (selectedKnowledgeModel == null) throw KnowledgeException('Unidentified knowledge model');
 
       final response = await kbService.updateKnowledge(
         knowledgeName: knowledgeName,
         description: description,
-        knowledgeId: selectedKnowledgeModel!.id,
+        knowledgeId: selectedKnowledgeModel.id,
       );
 
       final updatedKnowledgeModel = KnowledgeModel(
-        id: selectedKnowledgeModel!.id,
+        id: selectedKnowledgeModel.id,
         knowledgeName: response["knowledgeName"],
         description: response["description"],
-        userId: selectedKnowledgeModel!.userId,
-        numUnits: selectedKnowledgeModel!.numUnits,
-        totalSize: selectedKnowledgeModel!.totalSize,
-        createdAt: selectedKnowledgeModel!.createdAt,
+        userId: selectedKnowledgeModel.userId,
+        numUnits: selectedKnowledgeModel.numUnits,
+        totalSize: selectedKnowledgeModel.totalSize,
+        createdAt: selectedKnowledgeModel.createdAt,
         updatedAt: DateTime.parse(response["updatedAt"]),
       );
 
       if (!mounted) return;
-
-      Provider.of<KnowledgeProvider>(
-        context,
-        listen: false,
-      ).setSelectedKnowledgeRow(updatedKnowledgeModel, updated: true);
-      setState(() {
-        selectedKnowledgeModel = updatedKnowledgeModel;
-      });
+      context.read<KnowledgeProvider>().setSelectedKnowledgeRow(updatedKnowledgeModel, updated: true);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Knowledge has been updated successfully'), duration: Duration(seconds: 2)),
@@ -184,11 +182,6 @@ class _UnitScreenState extends State<UnitScreen> {
   @override
   void initState() {
     super.initState();
-    selectedKnowledgeModel =
-        Provider.of<KnowledgeProvider>(
-          context,
-          listen: false,
-        ).selectedKnowledge;
     _textEditingController.addListener(_onTextChanged);
     _dataFuture = _loadData();
   }
@@ -202,6 +195,8 @@ class _UnitScreenState extends State<UnitScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedKnowledgeModel = context.watch<KnowledgeProvider>().selectedKnowledge;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Units"),
@@ -300,7 +295,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    "${selectedKnowledgeModel!.numUnits} Units",
+                                    "${selectedKnowledgeModel.numUnits} Units",
                                     style: TextStyle(color: Colors.purple),
                                   ),
                                 ),
@@ -319,7 +314,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                   ),
                                   child: Text(
                                     _getReadableFileSize(
-                                      selectedKnowledgeModel!.totalSize,
+                                      selectedKnowledgeModel.totalSize,
                                     ),
                                     style: TextStyle(color: Colors.pink),
                                   ),

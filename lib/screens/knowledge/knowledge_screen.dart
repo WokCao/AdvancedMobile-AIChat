@@ -29,6 +29,14 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
   int offset = 0, total = 0;
   bool hasNext = true;
 
+  void _resetAndReloadData() {
+    setState(() {
+      _data.clear();
+      offset = 0;
+      _dataFuture = _loadData();
+    });
+  }
+
   /* To load knowledge first time */
   Future<List<KnowledgeModel>> _loadData() async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
@@ -41,12 +49,15 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
       final newItems = List<KnowledgeModel>.from(
         result["data"].map((e) => KnowledgeModel.fromJson(e)),
       );
-      setState(() {
-        _data.addAll(newItems);
-        total = metaData.total;
-        hasNext = metaData.hasNext;
-        offset += newItems.length;
-      });
+
+      if (mounted) {
+        setState(() {
+          _data.addAll(newItems);
+          total = metaData.total;
+          hasNext = metaData.hasNext;
+          offset += newItems.length;
+        });
+      }
     } on KnowledgeException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -99,12 +110,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
       final newQuery = _textEditingController.text.trim();
       if (newQuery != _lastQuery) {
         _lastQuery = newQuery;
-
-        setState(() {
-          _data.clear();
-          offset = 0;
-          _dataFuture = _loadData();
-        });
+        _resetAndReloadData();
       }
     });
   }
@@ -113,11 +119,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
     try {
       await kbService.deleteKnowledge(id: id);
-      setState(() {
-        _data.clear();
-        offset = 0;
-        _dataFuture = _loadData();
-      });
+      _resetAndReloadData();
     } on KnowledgeException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -132,23 +134,14 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
 
   void _handleDeleteQuery() {
     _textEditingController.clear();
-    setState(() {
-      _data.clear();
-      offset = 0;
-      _dataFuture = _loadData();
-    });
+    _resetAndReloadData();
   }
 
   void _handleCreateKnowledge(String knowledgeName, String description) async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
     try {
       await kbService.createKnowledge(knowledgeName: knowledgeName, description: description,);
-
-      setState(() {
-        _data.clear();
-        offset = 0;
-        _dataFuture = _loadData();
-      });
+      _resetAndReloadData();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -169,6 +162,16 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
       }
     }
   }
+
+  void _updateKnowledgeItem(KnowledgeModel updated) {
+    final index = _data.indexWhere((k) => k.id == updated.id);
+    if (index != -1) {
+      setState(() {
+        _data[index] = updated;
+      });
+    }
+  }
+
 
   @override
   void initState() {
@@ -197,13 +200,8 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
 
     if (provider.wasUpdated) {
       final updated = provider.selectedKnowledge;
-      if (updated == null) return;
-
-      final index = _data.indexWhere((k) => k.id == updated.id);
-      if (index != -1) {
-        setState(() {
-          _data[index] = updated;
-        });
+      if (updated != null) {
+        _updateKnowledgeItem(updated);
       }
       provider.clearUpdateFlag();
     }
