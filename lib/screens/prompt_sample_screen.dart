@@ -38,7 +38,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
     "All",
     "Business",
     "Career",
-    "Chatbot",
+    "Chat bot",
     "Coding",
     "Education",
     "Fun",

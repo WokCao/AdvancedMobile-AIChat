@@ -1,7 +1,9 @@
 import 'package:ai_chat/models/prompt_model.dart';
 import 'package:ai_chat/widgets/prompt/remove_prompt.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/prompt_provider.dart';
 import '../../screens/home_screen.dart';
 import 'add_prompt.dart';
 
@@ -41,7 +43,7 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AddPrompt(title: widget.promptModel.title, prompt: widget.promptModel.content, id: widget.promptModel.id, updatePrivatePromptCallback: widget.updatePrivatePromptCallback,);
+        return AddPrompt(prompt: widget.promptModel, updatePrivatePromptCallback: widget.updatePrivatePromptCallback,);
       },
     );
   }
@@ -50,10 +52,11 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        context.read<PromptProvider>().setSelectedPromptModel(promptModel: widget.promptModel);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(showUsePrompt: true, promptModel: widget.promptModel,),
+            builder: (context) => HomeScreen(),
           ),
         );
       },
@@ -155,10 +158,11 @@ class _PersonalPromptItemState extends State<PersonalPromptItem> {
                         message: "Use Prompt",
                         child: GestureDetector(
                           onTap: () {
+                            context.read<PromptProvider>().setSelectedPromptModel(promptModel: widget.promptModel);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HomeScreen(showUsePrompt: true, promptModel: widget.promptModel,),
+                                builder: (context) => HomeScreen(),
                               ),
                             );
                           },

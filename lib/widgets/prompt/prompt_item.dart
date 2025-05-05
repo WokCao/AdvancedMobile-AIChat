@@ -1,7 +1,9 @@
 import 'package:ai_chat/models/prompt_model.dart';
+import 'package:ai_chat/providers/prompt_provider.dart';
 import 'package:ai_chat/screens/home_screen.dart';
 import 'package:ai_chat/widgets/prompt/view_prompt_info.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../utils/get_api_utils.dart';
 
 class PromptItem extends StatefulWidget {
@@ -42,10 +44,11 @@ class _PromptItemState extends State<PromptItem> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        context.read<PromptProvider>().setSelectedPromptModel(promptModel: widget.promptModel);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(showUsePrompt: true, promptModel: widget.promptModel,),
+            builder: (context) => HomeScreen(),
           ),
         );
       },

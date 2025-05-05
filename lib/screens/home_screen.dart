@@ -1,10 +1,13 @@
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import '../models/prompt_model.dart';
+import '../providers/prompt_provider.dart';
 import '../services/openai_service.dart';
 import '../utils/get_api_utils.dart';
 import '../widgets/app_sidebar.dart';
@@ -18,10 +21,7 @@ import '../widgets/selector_menu/selector_menu_helper.dart';
 import '../widgets/welcome.dart';
 
 class HomeScreen extends StatefulWidget {
-  final bool? showUsePrompt;
-  final PromptModel? promptModel;
-
-  const HomeScreen({super.key, this.showUsePrompt, this.promptModel});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -39,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isBotCreateFocused = false;
 
   bool _isUsePromptVisible = false;
-  late PromptModel? _selectedPrompt;
   String? _lastConversationId;
   bool _loadingConversation = false;
 
@@ -123,10 +122,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _selectedModel = _modelData[0]['name'];
     _textController.addListener(_handleTextChange);
-    _selectedPrompt = null;
 
-    if (widget.showUsePrompt != null) {
-      _isUsePromptVisible = widget.showUsePrompt!;
+    final selectedPromptModel = context.read<PromptProvider>().promptModel;
+    if (selectedPromptModel != null) {
+      _isUsePromptVisible = true;
     }
 
     // Scroll to bottom after initial render
@@ -243,28 +242,30 @@ class _HomeScreenState extends State<HomeScreen> {
     final offset = renderBox.localToGlobal(Offset.zero);
 
     // Show the menu above the input
-    SelectorMenuHelper.showMenu<PromptModel>(
-      context: context,
-      items: promptItems,
-      selectedValue: _selectedPrompt,
-      onItemSelected: (value) {
-        setState(() {
-          _selectedPrompt = value;
-          _isUsePromptVisible = true;
-        });
-        // Handle item selected
-      },
-      title: 'Suggested Prompts',
-      offset: Offset(
-        offset.dx + 16,
-        offset.dy - 300,
-      ), // Position above the input
-      scrollController: scrollController,
-      onLoadMore: () async {
-        final newPrompts = await _fetchPublicPrompts();
-        return newPrompts.map((p) => SelectorItem<PromptModel>(title: p.title, value: p)).toList();
-      },
-    );
+    if (mounted) {
+      SelectorMenuHelper.showMenu<PromptModel>(
+        context: context,
+        items: promptItems,
+        selectedValue: null,
+        onItemSelected: (value) {
+          context.read<PromptProvider>().setSelectedPromptModel(promptModel: value);
+          setState(() {
+            _isUsePromptVisible = true;
+          });
+          // Handle item selected
+        },
+        title: 'Suggested Prompts',
+        offset: Offset(
+          offset.dx + 16,
+          offset.dy - 300,
+        ), // Position above the input
+        scrollController: scrollController,
+        onLoadMore: () async {
+          final newPrompts = await _fetchPublicPrompts();
+          return newPrompts.map((p) => SelectorItem<PromptModel>(title: p.title, value: p)).toList();
+        },
+      );
+    }
   }
 
   Future<void> _fetchBots() async {
@@ -457,6 +458,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _hideUsePrompt() {
+    context.read<PromptProvider>().setSelectedPromptModel(promptModel: null);
     setState(() {
       _isUsePromptVisible = false;
     });
@@ -475,9 +477,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void addToChatInput(String content) {
     _textController.text = content;
-    setState(() {
-      _isUsePromptVisible = false;
-    });
+    _hideUsePrompt();
   }
 
   Future<void> _loadLastConversation() async {
@@ -623,6 +623,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedPromptModel = context.watch<PromptProvider>().promptModel;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -1038,7 +1040,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // Use Prompt panel
-          if (_isUsePromptVisible && (widget.promptModel != null || _selectedPrompt != null)) UsePrompt(onClose: _hideUsePrompt, promptModel: widget.promptModel ?? _selectedPrompt!, addToChatInput: addToChatInput, quickPrompt: widget.promptModel != null ? false : true,),
+          if (_isUsePromptVisible && selectedPromptModel != null) UsePrompt(onClose: _hideUsePrompt, promptModel: selectedPromptModel, addToChatInput: addToChatInput,),
         ],
       ),
     );

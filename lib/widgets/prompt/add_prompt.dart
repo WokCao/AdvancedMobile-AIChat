@@ -1,13 +1,12 @@
+import 'package:ai_chat/models/prompt_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/get_api_utils.dart';
 
 class AddPrompt extends StatefulWidget {
-  final String title;
-  final String prompt;
-  final String id;
+  final PromptModel? prompt;
   final void Function(String, String, String)? updatePrivatePromptCallback;
-  const AddPrompt({super.key, this.title = "", this.prompt = "", this.id = "", this.updatePrivatePromptCallback});
+  const AddPrompt({super.key, this.updatePrivatePromptCallback, this.prompt});
 
   @override
   State<AddPrompt> createState() => _AddPrompt();
@@ -22,8 +21,8 @@ class _AddPrompt extends State<AddPrompt> {
 
   @override
   void initState() {
-    _textController = TextEditingController(text: widget.title);
-    _promptTextController = TextEditingController(text: widget.prompt);
+    _textController = TextEditingController(text: widget.prompt?.title);
+    _promptTextController = TextEditingController(text: widget.prompt?.content);
     _textController.addListener(() {
       setState(() {
         _currentLength = _textController.text.length;
@@ -74,7 +73,7 @@ class _AddPrompt extends State<AddPrompt> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.title.isEmpty ? "New Prompt" : "Update Prompt",
+                widget.prompt!.title.isEmpty ? "New Prompt" : "Update Prompt",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -266,7 +265,7 @@ class _AddPrompt extends State<AddPrompt> {
                       return;
                     }
 
-                    if (title == widget.title || content == widget.prompt) {
+                    if (title == widget.prompt?.title || content == widget.prompt?.content) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text("Title or Prompt is unchanged"),
@@ -278,11 +277,11 @@ class _AddPrompt extends State<AddPrompt> {
                     final apiService = getApiService(context);
                     bool success = false;
 
-                    if (widget.title != "") {
+                    if (widget.prompt?.title != "") {
                       success = await apiService.updatePrivatePrompt(
                         title: title,
                         content: content,
-                        id: widget.id,
+                        id: widget.prompt!.id,
                       );
                     } else {
                       success = await apiService.createPrivatePrompt(
@@ -295,14 +294,14 @@ class _AddPrompt extends State<AddPrompt> {
                     if (success) {
                       Navigator.of(context).pop(true);
                       if (widget.updatePrivatePromptCallback != null) {
-                        widget.updatePrivatePromptCallback!(widget.id, title, content);
+                        widget.updatePrivatePromptCallback!(widget.prompt!.id, title, content);
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Prompt ${widget.title != "" ? "updated" : "created"} successfully")),
+                        SnackBar(content: Text("Prompt ${widget.prompt?.title != "" ? "updated" : "created"} successfully")),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Failed to ${widget.title != "" ? "update" : "create"} prompt")),
+                        SnackBar(content: Text("Failed to ${widget.prompt?.title != "" ? "update" : "create"} prompt")),
                       );
                     }
                   },
@@ -325,7 +324,7 @@ class _AddPrompt extends State<AddPrompt> {
                       ),
                     ),
                     child: Text(
-                      widget.title != '' ? 'Update' : 'Create',
+                      widget.prompt?.title != '' ? 'Update' : 'Create',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

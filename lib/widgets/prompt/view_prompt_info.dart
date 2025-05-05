@@ -1,6 +1,8 @@
 import 'package:ai_chat/models/prompt_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/prompt_provider.dart';
 import '../../screens/home_screen.dart';
 
 class ViewPromptInfo extends StatefulWidget {
@@ -240,10 +242,11 @@ class _ViewPromptInfoState extends State<ViewPromptInfo> {
                 onExit: (_) => (setState(() => isUseHovered = false)),
                 child: GestureDetector(
                   onTap: () {
+                    context.read<PromptProvider>().setSelectedPromptModel(promptModel: widget.promptModel);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => HomeScreen(showUsePrompt: true, promptModel: widget.promptModel,),
+                        builder: (context) => HomeScreen(),
                       ),
                     );
                   },

@@ -53,7 +53,6 @@ class AuthInterceptor extends Interceptor {
           final cloneReq = await _dio.fetch(opts);
           return handler.resolve(cloneReq);
         } catch (e) {
-          print('problem $e');
           await prefs.remove('accessToken');
           await prefs.remove('refreshToken');
 

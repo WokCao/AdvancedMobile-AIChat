@@ -1,6 +1,8 @@
 import 'package:ai_chat/models/prompt_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/prompt_provider.dart';
 import '../screens/home_screen.dart';
 import '../utils/get_api_utils.dart';
 
@@ -153,13 +155,11 @@ class _WelcomeState extends State<Welcome> {
               children: _suggestedPrompts.map((PromptModel prompt) => _buildSectionWithArrow(
                 title: prompt.title,
                 onTap: () {
+                  context.read<PromptProvider>().setSelectedPromptModel(promptModel: prompt);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HomeScreen(
-                        showUsePrompt: true,
-                        promptModel: prompt,
-                      ),
+                      builder: (context) => HomeScreen(),
                     ),
                   );
                 },

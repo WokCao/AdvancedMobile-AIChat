@@ -6,14 +6,12 @@ class UsePrompt extends StatefulWidget {
   final VoidCallback onClose;
   final PromptModel promptModel;
   final void Function(String) addToChatInput;
-  final bool? quickPrompt;
 
   const UsePrompt({
     super.key,
     required this.onClose,
     required this.promptModel,
     required this.addToChatInput,
-    this.quickPrompt,
   });
 
   @override
@@ -112,9 +110,7 @@ class _UsePromptState extends State<UsePrompt> {
                           iconSize: 20,
                           onPressed: () {
                             widget.onClose();
-                            if (widget.quickPrompt != null && widget.quickPrompt == false) {
-                              Navigator.of(context).pop();
-                            }
+                            Navigator.of(context).pop();
                           },
                           padding: EdgeInsets.zero,
                           constraints: BoxConstraints(),
