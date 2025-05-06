@@ -57,7 +57,7 @@ class AuthService {
         ),
       );
       final data = response.data;
-      return {'isLoggedIn': true, 'id': data['id'], 'email': data['email']};
+      return {'isLoggedIn': true, 'id': data['id'], 'email': data['email'], 'username': data['username']};
     } on DioException catch (e) {
       final errorMessage = e.response?.data['error'] ?? "Invalid access token";
       throw AuthException(errorMessage, statusCode: e.response?.statusCode);

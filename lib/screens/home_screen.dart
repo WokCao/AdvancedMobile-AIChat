@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:ai_chat/providers/subscription_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/prompt_model.dart';
 import '../providers/prompt_provider.dart';
 import '../services/openai_service.dart';
@@ -132,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
       _loadTokenCount();
-			_loadLastConversation();
+      _loadLastConversation();
       _fetchBots();
     });
   }
@@ -160,39 +162,38 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _showModelSelector() async {
-    final modelItems = _modelData.map((model) {
-      return SelectorItem<String>(
-        title: model['name'],
-        leading: Icon(model['icon'], size: 20, color: model['iconColor']),
-        subtitle: model['description'],
-        trailing: model['tokenCount'],
-        value: model['name'],
-      );
-    }).toList();
+    final modelItems =
+        _modelData.map((model) {
+          return SelectorItem<String>(
+            title: model['name'],
+            leading: Icon(model['icon'], size: 20, color: model['iconColor']),
+            subtitle: model['description'],
+            trailing: model['tokenCount'],
+            value: model['name'],
+          );
+        }).toList();
 
-    final botItems = _botData.map((bot) {
-      return SelectorItem<String>(
-        title: bot['name'],
-        leading: Icon(bot['icon'], size: 20, color: bot['iconColor']),
-        subtitle: bot['description'],
-        value: 'bot:${bot['apiId']}',
-      );
-    }).toList();
+    final botItems =
+        _botData.map((bot) {
+          return SelectorItem<String>(
+            title: bot['name'],
+            leading: Icon(bot['icon'], size: 20, color: bot['iconColor']),
+            subtitle: bot['description'],
+            value: 'bot:${bot['apiId']}',
+          );
+        }).toList();
 
     final items = [
-      SelectorItem<String>(
-        title: 'title:Base AI Models',
-      ),
+      SelectorItem<String>(title: 'title:Base AI Models'),
       ...modelItems,
       if (botItems.isNotEmpty) ...[
-        SelectorItem<String>(
-          title: 'title:Your Bots',
-        ),
+        SelectorItem<String>(title: 'title:Your Bots'),
         ...botItems,
       ],
     ];
 
-    final renderBox = _modelSelectorKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        _modelSelectorKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
     final offset = renderBox.localToGlobal(Offset.zero);
@@ -216,9 +217,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final apiService = getApiService(context);
     final data = await apiService.getPublicPrompts(offset: _offset, limit: 10);
 
-    final List<PromptModel> fetched = (data['items'] as List)
-        .map((item) => PromptModel.fromJson(item))
-        .toList();
+    final List<PromptModel> fetched =
+        (data['items'] as List)
+            .map((item) => PromptModel.fromJson(item))
+            .toList();
 
     setState(() {
       _offset += fetched.length;
@@ -232,7 +234,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final scrollController = ScrollController();
 
     final initialPrompts = await _fetchPublicPrompts();
-    List<SelectorItem<PromptModel>> promptItems = initialPrompts.map((p) => SelectorItem<PromptModel>(title: p.title, value: p)).toList();
+    List<SelectorItem<PromptModel>> promptItems =
+        initialPrompts
+            .map((p) => SelectorItem<PromptModel>(title: p.title, value: p))
+            .toList();
 
     // Get the position of the input
     final RenderBox? renderBox =
@@ -248,7 +253,9 @@ class _HomeScreenState extends State<HomeScreen> {
         items: promptItems,
         selectedValue: null,
         onItemSelected: (value) {
-          context.read<PromptProvider>().setSelectedPromptModel(promptModel: value);
+          context.read<PromptProvider>().setSelectedPromptModel(
+            promptModel: value,
+          );
           setState(() {
             _isUsePromptVisible = true;
           });
@@ -262,7 +269,9 @@ class _HomeScreenState extends State<HomeScreen> {
         scrollController: scrollController,
         onLoadMore: () async {
           final newPrompts = await _fetchPublicPrompts();
-          return newPrompts.map((p) => SelectorItem<PromptModel>(title: p.title, value: p)).toList();
+          return newPrompts
+              .map((p) => SelectorItem<PromptModel>(title: p.title, value: p))
+              .toList();
         },
       );
     }
@@ -275,14 +284,19 @@ class _HomeScreenState extends State<HomeScreen> {
     final bots = await api.getBots();
 
     setState(() {
-      _botData = bots.map((bot) => {
-        'apiId': bot['id'],
-        'name': bot['assistantName'],
-        'description': bot['description'] ?? '',
-        'type': 'bot',
-        'icon': Icons.smart_toy_outlined,
-        'iconColor': Colors.blue,
-      }).toList();
+      _botData =
+          bots
+              .map(
+                (bot) => {
+                  'apiId': bot['id'],
+                  'name': bot['assistantName'],
+                  'description': bot['description'] ?? '',
+                  'type': 'bot',
+                  'icon': Icons.smart_toy_outlined,
+                  'iconColor': Colors.blue,
+                },
+              )
+              .toList();
       _fetchingBots = false;
     });
   }
@@ -291,9 +305,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic> get _currentModel {
     if (_selectedModel.startsWith("bot:")) {
       final id = _selectedModel.split(":")[1];
-      return _botData.firstWhere((b) => b['apiId'] == id, orElse: () => _botData[0]);
+      return _botData.firstWhere(
+        (b) => b['apiId'] == id,
+        orElse: () => _botData[0],
+      );
     } else {
-      return _modelData.firstWhere((m) => m['name'] == _selectedModel, orElse: () => _modelData[0]);
+      return _modelData.firstWhere(
+        (m) => m['name'] == _selectedModel,
+        orElse: () => _modelData[0],
+      );
     }
   }
 
@@ -355,7 +375,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _messages.add(botMessage(loadingMessageId, 'Typing...'));
 
           // Scroll to bottom
-          WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _scrollToBottom(),
+          );
 
           // Clear input
           _textController.clear();
@@ -371,11 +393,11 @@ class _HomeScreenState extends State<HomeScreen> {
           additionalInstruction: "",
         );
       }
-
       // Chat with AI model
       else {
-        final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model
-				final modelName = _currentModel['name'];
+        final modelId =
+            _currentModel['apiId']; // ensure this is mapped correctly to API model
+        final modelName = _currentModel['name'];
 
         List<String> uploadedUrls = [];
 
@@ -401,37 +423,46 @@ class _HomeScreenState extends State<HomeScreen> {
           _messages.add(botMessage(loadingMessageId, 'Typing...'));
 
           // Scroll to bottom
-          WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _scrollToBottom(),
+          );
 
           // Clear input
           _textController.clear();
         });
 
-				final api = getApiService(context);
-				result = await api.sendMessage(
-					content: text,
-					modelId: modelId,
-					modelName: modelName,
-					conversationId: _lastConversationId,
+        final api = getApiService(context);
+        result = await api.sendMessage(
+          content: text,
+          modelId: modelId,
+          modelName: modelName,
+          conversationId: _lastConversationId,
           files: uploadedUrls,
-				);
+        );
       }
 
       final reply = result['message'];
       final remaining = result['remainingUsage'];
-      
+
       setState(() {
         // Remove loading message
         _messages.removeWhere((msg) => msg.id == loadingMessageId);
-        _messages.add(botMessage(DateTime.now().millisecondsSinceEpoch.toString(), reply));
+        _messages.add(
+          botMessage(DateTime.now().millisecondsSinceEpoch.toString(), reply),
+        );
         _lastConversationId = result['conversationId'];
       });
-      
+
       _remainingTokens = remaining ?? _remainingTokens;
     } on Exception catch (e) {
       setState(() {
         _messages.removeWhere((msg) => msg.id == loadingMessageId);
-        _messages.add(botMessage(DateTime.now().millisecondsSinceEpoch.toString(), '⚠️ Failed to get response: $e'));
+        _messages.add(
+          botMessage(
+            DateTime.now().millisecondsSinceEpoch.toString(),
+            '⚠️ Failed to get response: $e',
+          ),
+        );
       });
     }
 
@@ -486,13 +517,20 @@ class _HomeScreenState extends State<HomeScreen> {
     final api = getApiService(context);
 
     // Get most recent conversation ID
-    final conversations = await api.getConversations(modelId: _currentModel['apiId'], limit: 1);
-    if (conversations.isEmpty) return setState(() => _loadingConversation = false);
+    final conversations = await api.getConversations(
+      modelId: _currentModel['apiId'],
+      limit: 1,
+    );
+    if (conversations.isEmpty)
+      return setState(() => _loadingConversation = false);
 
     final conversationId = conversations[0]['id'];
 
     // Get messages for that conversation
-    final messages = await api.getConversationHistory(conversationId: conversationId, modelId: _currentModel['apiId']);
+    final messages = await api.getConversationHistory(
+      conversationId: conversationId,
+      modelId: _currentModel['apiId'],
+    );
 
     // Parse into chat model
     final parsed = parseConversationHistory(messages);
@@ -506,22 +544,24 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
-  List<ChatMessage> parseConversationHistory(List<Map<String, dynamic>> messages) {
+  List<ChatMessage> parseConversationHistory(
+    List<Map<String, dynamic>> messages,
+  ) {
     return messages.expand((msg) {
       final createdAt = msg['createdAt'].toString();
       return [
         ChatMessage(
-            id: '$createdAt-user',
-            message: msg['query'],
-            type: MessageType.user,
+          id: '$createdAt-user',
+          message: msg['query'],
+          type: MessageType.user,
         ),
         ChatMessage(
-            id: '$createdAt-bot',
-            message: msg['answer'],
-            type: MessageType.ai,
-            senderName: _currentModel['name'],
-            senderIcon: _currentModel['icon'],
-            iconColor: _currentModel['iconColor']
+          id: '$createdAt-bot',
+          message: msg['answer'],
+          type: MessageType.ai,
+          senderName: _currentModel['name'],
+          senderIcon: _currentModel['icon'],
+          iconColor: _currentModel['iconColor'],
         ),
       ];
     }).toList();
@@ -532,8 +572,25 @@ class _HomeScreenState extends State<HomeScreen> {
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: [
-        'txt', 'md', 'pdf', 'html', 'xlsx', 'xls', 'docx', 'csv', 'msg', 'pptx', 'ppt', 'xml', 'epub',
-        'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
+        'txt',
+        'md',
+        'pdf',
+        'html',
+        'xlsx',
+        'xls',
+        'docx',
+        'csv',
+        'msg',
+        'pptx',
+        'ppt',
+        'xml',
+        'epub',
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+        'svg',
       ],
     );
 
@@ -550,7 +607,9 @@ class _HomeScreenState extends State<HomeScreen> {
     const cloudName = 'dtworggdn';
     const uploadPreset = 'ai-chat-files';
 
-    final uploadUrl = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/auto/upload');
+    final uploadUrl = Uri.parse(
+      'https://api.cloudinary.com/v1_1/$cloudName/auto/upload',
+    );
 
     final fileBytes = file.bytes!;
     final fileName = file.name;
@@ -564,9 +623,9 @@ class _HomeScreenState extends State<HomeScreen> {
       final response = await Dio().postUri(uploadUrl, data: formData);
       return response.data['secure_url'];
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Upload failed: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Upload failed: ${e.toString()}')));
     } finally {
       setState(() => _uploadingFile = false);
     }
@@ -614,6 +673,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // redirect to jarvis pricing page
+  final Uri _url = Uri.parse('https://dev.jarvis.cx/pricing');
+
+  Future<void> _launchUrl() async {
+    if (!await launchUrl(_url, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $_url');
+    }
+  }
+
   @override
   void dispose() {
     _textController.dispose();
@@ -645,34 +713,32 @@ class _HomeScreenState extends State<HomeScreen> {
               // Chat messages
               Expanded(
                 child:
-                  _loadingConversation
-                    ? Center(
-                      child: SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                    : _messages.isEmpty
-                      ? Welcome()
-                      : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.only(top: 16, bottom: 16),
-                        itemCount: _messages.length,
-                        itemBuilder: (context, index) {
-                          final message = _messages[index];
-                          // Adds a gap below each item
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: 10,
-                            ),
-                            child: ChatMessageWidget(
-                              message: message,
-                              onEditMessage: _handleEditMessage,
-                            ),
-                          );
-                        },
-                      ),
+                    _loadingConversation
+                        ? Center(
+                          child: SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                        : _messages.isEmpty
+                        ? Welcome()
+                        : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.only(top: 16, bottom: 16),
+                          itemCount: _messages.length,
+                          itemBuilder: (context, index) {
+                            final message = _messages[index];
+                            // Adds a gap below each item
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: ChatMessageWidget(
+                                message: message,
+                                onEditMessage: _handleEditMessage,
+                              ),
+                            );
+                          },
+                        ),
               ),
 
               // Above input
@@ -721,7 +787,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ? const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 )
                                 : const Icon(Icons.expand_more, size: 20),
                           ],
@@ -783,12 +851,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(Icons.history),
                     iconSize: 32,
                     onPressed: () async {
-                      final result = await Navigator.pushNamed(context, "/history", arguments: {
-                        'lastConversationId': _lastConversationId,
-                      });
+                      final result = await Navigator.pushNamed(
+                        context,
+                        "/history",
+                        arguments: {'lastConversationId': _lastConversationId},
+                      );
                       if (result != null && result is Map) {
                         final messages = result['messages'];
-                        final conversationId = result['conversationId'] as String;
+                        final conversationId =
+                            result['conversationId'] as String;
 
                         final parsed = parseConversationHistory(messages);
 
@@ -797,7 +868,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           _lastConversationId = conversationId;
                         });
 
-                        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+                        WidgetsBinding.instance.addPostFrameCallback(
+                          (_) => _scrollToBottom(),
+                        );
                       }
                     },
                     tooltip: 'Chat history',
@@ -874,7 +947,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 controller: _textController,
                                 decoration: InputDecoration(
                                   hintText:
-                                  'Ask me anything, press \'/\' for prompts...',
+                                      'Ask me anything, press \'/\' for prompts...',
                                   hintStyle: TextStyle(color: Colors.grey),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(24),
@@ -888,7 +961,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 maxLines: 5,
                                 minLines: 2,
                                 textCapitalization:
-                                TextCapitalization.sentences,
+                                    TextCapitalization.sentences,
                                 onSubmitted: (_) => _handleSendMessage(),
                               ),
                             ),
@@ -936,19 +1009,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ? Padding(
                                     padding: const EdgeInsets.only(right: 16.0),
                                     child: SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.purple),
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.purple,
                                       ),
+                                    ),
                                   )
                                   : IconButton(
-                                      icon: const Icon(Icons.send),
-                                      iconSize: 20,
-                                      color: Colors.purple,
-                                      onPressed:
-                                          _isInputHasText ? _handleSendMessage : null,
-                                      tooltip: 'Send message',
-                                    ),
+                                    icon: const Icon(Icons.send),
+                                    iconSize: 20,
+                                    color: Colors.purple,
+                                    onPressed:
+                                        _isInputHasText
+                                            ? _handleSendMessage
+                                            : null,
+                                    tooltip: 'Send message',
+                                  ),
                             ],
                           ),
                         ),
@@ -976,53 +1054,62 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
-                        children: _remainingTokens == -1
-                            ? [
-                                SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              ]
-                            : [
-                                Icon(Icons.diamond, color: Colors.purple, size: 16),
-                                const SizedBox(width: 2),
-                                Text(
-                                  "$_remainingTokens",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                        children:
+                            _remainingTokens == -1
+                                ? [
+                                  SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   ),
-                                )
-                              ],
+                                ]
+                                : [
+                                  Icon(
+                                    Icons.diamond,
+                                    color: Colors.purple,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    "$_remainingTokens",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                       ),
                     ),
 
-                    TextButton(
-                      onPressed: () {
-                        // Handle upgrade
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.purple,
-                      ),
-                      child: Row(
-                        children: [
-                          const Text(
-                            "Upgrade",
-                            style: TextStyle(
-                              color: Colors.purple,
-                              fontWeight: FontWeight.bold,
+                    if (!context
+                        .read<SubscriptionProvider>()
+                        .subscription
+                        .unlimited)
+                      TextButton(
+                        onPressed: _launchUrl,
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.purple,
+                        ),
+                        child: Row(
+                          children: [
+                            const Text(
+                              "Upgrade",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          Icon(
-                            Icons.rocket_launch,
-                            color: Colors.purple,
-                            size: 18,
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.rocket_launch,
+                              color: Colors.purple,
+                              size: 18,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -1040,7 +1127,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // Use Prompt panel
-          if (_isUsePromptVisible && selectedPromptModel != null) UsePrompt(onClose: _hideUsePrompt, promptModel: selectedPromptModel, addToChatInput: addToChatInput,),
+          if (_isUsePromptVisible && selectedPromptModel != null)
+            UsePrompt(
+              onClose: _hideUsePrompt,
+              promptModel: selectedPromptModel,
+              addToChatInput: addToChatInput,
+            ),
         ],
       ),
     );

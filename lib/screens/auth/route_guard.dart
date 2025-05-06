@@ -1,4 +1,5 @@
 import 'package:ai_chat/screens/knowledge/confluence_screen.dart';
+import 'package:ai_chat/screens/subscription_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,7 +31,10 @@ class RouteGuard {
 
     if (accessToken == null || refreshToken == null) return false;
 
-    return await authProvider.isLoggedIn(accessToken: accessToken, refreshToken: refreshToken);
+    return await authProvider.isLoggedIn(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    );
   }
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -69,8 +73,11 @@ class RouteGuard {
                 return const HomeScreen();
               case '/history':
                 final args = settings.arguments as Map<String, dynamic>?;
-                final lastConversationId = args?['lastConversationId'] as String?;
-                return ChatHistoryScreen(lastConversationId: lastConversationId);
+                final lastConversationId =
+                    args?['lastConversationId'] as String?;
+                return ChatHistoryScreen(
+                  lastConversationId: lastConversationId,
+                );
               case '/prompts':
                 return const PromptSampleScreen();
               case '/bots':
@@ -95,6 +102,8 @@ class RouteGuard {
                 return const ConfluenceScreen();
               case '/email':
                 return const EmailScreen();
+              case '/subscription':
+                return const SubscriptionScreen();
               default:
                 return const LoginScreen();
             }

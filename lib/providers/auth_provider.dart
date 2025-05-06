@@ -9,10 +9,12 @@ class AuthProvider with ChangeNotifier {
   UserModel? _user;
   String? _error;
   String? _email;
+  String? _username;
 
   UserModel? get user => _user;
   String? get error => _error;
   String? get email => _email;
+  String? get username => _username;
 
   Future<bool> signUp({required String email, required String password}) async {
     try {
@@ -23,6 +25,7 @@ class AuthProvider with ChangeNotifier {
         refreshToken: data['refresh_token'],
       );
       _email = email;
+      _username = email.split('@')[0];
       _clearError();
       notifyListeners();
       return true;
@@ -41,6 +44,7 @@ class AuthProvider with ChangeNotifier {
         refreshToken: data['refresh_token'],
       );
       _email = email;
+      _username = email.split('@')[0];
       _clearError();
       notifyListeners();
       return true;
@@ -62,6 +66,7 @@ class AuthProvider with ChangeNotifier {
         refreshToken: refreshToken,
       );
       _email = data['email'];
+      _username = data['username'];
       _clearError();
       notifyListeners();
       return true;
@@ -77,6 +82,7 @@ class AuthProvider with ChangeNotifier {
       await _authService.logout(refreshToken);
       _user = null;
       _email = null;
+      _username = null;
       _clearError();
       notifyListeners();
       return true;

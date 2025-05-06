@@ -181,8 +181,8 @@ class AppSidebar extends StatelessWidget {
                             final route = switch (index) {
                               0 => "/home",
                               1 => "/bots",
-                              2 => "/email",
-                              3 => "/subscription",
+                              2 => "/subscription",
+                              3 => "/email",
                               _ => "/home",
                             };
                             Navigator.pushReplacementNamed(context, route);

@@ -548,7 +548,7 @@ class _EmailScreenState extends State<EmailScreen> {
           AppSidebar(
             isExpanded: true,
             isVisible: _isSidebarVisible,
-            selectedIndex: 2,
+            selectedIndex: 3,
             onItemSelected: (_) {},
             onToggleExpanded: () {},
             onClose: _closeSidebar,

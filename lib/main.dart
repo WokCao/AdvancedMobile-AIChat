@@ -1,6 +1,7 @@
 import 'package:ai_chat/providers/auth_provider.dart';
 import 'package:ai_chat/providers/knowledge_provider.dart';
 import 'package:ai_chat/providers/prompt_provider.dart';
+import 'package:ai_chat/providers/subscription_provider.dart';
 import 'package:ai_chat/screens/auth/route_guard.dart';
 import 'package:ai_chat/services/data_source_service.dart';
 import 'package:ai_chat/services/knowledge_base_service.dart';
@@ -19,6 +20,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => KnowledgeProvider()),
         ChangeNotifierProvider(create: (_) => PromptProvider()),
+        ChangeNotifierProvider(create:(_) => SubscriptionProvider()),
         Provider<KnowledgeBaseService>(
           create: (_) => KnowledgeBaseService(),
         ),
