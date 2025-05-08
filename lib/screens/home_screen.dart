@@ -205,6 +205,10 @@ class _HomeScreenState extends State<HomeScreen> {
       onItemSelected: (value) {
         setState(() {
           _selectedModel = value;
+          if (value.startsWith('bot:')) {
+            _messages = [];
+            _lastConversationId = null;
+          }
         });
       },
       offset: Offset(offset.dx + 16, offset.dy - 320 - (botItems.length * 28)),
@@ -357,89 +361,50 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       Map<String, dynamic> result;
 
-      // Chat with AI bot
-      if (isUsingBot && assistantId != null) {
-        setState(() {
-          _selectedFiles.clear();
+      final modelId = _currentModel['apiId'];
+      final modelName = _currentModel['name'];
 
-          // Add user message
-          _messages.add(
-            ChatMessage(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              message: text,
-              type: MessageType.user,
-            ),
-          );
+      List<String> uploadedUrls = [];
 
-          // Add temporary loading message
-          _messages.add(botMessage(loadingMessageId, 'Typing...'));
-
-          // Scroll to bottom
-          WidgetsBinding.instance.addPostFrameCallback(
-            (_) => _scrollToBottom(),
-          );
-
-          // Clear input
-          _textController.clear();
-        });
-
-        final api = getKBApiService(context);
-        final threadData = await createOpenAiThread();
-
-        result = await api.askBot(
-          assistantId: assistantId,
-          message: text,
-          openAiThreadId: threadData['id'],
-          additionalInstruction: "",
-        );
+      for (final file in _selectedFiles) {
+        final url = await _uploadFile(file);
+        if (url != null) uploadedUrls.add(url);
       }
-      // Chat with AI model
-      else {
-        final modelId =
-            _currentModel['apiId']; // ensure this is mapped correctly to API model
-        final modelName = _currentModel['name'];
 
-        List<String> uploadedUrls = [];
+      setState(() {
+        _selectedFiles.clear();
 
-        for (final file in _selectedFiles) {
-          final url = await _uploadFile(file);
-          if (url != null) uploadedUrls.add(url);
-        }
-
-        setState(() {
-          _selectedFiles.clear();
-
-          // Add user message
-          _messages.add(
-            ChatMessage(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              message: text,
-              type: MessageType.user,
-              files: uploadedUrls,
-            ),
-          );
-
-          // Add temporary loading message
-          _messages.add(botMessage(loadingMessageId, 'Typing...'));
-
-          // Scroll to bottom
-          WidgetsBinding.instance.addPostFrameCallback(
-            (_) => _scrollToBottom(),
-          );
-
-          // Clear input
-          _textController.clear();
-        });
-
-        final api = getApiService(context);
-        result = await api.sendMessage(
-          content: text,
-          modelId: modelId,
-          modelName: modelName,
-          conversationId: _lastConversationId,
-          files: uploadedUrls,
+        // Add user message
+        _messages.add(
+          ChatMessage(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            message: text,
+            type: MessageType.user,
+            files: uploadedUrls,
+          ),
         );
-      }
+
+        // Add temporary loading message
+        _messages.add(botMessage(loadingMessageId, 'Typing...'));
+
+        // Scroll to bottom
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _scrollToBottom(),
+        );
+
+        // Clear input
+        _textController.clear();
+      });
+
+      final api = getApiService(context);
+      result = await api.sendMessage(
+        content: text,
+        modelId: isUsingBot ? assistantId : modelId,
+        modelType: isUsingBot ? 'kb' : 'dify',
+        modelName: modelName,
+        conversationId: _lastConversationId,
+        files: uploadedUrls,
+      );
 
       final reply = result['message'];
       final remaining = result['remainingUsage'];
