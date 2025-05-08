@@ -13,7 +13,7 @@ class KnowledgeScreen extends StatefulWidget {
 class _KnowledgeScreenState extends State<KnowledgeScreen> {
   @override
   Widget build(BuildContext context) {
-    return Container(
+          return Container(
       padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       child: Column(
         children: [
@@ -26,7 +26,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                   children: [
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.3,
+                        maxWidth: MediaQuery.of(context).size.width * 0.4,
                       ),
                       child: TextField(
                         style: TextStyle(fontSize: 14),
@@ -81,7 +81,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
-                    padding: EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -98,7 +98,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
             ],
           ),
           SizedBox(height: 16),
-          Expanded(
+          SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
               child: PaginatedDataTable(

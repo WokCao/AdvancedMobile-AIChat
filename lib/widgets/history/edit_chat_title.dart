@@ -55,7 +55,6 @@ class _EditChatTitle extends State<EditChatTitle> {
 
   Widget contentBox(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.4,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,

@@ -49,215 +49,213 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 200.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Header
-                  const AuthHeader(
-                    title: 'Create Account',
-                    subtitle: 'Sign up to get started',
-                    icon: Icons.person_add_outlined,
-                  ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header
+                const AuthHeader(
+                  title: 'Create Account',
+                  subtitle: 'Sign up to get started',
+                  icon: Icons.person_add_outlined,
+                ),
 
-                  // Form
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Name field
-                        CustomTextField(
-                          controller: _nameController,
-                          labelText: 'Full Name',
-                          hintText: 'Enter your full name',
-                          prefixIcon: Icons.person_outline,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your name';
-                            }
-                            return null;
+                // Form
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Name field
+                      CustomTextField(
+                        controller: _nameController,
+                        labelText: 'Full Name',
+                        hintText: 'Enter your full name',
+                        prefixIcon: Icons.person_outline,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your name';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Email field
+                      CustomTextField(
+                        controller: _emailController,
+                        labelText: 'Email',
+                        hintText: 'Enter your email',
+                        prefixIcon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your email';
+                          }
+                          if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                            return 'Please enter a valid email';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Password field
+                      CustomTextField(
+                        controller: _passwordController,
+                        labelText: 'Password',
+                        hintText: 'Create a password',
+                        prefixIcon: Icons.lock_outline,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
                           },
                         ),
-                        const SizedBox(height: 16),
+                        obscureText: _obscurePassword,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a password';
+                          }
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
 
-                        // Email field
-                        CustomTextField(
-                          controller: _emailController,
-                          labelText: 'Email',
-                          hintText: 'Enter your email',
-                          prefixIcon: Icons.email_outlined,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
+                      // Confirm Password field
+                      CustomTextField(
+                        controller: _confirmPasswordController,
+                        labelText: 'Confirm Password',
+                        hintText: 'Confirm your password',
+                        prefixIcon: Icons.lock_outline,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword = !_obscureConfirmPassword;
+                            });
                           },
                         ),
-                        const SizedBox(height: 16),
+                        obscureText: _obscureConfirmPassword,
+                        textInputAction: TextInputAction.done,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your password';
+                          }
+                          if (value != _passwordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                        onFieldSubmitted: (_) => _submitForm(),
+                      ),
+                      const SizedBox(height: 16),
 
-                        // Password field
-                        CustomTextField(
-                          controller: _passwordController,
-                          labelText: 'Password',
-                          hintText: 'Create a password',
-                          prefixIcon: Icons.lock_outline,
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () {
+                      // Terms and conditions
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _acceptTerms,
+                            onChanged: (value) {
                               setState(() {
-                                _obscurePassword = !_obscurePassword;
+                                _acceptTerms = value ?? false;
                               });
                             },
                           ),
-                          obscureText: _obscurePassword,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a password';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Confirm Password field
-                        CustomTextField(
-                          controller: _confirmPasswordController,
-                          labelText: 'Confirm Password',
-                          hintText: 'Confirm your password',
-                          prefixIcon: Icons.lock_outline,
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscureConfirmPassword = !_obscureConfirmPassword;
-                              });
-                            },
-                          ),
-                          obscureText: _obscureConfirmPassword,
-                          textInputAction: TextInputAction.done,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please confirm your password';
-                            }
-                            if (value != _passwordController.text) {
-                              return 'Passwords do not match';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (_) => _submitForm(),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Terms and conditions
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _acceptTerms,
-                              onChanged: (value) {
-                                setState(() {
-                                  _acceptTerms = value ?? false;
-                                });
-                              },
-                            ),
-                            Expanded(
-                              child: RichText(
-                                text: TextSpan(
-                                  text: 'I agree to the ',
-                                  children: const [
-                                    TextSpan(
-                                      text: 'Terms of Service',
-                                      style: TextStyle(
-                                        color: Colors.purple,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                text: 'I agree to the ',
+                                style: TextStyle(color: Colors.purple),
+                                children: const [
+                                  TextSpan(
+                                    text: 'Terms of Service',
+                                    style: TextStyle(
+                                      color: Colors.purple,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    TextSpan(text: ' and '),
-                                    TextSpan(
-                                      text: 'Privacy Policy',
-                                      style: TextStyle(
-                                        color: Colors.purple,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  ),
+                                  TextSpan(text: ' and '),
+                                  TextSpan(
+                                    text: 'Privacy Policy',
+                                    style: TextStyle(
+                                      color: Colors.purple,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
 
-                        // Register button
-                        AuthButton(
-                          text: 'Sign Up',
-                          onPressed: _submitForm,
-                        ),
-                      ],
+                      // Register button
+                      AuthButton(
+                        text: 'Sign Up',
+                        onPressed: _submitForm,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Or continue with
+                const DividerWithText(text: 'Or sign up with'),
+                const SizedBox(height: 24),
+
+                // Social login buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SocialLoginButton(
+                      icon: Icons.g_mobiledata_rounded,
+                      onPressed: () {
+                        // Google sign up
+                      },
+                      tooltipMessage: 'Sign up with Google',
+                      iconColor: Colors.red,
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(width: 16),
+                    SocialLoginButton(
+                      icon: Icons.facebook_rounded,
+                      onPressed: () {
+                        // Facebook sign up
+                      },
+                      tooltipMessage: 'Sign up with Facebook',
+                      iconColor: Colors.blue,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
 
-                  // Or continue with
-                  const DividerWithText(text: 'Or sign up with'),
-                  const SizedBox(height: 24),
-
-                  // Social login buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SocialLoginButton(
-                        icon: Icons.g_mobiledata_rounded,
-                        onPressed: () {
-                          // Google sign up
-                        },
-                        tooltipMessage: 'Sign up with Google',
-                        iconColor: Colors.red,
+                // Sign in option
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Already have an account?'),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        'Sign In',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(width: 16),
-                      SocialLoginButton(
-                        icon: Icons.facebook_rounded,
-                        onPressed: () {
-                          // Facebook sign up
-                        },
-                        tooltipMessage: 'Sign up with Facebook',
-                        iconColor: Colors.blue,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Sign in option
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('Already have an account?'),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          'Sign In',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
