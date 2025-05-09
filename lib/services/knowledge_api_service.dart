@@ -66,8 +66,6 @@ class KnowledgeApiService {
       final response = await _dio.get(
         '/kb-core/v1/ai-assistant/$assistantId/knowledges'
       );
-
-      print(response.data);
       return response.data;
     } on DioException catch (e) {
       throw Exception(e.response?.data['error'] ?? 'Cannot get bot with id: $assistantId');

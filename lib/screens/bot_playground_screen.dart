@@ -20,9 +20,14 @@ class BotPlaygroundScreen extends StatefulWidget {
 class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
   final TextEditingController _messageController = TextEditingController();
   bool _isMessageHasText = false;
+
   final TextEditingController _personaController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
   bool _deleteKnowledgeLoading = false;
+  bool _isUpdating = false;
+  bool _fetchFirstTime = false;
+
   late BotModel _botModel;
 
   final List<ChatMessage> _messages = [];
@@ -44,6 +49,25 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
     );
   }
 
+  Future<void> updateInstructions() async {
+    setState(() {
+      _isUpdating = true;
+    });
+
+    final api = getKBApiService(context);
+    final success = await api.updateBot(
+      id: _botModel.id,
+      assistantName: _botModel.assistantName,
+      instructions: _personaController.text.trim(),
+    );
+
+    if (success) {
+      setState(() {
+        _isUpdating = false;
+      });
+    }
+  }
+
   Future<void> handleSendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
@@ -55,6 +79,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
         type: MessageType.ai,
         senderName: _botModel.assistantName,
         senderIcon: Icons.smart_toy_outlined,
+        iconColor: Colors.blue,
       );
     }
 
@@ -153,9 +178,10 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
         context.watch<BotProvider>().importedKnowledge;
 
     setState(() {
-      if (botModel != null) {
+      if (botModel != null && !_fetchFirstTime) {
         _botModel = botModel;
         _personaController.text = botModel.instructions!;
+        _fetchFirstTime = true;
       }
     });
 
@@ -163,7 +189,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
       resizeToAvoidBottomInset: false,
       body: Column(
         children: [
-          const SizedBox(height: 36),
+          Container(child: const SizedBox(height: 36)),
 
           // Top Header
           Container(
@@ -304,11 +330,21 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Icon(
-                      Icons.check_circle_outline,
-                      size: 18,
-                      color: Colors.purple,
-                    ),
+                    _isUpdating
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : IconButton(
+                            onPressed: updateInstructions,
+                            icon: Icon(
+                              Icons.check_circle_outline,
+                              size: 18,
+                              color: Colors.purple
+                            ),
+                            padding: EdgeInsets.all(0)
+                          ),
                   ],
                 ),
                 const SizedBox(height: 16),
