@@ -461,7 +461,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onEnter: (_) => setState(() => _isBotCreateFocused = true),
                     onExit: (_) => setState(() => _isBotCreateFocused = false),
                     child: Container(
-                      margin: const EdgeInsets.only(left: 16.0),
+                      margin: const EdgeInsets.only(left: 2.0),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 6,
@@ -510,31 +510,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   IconButton(
                     icon: const Icon(Icons.history),
-                    iconSize: 32,
+                    iconSize: 24,
                     onPressed: () {
                       Navigator.pushNamed(context, "/history");
                     },
                     tooltip: 'Chat history',
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    margin: const EdgeInsets.only(right: 16.0),
-                    padding: const EdgeInsets.all(0.0),
-                    decoration: BoxDecoration(
-                      color: Colors.purple.shade300,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        topRight: Radius.circular(30.0),
-                        bottomRight: Radius.circular(30.0),
+                  const SizedBox(width: 2),
+                  SizedBox(
+                    height: 32,
+                    width: 48,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.shade300,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30.0),
+                          topRight: Radius.circular(30.0),
+                          bottomRight: Radius.circular(30.0),
+                        ),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.add),
+                        color: Colors.white,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () {},
+                        tooltip: 'New chat',
                       ),
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.add),
-                      color: Colors.white,
-                      onPressed: () {},
-                      tooltip: 'New chat',
-                    ),
                   ),
+
                 ],
               ),
 

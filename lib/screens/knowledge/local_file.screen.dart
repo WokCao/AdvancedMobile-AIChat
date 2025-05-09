@@ -163,7 +163,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
                   },
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: Container(
@@ -184,7 +184,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
                       padding: EdgeInsets.symmetric(
-                        vertical: 16,
+                        vertical: 8,
                         horizontal: 8,
                       ),
                       shape: RoundedRectangleBorder(

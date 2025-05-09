@@ -41,7 +41,7 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
       ),
       child: Container(
         width: 480,
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +52,7 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
                 Text(
                   widget.type == 'Create' ? 'Create New Knowledge' : 'Update Knowledge',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -157,8 +157,9 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 12,
+                            vertical: 6,
                           ),
+                          minimumSize: Size(0, 0),
                         ),
                         child: const Text('Cancel'),
                       ),
