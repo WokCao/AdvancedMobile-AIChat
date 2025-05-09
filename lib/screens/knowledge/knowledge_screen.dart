@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../main.dart';
+import '../../providers/bot_provider.dart';
 import '../../providers/knowledge_provider.dart';
 import '../../services/knowledge_base_service.dart';
 import '../../widgets/knowledge/create_knowledge_dialog.dart';
@@ -359,6 +360,11 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
                     showFirstLastButtons: true,
                     showCheckboxColumn: false,
                     columns: [
+                      if(context.read<BotProvider>().botModel != null)
+                        DataColumn(label: Text(
+                          "Status",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
                       DataColumn(
                         label: Text(
                           "Knowledge",

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ai_chat/models/bot_model.dart';
 import 'package:ai_chat/widgets/bot/single_bot.dart';
 import 'package:ai_chat/widgets/bot/type_drop_down.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class BotList extends StatefulWidget {
 }
 
 class _BotListState extends State<BotList> {
-  List<Map<String, dynamic>> _bots = [];
+  List<BotModel> _bots = [];
   bool _loading = true;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
@@ -170,10 +171,7 @@ class _BotListState extends State<BotList> {
                         itemBuilder: (context, index) {
                           final bot = _bots[index];
                           return SingleBot(
-                            id: bot['id'],
-                            name: bot['assistantName'] ?? 'Untitled Bot',
-                            instructions: bot['instructions'] ?? '',
-                            description: bot['description'] ?? '',
+                            botModel: bot,
                             onBotUpdated: _fetchBots,
                           );
                         },

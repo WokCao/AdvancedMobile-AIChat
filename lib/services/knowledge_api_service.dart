@@ -1,3 +1,4 @@
+import 'package:ai_chat/models/bot_model.dart';
 import 'package:dio/dio.dart';
 import '../main.dart';
 import '../utils/auth_interceptor.dart';
@@ -38,7 +39,7 @@ class KnowledgeApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getBots({String? search}) async {
+  Future<List<BotModel>> getBots({String? search}) async {
     try {
       final response = await _dio.get(
         '/kb-core/v1/ai-assistant',
@@ -50,9 +51,48 @@ class KnowledgeApiService {
         },
       );
 
-      return List<Map<String, dynamic>>.from(response.data['data']);
+      return (response.data['data'] as List)
+          .map((item) => BotModel.fromJson(item))
+          .toList();
     } on DioException catch (e) {
       throw Exception('Get bots failed: ${e.response?.data ?? e.message}');
+    }
+  }
+
+  Future<Map<String, dynamic>> getImportedKnowledge({required String assistantId}) async {
+    try {
+      final response = await _dio.get(
+        '/kb-core/v1/ai-assistant/$assistantId/knowledges'
+      );
+
+      print(response.data);
+      return response.data;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['error'] ?? 'Cannot get bot with id: $assistantId');
+    }
+  }
+
+  Future<String> importKnowledgeToAssistant({required String assistantId, required String knowledgeId}) async {
+    try {
+      final response = await _dio.post(
+          '/kb-core/v1/ai-assistant/$assistantId/knowledges/$knowledgeId'
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['error'] ?? 'Cannot import knowledge to bot');
+    }
+  }
+
+  Future<String> removeKnowledgeFromAssistant({required String assistantId, required String knowledgeId}) async {
+    try {
+      final response = await _dio.delete(
+          '/kb-core/v1/ai-assistant/$assistantId/knowledges/$knowledgeId'
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['error'] ?? 'Cannot remove knowledge from bot');
     }
   }
 

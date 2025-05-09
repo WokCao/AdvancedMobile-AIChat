@@ -1,6 +1,11 @@
-
+import 'package:ai_chat/models/bot_model.dart';
+import 'package:ai_chat/models/knowledge_model.dart';
+import 'package:ai_chat/providers/bot_provider.dart';
+import 'package:ai_chat/providers/knowledge_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../utils/get_api_utils.dart';
 import '../widgets/chat_message.dart';
 import '../widgets/knowledge/remove_knowledge.dart';
 
@@ -16,6 +21,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
   bool _isMessageHasText = false;
   final TextEditingController _personaController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  bool _deleteKnowledgeLoading = false;
 
   // Mock messages
   // final List<ChatMessage> _messages = [
@@ -89,10 +95,28 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
   // ];
   final List<ChatMessage> _messages = [];
 
+  Future<void> getImportedKnowledge() async {
+    final api = getKBApiService(context);
+
+    final assistantId = context.read<BotProvider>().botModel?.id;
+    if (assistantId == null) return;
+    final response = await api.getImportedKnowledge(assistantId: assistantId);
+
+    if (!mounted) return;
+
+    context.read<BotProvider>().setImportedKnowledge(
+      importedKnowledge:
+          (response['data'] as List)
+              .map((item) => KnowledgeModel.fromJson(item))
+              .toList(),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _messageController.addListener(_handleTextChange);
+    getImportedKnowledge();
   }
 
   void _handleTextChange() {
@@ -101,8 +125,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
       setState(() {
         _isMessageHasText = true;
       });
-    }
-    else {
+    } else {
       setState(() {
         _isMessageHasText = false;
       });
@@ -117,6 +140,10 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final BotModel? botModel = context.watch<BotProvider>().botModel;
+    final List<KnowledgeModel> importedKnowledge =
+        context.watch<BotProvider>().importedKnowledge;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(
@@ -125,12 +152,14 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
 
           // Top Header
           Container(
-            padding: const EdgeInsets.only(top: 12.0, bottom: 16.0, right: 12.0),
+            padding: const EdgeInsets.only(
+              top: 12.0,
+              bottom: 16.0,
+              right: 12.0,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.shade300),
-              ),
+              border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
             ),
             child: Row(
               children: [
@@ -139,14 +168,15 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                   children: [
                     IconButton(
                       onPressed: () {
+                        context.read<BotProvider>().clearAll();
                         Navigator.of(context).pop();
                       },
                       padding: EdgeInsets.all(4.0),
                       constraints: BoxConstraints(),
                       icon: Icon(
-                          Icons.arrow_back_ios_new,
-                          size: 20,
-                          color: Colors.grey,
+                        Icons.arrow_back_ios_new,
+                        size: 20,
+                        color: Colors.grey,
                       ),
                     ),
                     Icon(
@@ -158,8 +188,8 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Bot 1',
+                        Text(
+                          botModel?.assistantName ?? 'Unidentified bot',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -207,9 +237,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                   label: const Text('Docs', style: TextStyle(fontSize: 12)),
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.grey.shade200,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -222,9 +250,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.purple.shade400,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                   ),
                 ),
               ],
@@ -236,19 +262,14 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.shade300),
-              ),
+              border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Develop',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -272,7 +293,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                       Icons.check_circle_outline,
                       size: 18,
                       color: Colors.purple,
-                    )
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -281,7 +302,8 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                   decoration: InputDecoration(
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
-                    hintText: 'Design the bot\'s persona, features and workflow using natural language.',
+                    hintText:
+                        'Design the bot\'s persona, features and workflow using natural language.',
                     hintStyle: const TextStyle(
                       color: Colors.grey,
                       fontSize: 12,
@@ -296,9 +318,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                       borderSide: const BorderSide(color: Colors.transparent),
                     ),
                   ),
-                  style: TextStyle(
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(fontSize: 12),
                   maxLines: null,
                   minLines: 1,
                 ),
@@ -321,74 +341,139 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
               children: [
                 Text(
                   'Knowledge',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
-          Container(
-            padding: EdgeInsets.only(top: 16.0, left: 16.0, bottom: 16.0),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    gradient: LinearGradient(
-                      colors: [Colors.yellow.shade300, Colors.orange.shade300],
-                      begin: Alignment.bottomLeft,
-                      end: Alignment.topRight,
-                    ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.3,
+            child: ListView.builder(
+              padding: const EdgeInsets.only(
+                top: 16.0,
+                left: 16.0,
+                bottom: 16.0,
+              ),
+              itemCount: importedKnowledge.length,
+              itemBuilder: (context, index) {
+                final item = importedKnowledge[index];
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.yellow.shade300,
+                              Colors.orange.shade300,
+                            ],
+                            begin: Alignment.bottomLeft,
+                            end: Alignment.topRight,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.data_object_outlined,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          item.knowledgeName,
+                          style: const TextStyle(fontSize: 12),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      IconButton(
+                        onPressed: () {
+                          context
+                              .read<KnowledgeProvider>()
+                              .setSelectedKnowledgeRow(item);
+                          Navigator.pushNamed(context, '/units');
+                        },
+                        icon: const Icon(
+                          Icons.remove_red_eye_outlined,
+                          size: 18,
+                        ),
+                        padding: const EdgeInsets.all(4.0),
+                        constraints: const BoxConstraints(),
+                        tooltip: 'View',
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (_) => RemoveKnowledge(
+                                  handleDeleteKnowledge: (String _) async {
+                                    if (botModel != null) {
+                                      setState(() {
+                                        _deleteKnowledgeLoading = true;
+                                      });
+                                      await getKBApiService(
+                                        context,
+                                      ).removeKnowledgeFromAssistant(
+                                        assistantId: botModel.id,
+                                        knowledgeId: item.id,
+                                      );
+
+                                      context.read<BotProvider>().removeAKnowledge(item);
+                                      setState(() {
+                                        _deleteKnowledgeLoading = false;
+                                      });
+                                    }
+                                  },
+                                ),
+                          );
+                        },
+                        icon:
+                            _deleteKnowledgeLoading
+                                ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.grey,
+                                    ),
+                                  ),
+                                )
+                                : const Icon(Icons.delete_outline, size: 18),
+                        padding: const EdgeInsets.all(4.0),
+                        constraints: const BoxConstraints(),
+                        tooltip: 'Remove',
+                      ),
+                    ],
                   ),
-                  child: Icon(Icons.data_object_outlined, color: Colors.white),
+                );
+              },
+            ),
+          ),
+
+          SizedBox(
+            width: double.infinity, // Make button full width
+            child: OutlinedButton.icon(
+              onPressed: () {
+                /// Handle adding knowledge source
+                Navigator.pushNamed(context, '/knowledge');
+              },
+              icon: Icon(Icons.add, color: Colors.purple.shade700),
+              label: const Text('Add knowledge source'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.purple.shade700,
+                side: BorderSide(color: Colors.purple.shade200),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
                 ),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text(
-                    'Bot 1\'s Knowledge Base - 1741584290659',
-                    style: TextStyle(
-                      fontSize: 12,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                IconButton(
-                  onPressed: () {
-                    /// Handle view knowledge
-                    Navigator.pushNamed(context, '/units');
-                  },
-                  icon: const Icon(
-                    Icons.remove_red_eye_outlined,
-                    size: 18,
-                  ),
-                  padding: EdgeInsets.all(4.0),
-                  constraints: BoxConstraints(),
-                  tooltip: 'View',
-                ),
-                IconButton(
-                  onPressed: () {
-                    /// Handle remove knowledge
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return RemoveKnowledge();
-                        }
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.delete_outline,
-                    size: 18,
-                  ),
-                  padding: EdgeInsets.all(4.0),
-                  constraints: BoxConstraints(),
-                  tooltip: 'Remove',
-                ),
-              ],
+                alignment: Alignment.center,
+              ),
             ),
           ),
 
@@ -402,6 +487,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     border: Border(
+                      top: BorderSide(color: Colors.grey.shade300),
                       bottom: BorderSide(color: Colors.grey.shade300),
                     ),
                   ),
@@ -421,8 +507,9 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
 
                 // Chat Content
                 Expanded(
-                    child: _messages.isEmpty
-                        ? Center(
+                  child:
+                      _messages.isEmpty
+                          ? Center(
                             child: SingleChildScrollView(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -440,8 +527,9 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
-                                  const Text(
-                                    'Bot 1',
+                                  Text(
+                                    botModel?.assistantName ??
+                                        'Unidentified bot',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -466,20 +554,20 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                               ),
                             ),
                           )
-                        : ListView.builder(
+                          : ListView.builder(
                             controller: _scrollController,
                             padding: const EdgeInsets.only(top: 16, bottom: 16),
                             itemCount: _messages.length,
                             itemBuilder: (context, index) {
                               final message = _messages[index];
                               return Padding(
-                                padding: const EdgeInsets.only(bottom: 16), // Adds a gap below each item
-                                child: ChatMessageWidget(
-                                  message: message,
-                                ),
+                                padding: const EdgeInsets.only(
+                                  bottom: 16,
+                                ), // Adds a gap below each item
+                                child: ChatMessageWidget(message: message),
                               );
                             },
-                          )
+                          ),
                 ),
               ],
             ),
@@ -489,7 +577,9 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -542,20 +632,22 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                     const SizedBox(width: 12),
                     Container(
                       decoration: BoxDecoration(
-                        color: _isMessageHasText ? Colors.purple.shade300 : Colors.grey,
+                        color:
+                            _isMessageHasText
+                                ? Colors.purple.shade300
+                                : Colors.grey,
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: IconButton(
-                        onPressed: _isMessageHasText ? () {
-                          // Handle send message
-                        } : null,
+                        onPressed:
+                            _isMessageHasText
+                                ? () {
+                                  // Handle send message
+                                }
+                                : null,
                         padding: EdgeInsets.all(8.0),
                         constraints: BoxConstraints(),
-                        icon: Icon(
-                          Icons.send,
-                          size: 16,
-                          color: Colors.white,
-                        ),
+                        icon: Icon(Icons.send, size: 16, color: Colors.white),
                         tooltip: 'Send message',
                       ),
                     ),

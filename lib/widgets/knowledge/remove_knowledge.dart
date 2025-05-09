@@ -121,6 +121,8 @@ class _RemoveKnowledgeState extends State<RemoveKnowledge> {
                   onTap: () {
                     if (widget.handleDeleteKnowledge != null && widget.id != null) {
                       widget.handleDeleteKnowledge!(widget.id!);
+                    } else if (widget.handleDeleteKnowledge != null) {
+                      widget.handleDeleteKnowledge!('_');
                     }
                     Navigator.of(context).pop();
                   },

@@ -25,8 +25,8 @@ class KnowledgeModel {
       knowledgeName: json['knowledgeName'],
       description: json['description'],
       userId: json['userId'],
-      numUnits: json['numUnits'],
-      totalSize: json['totalSize'],
+      numUnits: json['numUnits'] ?? 0,
+      totalSize: json['totalSize'] ?? 0,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );

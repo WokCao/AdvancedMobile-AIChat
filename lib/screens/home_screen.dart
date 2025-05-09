@@ -292,9 +292,9 @@ class _HomeScreenState extends State<HomeScreen> {
           bots
               .map(
                 (bot) => {
-                  'apiId': bot['id'],
-                  'name': bot['assistantName'],
-                  'description': bot['description'] ?? '',
+                  'apiId': bot.id,
+                  'name': bot.assistantName,
+                  'description': bot.description ?? '',
                   'type': 'bot',
                   'icon': Icons.smart_toy_outlined,
                   'iconColor': Colors.blue,

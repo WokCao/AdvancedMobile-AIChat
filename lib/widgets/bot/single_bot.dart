@@ -1,22 +1,19 @@
+import 'package:ai_chat/models/bot_model.dart';
+import 'package:ai_chat/providers/bot_provider.dart';
 import 'package:ai_chat/widgets/bot/remove_bot.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../utils/get_api_utils.dart';
 import 'create_bot_dialog.dart';
 
 class SingleBot extends StatefulWidget {
-  final String id;
-  final String name;
-  final String instructions;
-  final String description;
+  final BotModel botModel;
   final VoidCallback? onBotUpdated;
 
   const SingleBot({
     super.key,
-    required this.id,
-    required this.name,
-    required this.instructions,
-    required this.description,
+    required this.botModel,
     this.onBotUpdated,
   });
 
@@ -35,6 +32,7 @@ class _SingleBotState extends State<SingleBot> {
       onExit: (_) => setState(() => isHovered = false),
       child: InkWell(
         onTap: () {
+          context.read<BotProvider>().setSelectedBotModel(botModel: widget.botModel);
           Navigator.pushNamed(context, '/playground');
         },
         child: Card(
@@ -58,13 +56,13 @@ class _SingleBotState extends State<SingleBot> {
                       color: Colors.purple.shade200,
                     ),
                     title: Text(
-                      widget.name,
+                      widget.botModel.assistantName,
                       style: TextStyle(fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
-                      widget.description,
+                      widget.botModel.description ?? '',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -90,10 +88,10 @@ class _SingleBotState extends State<SingleBot> {
                                 context: context,
                                 builder: (context) => CreateBotDialog(
                                   isEditing: true,
-                                  botId: widget.id,
-                                  initialName: widget.name,
-                                  initialInstructions: widget.instructions,
-                                  initialDescription: widget.description,
+                                  botId: widget.botModel.id,
+                                  initialName: widget.botModel.assistantName,
+                                  initialInstructions: widget.botModel.instructions,
+                                  initialDescription: widget.botModel.description,
                                 ),
                               );
                               if (result == true) {
@@ -112,7 +110,7 @@ class _SingleBotState extends State<SingleBot> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return RemoveBot(
-                                    id: widget.id,
+                                    id: widget.botModel.id,
                                     onBotRemoved: widget.onBotUpdated,
                                   );
                                 }
