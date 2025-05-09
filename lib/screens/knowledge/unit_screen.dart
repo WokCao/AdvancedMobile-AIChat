@@ -3,15 +3,12 @@ import 'dart:math';
 
 import 'package:ai_chat/models/base_unit_model.dart';
 import 'package:ai_chat/models/knowledge_model.dart';
-import 'package:ai_chat/models/file_unit_model.dart';
 import 'package:ai_chat/providers/knowledge_provider.dart';
 import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import '../../models/confluence_unit_model.dart';
 import '../../models/meta_model.dart';
-import '../../models/slack_unit_model.dart';
 import '../../services/knowledge_base_service.dart';
 import '../../widgets/knowledge/create_knowledge_dialog.dart';
 import '../../widgets/knowledge/unit_table.dart';
@@ -47,12 +44,8 @@ class _UnitScreenState extends State<UnitScreen> {
 
       final metaData = MetaModel.fromJson(result["meta"]);
       final newItems = List<BaseUnitModel>.from(
-        result["data"].map<BaseUnitModel>((e) {
-          return e['metadata']['slack_bot_token'] != null
-              ? SlackUnitModel.fromJson(e)
-              : e['metadata']['wiki_page_url'] != null
-              ? ConfluenceUnitModel.fromJson(e)
-              : FileUnitModel.fromJson(e);
+        result["data"].map((e) {
+          return BaseUnitModel.fromJson(e);
         }),
       );
 
@@ -88,12 +81,8 @@ class _UnitScreenState extends State<UnitScreen> {
         id: selectedKnowledgeModel.id,
       );
       final newItems = List<BaseUnitModel>.from(
-        result["data"].map<BaseUnitModel>((e) {
-          return e['metadata']['slack_bot_token'] != null
-              ? SlackUnitModel.fromJson(e)
-              : e['metadata']['wiki_page_url'] != null
-              ? ConfluenceUnitModel.fromJson(e)
-              : FileUnitModel.fromJson(e);
+        result["data"].map((e) {
+          return BaseUnitModel.fromJson(e);
         }),
       );
 
@@ -196,6 +185,7 @@ class _UnitScreenState extends State<UnitScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedKnowledgeModel = context.watch<KnowledgeProvider>().selectedKnowledge;
+    print(selectedKnowledgeModel);
 
     return Scaffold(
       appBar: AppBar(
@@ -245,7 +235,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                         MediaQuery.of(context).size.width * 0.3,
                                   ),
                                   child: Text(
-                                    selectedKnowledgeModel!.knowledgeName,
+                                    selectedKnowledgeModel?.knowledgeName ?? 'Undefined',
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -295,7 +285,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    "${selectedKnowledgeModel.numUnits} Units",
+                                    "${selectedKnowledgeModel?.numUnits} Units",
                                     style: TextStyle(color: Colors.purple),
                                   ),
                                 ),
@@ -314,7 +304,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                   ),
                                   child: Text(
                                     _getReadableFileSize(
-                                      selectedKnowledgeModel.totalSize,
+                                      selectedKnowledgeModel?.totalSize ?? 0,
                                     ),
                                     style: TextStyle(color: Colors.pink),
                                   ),
@@ -472,7 +462,7 @@ class _UnitScreenState extends State<UnitScreen> {
                           ),
                           DataColumn(
                             label: Text(
-                              "Create time",
+                              "Created time",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),

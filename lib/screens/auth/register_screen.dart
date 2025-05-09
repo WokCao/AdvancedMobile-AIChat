@@ -83,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             padding: const EdgeInsets.all(24.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width > 1024 ? MediaQuery.of(context).size.width * 0.4 : MediaQuery.of(context).size.width * 0.6,
+                maxWidth: MediaQuery.of(context).size.width > 1024 ? MediaQuery.of(context).size.width * 0.4 : MediaQuery.of(context).size.width * 0.9,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

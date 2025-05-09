@@ -72,12 +72,15 @@ class KnowledgeBaseService {
   Future<Map<String, dynamic>> getUnitsOfKnowledge({String query = '', required int offset, int limit = 7, required String id,}) async {
     try {
       final response = await _dioKnowledgeApi.get(
-        "/kb-core/v1/knowledge/$id/units?q=$query&offset=$offset&limit=$limit",
+        "/kb-core/v1/knowledge/$id/datasources?q=$query&offset=$offset&limit=$limit",
         options: Options(headers: headers),
       );
 
+      print(response.data);
+
       return response.data;
     } on DioException catch (e) {
+      print(e.response);
       final errorMessage = e.response?.data['error'] ?? "Failed to load knowledge's units";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }

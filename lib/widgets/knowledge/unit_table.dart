@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:ai_chat/models/base_unit_model.dart';
-import 'package:ai_chat/models/file_unit_model.dart';
 import 'package:ai_chat/widgets/knowledge/remove_unit.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

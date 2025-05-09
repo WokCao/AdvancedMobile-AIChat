@@ -2,7 +2,7 @@ import 'package:ai_chat/models/knowledge_model.dart';
 import 'package:flutter/material.dart';
 
 class KnowledgeProvider extends ChangeNotifier {
-  late KnowledgeModel? _selectedKnowledge;
+  KnowledgeModel? _selectedKnowledge;
   bool _wasUpdated = false;
 
   KnowledgeModel? get selectedKnowledge => _selectedKnowledge;

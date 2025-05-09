@@ -21,6 +21,7 @@ class LocalFileScreen extends StatefulWidget {
 
 class _LocalFileScreenState extends State<LocalFileScreen> {
   final List<PlatformFile> _selectedFiles = [];
+  bool _isLoading = false;
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -29,18 +30,42 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
       allowedExtensions: [
         'c',
         'cpp',
+        'csv',
+        'doc',
         'docx',
+        'epub',
+        'gif',
+        'htm',
         'html',
         'java',
+        'jpeg',
+        'jpg',
+        'js',
         'json',
+        'log',
         'md',
+        'odp',
+        'ods',
+        'odt',
         'pdf',
         'php',
+        'png',
+        'ppt',
         'pptx',
         'py',
         'rb',
+        'rtf',
+        'svg',
         'tex',
+        'tif',
+        'tiff',
+        'tsv',
         'txt',
+        'xls',
+        'xlsx',
+        'xml',
+        'yaml',
+        'yml',
       ],
     );
 
@@ -67,6 +92,10 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
         ).selectedKnowledge;
     if (knowledgeModel == null) return;
 
+    setState(() {
+      _isLoading = true;
+    });
+
     final dtService = Provider.of<DataSourceService>(context, listen: false);
 
     for (PlatformFile platformFile in _selectedFiles) {
@@ -81,6 +110,9 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
         );
       } on KnowledgeException catch (e) {
         allSuccess = false;
+        setState(() {
+          _isLoading = false;
+        });
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.message), duration: Duration(seconds: 3)),
@@ -90,6 +122,9 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
 
     if (allSuccess) {
       _selectedFiles.clear();
+      setState(() {
+        _isLoading = false;
+      });
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -97,7 +132,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
           duration: Duration(seconds: 3),
         ),
       );
-      Navigator.popUntil(context, ModalRoute.withName('/unit'));
+      Navigator.pop(context);
     }
   }
 
@@ -278,14 +313,26 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Text(
-                      'Connect',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    child:
+                        _isLoading
+                            ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                                strokeWidth: 2,
+                              ),
+                            )
+                            : Text(
+                              'Connect',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                   ),
                 ),
               ),

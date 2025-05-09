@@ -60,10 +60,13 @@ class _ConfluenceScreenState extends State<ConfluenceScreen> {
         setState(() {
           _isLoading = false;
         });
-        Navigator.popUntil(context, ModalRoute.withName('/units'));
+        Navigator.pop(context);
       }
     } on KnowledgeException catch (e) {
       if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

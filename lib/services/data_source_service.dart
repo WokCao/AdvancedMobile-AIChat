@@ -22,17 +22,34 @@ class DataSourceService {
     try {
       String mimeType = _getMimeType(file.path);
       final formData = FormData.fromMap({
-        "file": await MultipartFile.fromFile(
+        "files": [await MultipartFile.fromFile(
           file.path,
           filename: file.path.split('/').last,
           contentType: DioMediaType.parse(mimeType),
-        ),
+        )],
       });
 
-      final response = await _dioKnowledgeApi.post(
-        "/kb-core/v1/knowledge/$knowledgeId/local-file",
+      final uploadResponse = await _dioKnowledgeApi.post(
+        "/kb-core/v1/knowledge/files",
         data: formData,
         options: Options(headers: headers),
+      );
+
+      final String fileId = uploadResponse.data["files"][0]["id"];
+      final response = await _dioKnowledgeApi.post(
+        "/kb-core/v1/knowledge/$knowledgeId/datasources",
+        data: {
+          "datasources": [
+            {
+              "type": "local_file",
+              "name": file.path.split('/').last,
+              "credentials": {
+                "file": fileId
+              }
+            }
+          ]
+        },
+        options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
       );
 
       return response.data;
@@ -49,7 +66,7 @@ class DataSourceService {
   }) async {
     try {
       final response = await _dioKnowledgeApi.post(
-        "/kb-core/v1/knowledge/$knowledgeId/web",
+        "/kb-core/v1/knowledge/$knowledgeId/datasources",
         data: {
           "unitName": unitName,
           "webUrl": webUrl
@@ -57,8 +74,11 @@ class DataSourceService {
         options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
       );
 
+      print(response.data);
+
       return response.data;
     } on DioException catch (e) {
+      print(e);
       final errorMessage = e.response?.data['error'] ?? "Failed to create unit (Website) - Url: $webUrl";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
@@ -67,22 +87,28 @@ class DataSourceService {
   Future<Map<String, dynamic>> createUnitSlack({
     required String knowledgeId,
     required String unitName,
-    required String slackWorkspace,
     required String slackBotToken,
   }) async {
     try {
       final response = await _dioKnowledgeApi.post(
-        "/kb-core/v1/knowledge/$knowledgeId/slack",
+        "/kb-core/v1/knowledge/$knowledgeId/datasources",
         data: {
-          "unitName": unitName,
-          "slackWorkspace": slackWorkspace,
-          "slackBotToken": slackBotToken
+          "datasources": [
+            {
+              "type": "slack",
+              "name": unitName,
+              "credentials": {
+                "token": slackBotToken
+              }
+            }
+          ]
         },
         options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
       );
 
       return response.data;
     } on DioException catch (e) {
+      print(e.response);
       final errorMessage = e.response?.data['error'] ?? "Failed to create unit (Slack)";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
@@ -97,18 +123,26 @@ class DataSourceService {
   }) async {
     try {
       final response = await _dioKnowledgeApi.post(
-        "/kb-core/v1/knowledge/$knowledgeId/confluence",
+        "/kb-core/v1/knowledge/$knowledgeId/datasources",
         data: {
-          "unitName": unitName,
-          "wikiPageUrl": wikiPageUrl,
-          "confluenceUsername": confluenceUsername,
-          "confluenceAccessToken": confluenceAccessToken
+          "datasources": [
+            {
+              "type": "confluence",
+              "name": unitName,
+              "credentials": {
+                "token": confluenceAccessToken,
+                "url": wikiPageUrl,
+                "username": confluenceUsername
+              }
+            }
+          ]
         },
         options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
       );
 
       return response.data;
     } on DioException catch (e) {
+      print(e.response);
       final errorMessage = e.response?.data['error'] ?? "Failed to create unit (Confluence)";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
@@ -124,26 +158,77 @@ class DataSourceService {
   String _getMimeType(String filePath) {
     String extension = filePath.split('.').last.toLowerCase();
     switch (extension) {
-      case 'pdf':
-        return 'application/pdf';
+      case 'c':
+        return 'text/x-c';
+      case 'cpp':
+        return 'text/x-c++';
+      case 'csv':
+        return 'text/csv';
+      case 'doc':
+        return 'application/msword';
       case 'docx':
         return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-      case 'txt':
-        return 'text/plain';
-      case 'json':
-        return 'application/json';
+      case 'epub':
+        return 'application/epub+zip';
+      case 'gif':
+        return 'image/gif';
+      case 'htm':
       case 'html':
         return 'text/html';
       case 'java':
-        return 'text/x-java';
-      case 'cpp':
-        return 'text/x-c++';
-      case 'py':
-        return 'text/x-python';
+        return 'text/x-java-source';
+      case 'jpeg':
+      case 'jpg':
+        return 'image/jpeg';
+      case 'js':
+        return 'application/javascript';
+      case 'json':
+        return 'application/json';
+      case 'log':
+      case 'txt':
+        return 'text/plain';
       case 'md':
         return 'text/markdown';
+      case 'odp':
+        return 'application/vnd.oasis.opendocument.presentation';
+      case 'ods':
+        return 'application/vnd.oasis.opendocument.spreadsheet';
+      case 'odt':
+        return 'application/vnd.oasis.opendocument.text';
+      case 'pdf':
+        return 'application/pdf';
+      case 'php':
+        return 'application/x-httpd-php';
+      case 'png':
+        return 'image/png';
+      case 'ppt':
+        return 'application/vnd.ms-powerpoint';
       case 'pptx':
         return 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+      case 'py':
+        return 'text/x-python';
+      case 'rb':
+        return 'text/x-ruby';
+      case 'rtf':
+        return 'application/rtf';
+      case 'svg':
+        return 'image/svg+xml';
+      case 'tex':
+        return 'application/x-tex';
+      case 'tif':
+      case 'tiff':
+        return 'image/tiff';
+      case 'tsv':
+        return 'text/tab-separated-values';
+      case 'xls':
+        return 'application/vnd.ms-excel';
+      case 'xlsx':
+        return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      case 'xml':
+        return 'application/xml';
+      case 'yaml':
+      case 'yml':
+        return 'application/x-yaml';
       default:
         return 'application/octet-stream';
     }

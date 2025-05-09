@@ -57,6 +57,9 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
       }
     } on KnowledgeException catch (e) {
       if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message),

@@ -16,13 +16,11 @@ class SlackScreen extends StatefulWidget {
 
 class _SlackScreenState extends State<SlackScreen> {
   final _unitNameController = TextEditingController();
-  final _slackWorkspaceController = TextEditingController();
   final _slackBotTokenController = TextEditingController();
   late bool _isLoading = false;
 
   void _handleUploadSlack() async {
     if (_unitNameController.text.isEmpty ||
-        _slackWorkspaceController.text.isEmpty ||
         _slackBotTokenController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -52,7 +50,6 @@ class _SlackScreenState extends State<SlackScreen> {
       await dtService.createUnitSlack(
         knowledgeId: knowledgeModel.id,
         unitName: _unitNameController.text,
-        slackWorkspace: _slackWorkspaceController.text,
         slackBotToken: _slackBotTokenController.text,
       );
 
@@ -60,10 +57,14 @@ class _SlackScreenState extends State<SlackScreen> {
         setState(() {
           _isLoading = false;
         });
-        Navigator.popUntil(context, ModalRoute.withName('/unit'));
+
+        Navigator.pop(context);
       }
     } on KnowledgeException catch (e) {
       if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message),
@@ -169,50 +170,6 @@ class _SlackScreenState extends State<SlackScreen> {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: 'Workspace: ',
-                            style: TextStyle(
-                              color: Colors.grey.shade800,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(color: Colors.red, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    TextField(
-                      controller: _slackWorkspaceController,
-                      decoration: InputDecoration(
-                        hintText: 'Your workspace',
-                        isDense: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Colors.grey,
-                            width: 1.0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Colors.purpleAccent,
-                            width: 2.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 24),
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
                             text: 'Bot token: ',
                             style: TextStyle(
                               color: Colors.grey.shade800,
@@ -230,6 +187,7 @@ class _SlackScreenState extends State<SlackScreen> {
                     SizedBox(height: 12),
                     TextField(
                       controller: _slackBotTokenController,
+                      obscureText: true,
                       decoration: InputDecoration(
                         hintText: 'Your bot token',
                         isDense: true,
@@ -269,10 +227,7 @@ class _SlackScreenState extends State<SlackScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: ElevatedButton(
-                          onPressed: () {
-                            _handleUploadSlack();
-                            Navigator.pop(context);
-                          },
+                          onPressed: _isLoading ? null : _handleUploadSlack,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,

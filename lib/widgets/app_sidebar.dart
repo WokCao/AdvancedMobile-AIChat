@@ -53,6 +53,7 @@ class AppSidebar extends StatelessWidget {
           ),
         ),
       );
+      // Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
