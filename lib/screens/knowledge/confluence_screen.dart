@@ -48,7 +48,7 @@ class _ConfluenceScreenState extends State<ConfluenceScreen> {
 
     final dtService = Provider.of<DataSourceService>(context, listen: false);
     try {
-      final response = await dtService.createUnitConfluence(
+      await dtService.createUnitConfluence(
         knowledgeId: knowledgeModel.id,
         unitName: _unitNameController.text,
         wikiPageUrl: _wikiPageUrlController.text,
@@ -60,7 +60,7 @@ class _ConfluenceScreenState extends State<ConfluenceScreen> {
         setState(() {
           _isLoading = false;
         });
-        Navigator.pop(context);
+        Navigator.popUntil(context, ModalRoute.withName('/units'));
       }
     } on KnowledgeException catch (e) {
       if (!mounted) return;
@@ -192,7 +192,7 @@ class _ConfluenceScreenState extends State<ConfluenceScreen> {
                     TextField(
                       controller: _wikiPageUrlController,
                       decoration: InputDecoration(
-                        hintText: 'Your wiki page URL',
+                        hintText: 'https://your-domain.atlassian.net',
                         isDense: true,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -279,6 +279,7 @@ class _ConfluenceScreenState extends State<ConfluenceScreen> {
                     SizedBox(height: 12),
                     TextField(
                       controller: _confluenceAccessTokenController,
+                      obscureText: true,
                       decoration: InputDecoration(
                         hintText: 'Your confluence access token',
                         isDense: true,

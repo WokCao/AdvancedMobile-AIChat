@@ -116,12 +116,8 @@ class _SourceListScreenState extends State<SourceListScreen> {
                         if (index == 0) {
                           Navigator.pushNamed(context, '/local');
                         } else if (index == 1) {
-                          Navigator.pushNamed(context, '/website');
-                        } else if (index == 2) {
-                          Navigator.pushNamed(context, '/google-drive');
-                        } else if (index == 3) {
                           Navigator.pushNamed(context, '/slack');
-                        } else if (index == 4) {
+                        } else if (index == 2) {
                           Navigator.pushNamed(context, '/confluence');
                         }
                       }

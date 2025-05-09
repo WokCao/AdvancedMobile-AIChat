@@ -185,7 +185,6 @@ class _UnitScreenState extends State<UnitScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedKnowledgeModel = context.watch<KnowledgeProvider>().selectedKnowledge;
-    print(selectedKnowledgeModel);
 
     return Scaffold(
       appBar: AppBar(

@@ -74,11 +74,8 @@ class DataSourceService {
         options: Options(headers: { ...headers, 'Content-Type': 'application/json' } ),
       );
 
-      print(response.data);
-
       return response.data;
     } on DioException catch (e) {
-      print(e);
       final errorMessage = e.response?.data['error'] ?? "Failed to create unit (Website) - Url: $webUrl";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
@@ -108,7 +105,6 @@ class DataSourceService {
 
       return response.data;
     } on DioException catch (e) {
-      print(e.response);
       final errorMessage = e.response?.data['error'] ?? "Failed to create unit (Slack)";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
@@ -142,7 +138,6 @@ class DataSourceService {
 
       return response.data;
     } on DioException catch (e) {
-      print(e.response);
       final errorMessage = e.response?.data['error'] ?? "Failed to create unit (Confluence)";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }

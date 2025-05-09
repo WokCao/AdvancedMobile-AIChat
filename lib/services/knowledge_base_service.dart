@@ -76,11 +76,8 @@ class KnowledgeBaseService {
         options: Options(headers: headers),
       );
 
-      print(response.data);
-
       return response.data;
     } on DioException catch (e) {
-      print(e.response);
       final errorMessage = e.response?.data['error'] ?? "Failed to load knowledge's units";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }

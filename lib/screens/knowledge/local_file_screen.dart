@@ -132,7 +132,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
           duration: Duration(seconds: 3),
         ),
       );
-      Navigator.pop(context);
+      Navigator.popUntil(context, ModalRoute.withName('/units'));
     }
   }
 

@@ -44,6 +44,7 @@ class RouteGuard {
     final publicRoutes = ['/login', '/register'];
 
     return MaterialPageRoute(
+      settings: RouteSettings(name: path),
       builder: (context) {
         return FutureBuilder<bool>(
           future: isLoggedIn(context),

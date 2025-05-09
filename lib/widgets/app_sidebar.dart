@@ -46,14 +46,14 @@ class AppSidebar extends StatelessWidget {
     if (isSuccess) {
       Navigator.pushReplacementNamed(context, '/login');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            authProvider.error ?? 'Logout failed. Please try again',
-          ),
-        ),
-      );
-      // Navigator.pushReplacementNamed(context, '/login');
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(
+      //       authProvider.error ?? 'Logout failed. Please try again',
+      //     ),
+      //   ),
+      // );
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
