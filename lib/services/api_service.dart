@@ -22,6 +22,7 @@ class ApiService {
   Future<Map<String, dynamic>> sendMessage({
     required String content,
     required String modelId,
+    required String modelType,
     required String modelName,
     String? conversationId,
     List<String>? files = const [],
@@ -30,7 +31,7 @@ class ApiService {
       final List<Map<String, dynamic>> messageHistory = [];
       final assistant = {
         'id': modelId,
-        'model': 'dify',
+        'model': modelType == 'kb' ? 'knowledge-base' : 'dify',
         'name': modelName,
       };
 
@@ -65,11 +66,7 @@ class ApiService {
               "messages": messageHistory,
             }
           },
-          "assistant": {
-            "id": modelId,
-            "model": "dify",
-            "name": modelName,
-          },
+          "assistant": assistant
         },
       );
 
