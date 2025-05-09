@@ -5,6 +5,7 @@ import 'package:ai_chat/providers/knowledge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/auth_provider.dart';
 import '../utils/get_api_utils.dart';
 import '../widgets/chat_message.dart';
 import '../widgets/knowledge/remove_knowledge.dart';
@@ -22,77 +23,8 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
   final TextEditingController _personaController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _deleteKnowledgeLoading = false;
+  late BotModel _botModel;
 
-  // Mock messages
-  // final List<ChatMessage> _messages = [
-  //   ChatMessage(
-  //     id: '1',
-  //     message: 'Hello! How can I help you today?',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  //   ChatMessage(
-  //     id: '2',
-  //     message: 'I need help with a Flutter project. I\'m trying to create a chat interface.',
-  //     type: MessageType.user,
-  //   ),
-  //   ChatMessage(
-  //     id: '3',
-  //     message: 'I\'d be happy to help with your Flutter chat interface! What specific aspects are you working on? Are you looking for help with the UI design, state management, or integrating with a backend service?',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  //   ChatMessage(
-  //     id: '4',
-  //     message: 'Mainly the UI design. I want to create message bubbles that look good for both the user and AI responses.',
-  //     type: MessageType.user,
-  //   ),
-  //   ChatMessage(
-  //     id: '5',
-  //     message: 'For a chat UI in Flutter, you\'ll want to create a message bubble widget that can be styled differently based on whether it\'s a user or AI message. Here are some key components to consider:\n\n1. Different background colors for user vs AI messages\n2. Different alignment (user messages on right, AI on left)\n3. Avatars for each participant\n4. Timestamps\n5. Support for different content types (text, images, etc.)',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  //   ChatMessage(
-  //     id: '6',
-  //     message: 'That\'s helpful! Do you have any example code I could use as a starting point?',
-  //     type: MessageType.user,
-  //   ),
-  //   ChatMessage(
-  //     id: '7',
-  //     message: 'Here\'s a simple example of a chat message widget in Flutter:\n\n```dart\nclass ChatBubble extends StatelessWidget {\n  final bool isUser;\n  final String message;\n  \n  const ChatBubble({\n    required this.isUser,\n    required this.message,\n  });\n  \n  @override\n  Widget build(BuildContext context) {\n    return Align(\n      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,\n      child: Container(\n        margin: EdgeInsets.symmetric(vertical: 8),\n        padding: EdgeInsets.all(12),\n        decoration: BoxDecoration(\n          color: isUser ? Colors.blue : Colors.grey[200],\n          borderRadius: BorderRadius.circular(12),\n        ),\n        child: Text(\n          message,\n          style: TextStyle(\n            color: isUser ? Colors.white : Colors.black,\n          ),\n        ),\n      ),\n    );\n  }\n}```\n\nYou can expand on this basic example to add avatars, timestamps, and other features.',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  //   ChatMessage(
-  //     id: '8',
-  //     message: 'Perfect! I\'ll use this as a starting point and customize it for my needs.',
-  //     type: MessageType.user,
-  //   ),
-  //   ChatMessage(
-  //     id: '9',
-  //     message: 'Glad I could help! If you need any further assistance with your Flutter chat UI, feel free to ask. Good luck with your project!',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  //   ChatMessage(
-  //     id: '10',
-  //     message: 'One more question - what\'s the best way to handle scrolling in the chat list?',
-  //     type: MessageType.user,
-  //   ),
-  //   ChatMessage(
-  //     id: '11',
-  //     message: 'For handling scrolling in a chat list, you\'ll want to use a ListView.builder with a ScrollController. Here are some best practices:\n\n1. Auto-scroll to the bottom when new messages arrive\n2. Allow the user to scroll up to view history\n3. Show a "scroll to bottom" button when the user has scrolled up and new messages arrive\n\nHere\'s how you can implement auto-scrolling to the bottom:\n\n```dart\n// In your state class\nfinal ScrollController _scrollController = ScrollController();\n\n// After adding a new message\nvoid _scrollToBottom() {\n  WidgetsBinding.instance.addPostFrameCallback((_) {\n    if (_scrollController.hasClients) {\n      _scrollController.animateTo(\n        _scrollController.position.maxScrollExtent,\n        duration: Duration(milliseconds: 300),\n        curve: Curves.easeOut,\n      );\n    }\n  });\n}\n```\n\nCall `_scrollToBottom()` whenever a new message is added to the chat.',
-  //     type: MessageType.ai,
-  //     senderName: 'GPT-4o mini',
-  //     senderIcon: Icons.auto_awesome,
-  //   ),
-  // ];
   final List<ChatMessage> _messages = [];
 
   Future<void> getImportedKnowledge() async {
@@ -109,6 +41,72 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
           (response['data'] as List)
               .map((item) => KnowledgeModel.fromJson(item))
               .toList(),
+    );
+  }
+
+  Future<void> handleSendMessage() async {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+
+    ChatMessage botMessage(String id, String message) {
+      return ChatMessage(
+        id: id,
+        message: message,
+        type: MessageType.ai,
+        senderName: _botModel.assistantName,
+        senderIcon: Icons.smart_toy_outlined,
+      );
+    }
+
+    setState(() {
+      // Add user message
+      _messages.add(
+        ChatMessage(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          message: text,
+          type: MessageType.user,
+        ),
+      );
+
+      // Add temporary loading message
+      _messages.add(botMessage('loading', 'Typing...'));
+
+      // Scroll to bottom
+      WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _scrollToBottom(),
+      );
+
+      // Clear input
+      _messageController.clear();
+    });
+
+    String reply = '';
+
+    final api = getKBApiService(context);
+    final token = Provider.of<AuthProvider>(context, listen: false).user?.accessToken;
+    await api.askBotStream(
+      assistantId: _botModel.id,
+      message: text,
+      authToken: token ?? '',
+      onData: (data) {
+        reply += data['content'];
+      },
+      onDone: () {
+        setState(() {
+          _messages.removeWhere((msg) => msg.id == 'loading');
+          _messages.add(
+            botMessage(DateTime.now().millisecondsSinceEpoch.toString(), reply),
+          );
+        });
+      },
+      onError: (e) {
+        setState(() {
+          _messages.removeWhere((msg) => msg.id == 'loading');
+          _messages.add(
+            botMessage(DateTime.now().millisecondsSinceEpoch.toString(), 'Error: $e'),
+          );
+        });
+      },
     );
   }
 
@@ -132,6 +130,16 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
     }
   }
 
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   @override
   void dispose() {
     _messageController.dispose();
@@ -143,6 +151,13 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
     final BotModel? botModel = context.watch<BotProvider>().botModel;
     final List<KnowledgeModel> importedKnowledge =
         context.watch<BotProvider>().importedKnowledge;
+
+    setState(() {
+      if (botModel != null) {
+        _botModel = botModel;
+        _personaController.text = botModel.instructions!;
+      }
+    });
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -282,7 +297,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                 Row(
                   children: [
                     const Text(
-                      'Persona & Prompt',
+                      'Persona & Instructions',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -641,9 +656,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                       child: IconButton(
                         onPressed:
                             _isMessageHasText
-                                ? () {
-                                  // Handle send message
-                                }
+                                ? handleSendMessage
                                 : null,
                         padding: EdgeInsets.all(8.0),
                         constraints: BoxConstraints(),
