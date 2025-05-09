@@ -189,7 +189,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
       resizeToAvoidBottomInset: false,
       body: Column(
         children: [
-          Container(child: const SizedBox(height: 36)),
+          const SizedBox(height: 36),
 
           // Top Header
           Container(
@@ -316,7 +316,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
             ),
           ),
           Container(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0, top: 4.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -347,7 +347,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                           ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 TextField(
                   controller: _personaController,
                   decoration: InputDecoration(
@@ -507,23 +507,25 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
             ),
           ),
 
-          SizedBox(
-            width: double.infinity, // Make button full width
-            child: OutlinedButton.icon(
-              onPressed: () {
-                /// Handle adding knowledge source
-                Navigator.pushNamed(context, '/knowledge');
-              },
-              icon: Icon(Icons.add, color: Colors.purple.shade700),
-              label: const Text('Add knowledge source'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.purple.shade700,
-                side: BorderSide(color: Colors.purple.shade200),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
+          Container(
+            margin: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: double.infinity, // Make button full width
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/knowledge');
+                },
+                icon: Icon(Icons.add, color: Colors.purple.shade700),
+                label: const Text('Add knowledge source'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.purple.shade700,
+                  side: BorderSide(color: Colors.purple.shade200),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  alignment: Alignment.center,
                 ),
-                alignment: Alignment.center,
               ),
             ),
           ),
