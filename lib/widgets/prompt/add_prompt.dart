@@ -266,9 +266,9 @@ class _AddPrompt extends State<AddPrompt> {
                         end: Alignment.centerRight,
                       ),
                     ),
-                    child: const Text(
-                      'Create',
-                      style: TextStyle(color: Colors.white),
+                    child: Text(
+                      widget.name.isEmpty ? 'Create' : 'Save',
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ),

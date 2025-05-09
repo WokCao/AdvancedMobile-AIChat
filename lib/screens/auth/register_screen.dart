@@ -51,7 +51,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             padding: const EdgeInsets.all(24.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width > 1024 ? MediaQuery.of(context).size.width * 0.4 : MediaQuery.of(context).size.width,
+                maxWidth:
+                    MediaQuery.of(context).size.width > 1024
+                        ? MediaQuery.of(context).size.width * 0.4
+                        : MediaQuery.of(context).size.width,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -63,7 +66,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     subtitle: 'Sign up to get started',
                     icon: Icons.person_add_outlined,
                   ),
-
                   // Form
                   Form(
                     key: _formKey,
@@ -96,7 +98,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your email';
                             }
-                            if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                            if (!RegExp(
+                              r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$',
+                            ).hasMatch(value)) {
                               return 'Please enter a valid email';
                             }
                             return null;
@@ -112,7 +116,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           prefixIcon: Icons.lock_outline,
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
                             ),
                             onPressed: () {
                               setState(() {
@@ -141,11 +147,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           prefixIcon: Icons.lock_outline,
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
                             ),
                             onPressed: () {
                               setState(() {
-                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
                               });
                             },
                           ),
@@ -179,6 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: RichText(
                                 text: TextSpan(
                                   text: 'I agree to the ',
+                                  style: TextStyle(color: Colors.purple),
                                   children: const [
                                     TextSpan(
                                       text: 'Terms of Service',
@@ -204,10 +214,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 24),
 
                         // Register button
-                        AuthButton(
-                          text: 'Sign Up',
-                          onPressed: _submitForm,
-                        ),
+                        AuthButton(text: 'Sign Up', onPressed: _submitForm),
                       ],
                     ),
                   ),
