@@ -1,5 +1,7 @@
 import 'package:ai_chat/models/bot_model.dart';
 import 'package:ai_chat/providers/bot_provider.dart';
+import 'package:ai_chat/services/bot_integration_service.dart';
+import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -22,35 +24,144 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
   final TextEditingController clientIdController = TextEditingController();
   final TextEditingController clientSecretController = TextEditingController();
   final TextEditingController signingSecretController = TextEditingController();
+  bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
 
-  void handlePublish() {
+  void _clearAllControllers() {
+    botTokenController.clear();
+    pageIdController.clear();
+    appSecretController.clear();
+    clientIdController.clear();
+    clientSecretController.clear();
+    signingSecretController.clear();
+  }
+
+  Future<void> handlePublish() async {
     final botToken = botTokenController.text;
     final pageId = pageIdController.text;
     final appSecret = appSecretController.text;
     final clientId = clientIdController.text;
     final clientSecret = clientSecretController.text;
     final signingSecret = signingSecretController.text;
+    final BotModel? botModel = context.read<BotProvider>().botModel;
+
+    if (botModel == null) return;
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _isLoading = false);
+      return;
+    }
 
     switch (_selectedPlatform) {
       case PlatformOption.messenger:
-        // Handle Messenger publish
-        print(
-          'Publishing to Messenger: token=$botToken, pageId=$pageId, appSecret=$appSecret',
+        final botIntegrationService = Provider.of<BotIntegrationService>(
+          context,
+          listen: false,
         );
+        try {
+          await botIntegrationService.messengerPublish(
+            assistantId: botModel.id,
+            botToken: botToken,
+            pageId: pageId,
+            appSecret: appSecret,
+          );
+
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Bot has been published to Messenger successfully!',
+              ),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.of(context).pop();
+        } on KnowledgeException catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.message),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        } finally {
+          setState(() {
+            _isLoading = false;
+          });
+        }
         break;
+
       case PlatformOption.slack:
-        // Handle Slack publish
-        print(
-          'Publishing to Slack: token=$botToken, clientId=$clientId, clientSecret=$clientSecret, signingSecret=$signingSecret',
+        final botIntegrationService = Provider.of<BotIntegrationService>(
+          context,
+          listen: false,
         );
+        try {
+          await botIntegrationService.slackPublish(
+            assistantId: botModel.id,
+            botToken: botToken,
+            clientId: clientId,
+            clientSecret: clientSecret,
+            signingSecret: signingSecret,
+          );
+
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Bot has been published to Slack successfully!'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.of(context).pop();
+        } on KnowledgeException catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.message),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        } finally {
+          setState(() {
+            _isLoading = false;
+          });
+        }
         break;
+
       case PlatformOption.telegram:
-        // Handle Telegram publish
-        print('Publishing to Telegram: token=$botToken');
+        final botIntegrationService = Provider.of<BotIntegrationService>(
+          context,
+          listen: false,
+        );
+        try {
+          await botIntegrationService.telegramPublish(
+            assistantId: botModel.id,
+            botToken: botToken,
+          );
+
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Bot has been published to Telegram successfully!'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.of(context).pop();
+        } on KnowledgeException catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.message),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        } finally {
+          setState(() {
+            _isLoading = false;
+          });
+        }
         break;
     }
-
-    Navigator.of(context).pop();
   }
 
   Widget _buildPlatformForm() {
@@ -204,25 +315,51 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
               ],
             ),
             const SizedBox(height: 8),
-            label('Bot Token', isRequired: true),
-            const SizedBox(height: 8),
-            TextField(
-              controller: botTokenController,
-              decoration: inputDecoration,
-            ),
-            const SizedBox(height: 16),
-            label('Page ID', isRequired: true),
-            const SizedBox(height: 8),
-            TextField(
-              controller: pageIdController,
-              decoration: inputDecoration,
-            ),
-            const SizedBox(height: 16),
-            label('App Secret', isRequired: true),
-            const SizedBox(height: 8),
-            TextField(
-              controller: appSecretController,
-              decoration: inputDecoration,
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  label('Bot Token', isRequired: true),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: botTokenController,
+                    decoration: inputDecoration,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Field Bot Token is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  label('Page ID', isRequired: true),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: pageIdController,
+                    decoration: inputDecoration,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Field Page Id is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  label('App Secret', isRequired: true),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: appSecretController,
+                    decoration: inputDecoration,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Field App Secret is required';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -382,32 +519,60 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
               ],
             ),
             const SizedBox(height: 8),
-            label('Bot Token', isRequired: true),
-            const SizedBox(height: 8),
-            TextField(
-              controller: botTokenController,
-              decoration: inputDecoration,
-            ),
-            const SizedBox(height: 16),
-            label('Client ID', isRequired: true),
-            const SizedBox(height: 8),
-            TextField(
-              controller: clientIdController,
-              decoration: inputDecoration,
-            ),
-            const SizedBox(height: 16),
-            label('Client Secret', isRequired: true),
-            const SizedBox(height: 8),
-            TextField(
-              controller: clientSecretController,
-              decoration: inputDecoration,
-            ),
-            const SizedBox(height: 16),
-            label('Signing Secret', isRequired: true),
-            const SizedBox(height: 8),
-            TextField(
-              controller: signingSecretController,
-              decoration: inputDecoration,
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  label('Bot Token', isRequired: true),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: botTokenController,
+                    decoration: inputDecoration,
+                    validator:
+                        (value) =>
+                            value == null || value.trim().isEmpty
+                                ? 'Field Bot Token is required'
+                                : null,
+                  ),
+                  const SizedBox(height: 16),
+                  label('Client ID', isRequired: true),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: clientIdController,
+                    decoration: inputDecoration,
+                    validator:
+                        (value) =>
+                            value == null || value.trim().isEmpty
+                                ? 'Field Client ID is required'
+                                : null,
+                  ),
+                  const SizedBox(height: 16),
+                  label('Client Secret', isRequired: true),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: clientSecretController,
+                    decoration: inputDecoration,
+                    validator:
+                        (value) =>
+                            value == null || value.trim().isEmpty
+                                ? 'Field Client Secret is required'
+                                : null,
+                  ),
+                  const SizedBox(height: 16),
+                  label('Signing Secret', isRequired: true),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: signingSecretController,
+                    decoration: inputDecoration,
+                    validator:
+                        (value) =>
+                            value == null || value.trim().isEmpty
+                                ? 'Field Signing Secret is required'
+                                : null,
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -434,11 +599,24 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
               ],
             ),
             const SizedBox(height: 8),
-            label('Bot Token', isRequired: true),
-            const SizedBox(height: 8),
-            TextField(
-              controller: botTokenController,
-              decoration: inputDecoration,
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  label('Bot Token', isRequired: true),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: botTokenController,
+                    decoration: inputDecoration,
+                    validator:
+                        (value) =>
+                            value == null || value.trim().isEmpty
+                                ? 'Field Bot Token is required'
+                                : null,
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -483,22 +661,34 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
                     title: const Text('Messenger'),
                     value: PlatformOption.messenger,
                     groupValue: _selectedPlatform,
-                    onChanged:
-                        (value) => setState(() => _selectedPlatform = value!),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPlatform = value!;
+                        _clearAllControllers();
+                      });
+                    },
                   ),
                   RadioListTile<PlatformOption>(
                     title: const Text('Slack'),
                     value: PlatformOption.slack,
                     groupValue: _selectedPlatform,
-                    onChanged:
-                        (value) => setState(() => _selectedPlatform = value!),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPlatform = value!;
+                        _clearAllControllers();
+                      });
+                    },
                   ),
                   RadioListTile<PlatformOption>(
                     title: const Text('Telegram'),
                     value: PlatformOption.telegram,
                     groupValue: _selectedPlatform,
-                    onChanged:
-                        (value) => setState(() => _selectedPlatform = value!),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPlatform = value!;
+                        _clearAllControllers();
+                      });
+                    },
                   ),
                 ],
               ),
@@ -541,13 +731,23 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
                           ),
                           borderRadius: BorderRadius.circular(24),
                         ),
-                        child: Text(
-                          'Publish',
-                          style: const TextStyle(color: Colors.white),
-                        ),
+                        child:
+                            _isLoading
+                                ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                : Text(
+                                  'Publish',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ],

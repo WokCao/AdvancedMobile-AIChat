@@ -32,7 +32,7 @@ class AuthInterceptor extends Interceptor {
       if (refreshToken != null) {
         try {
           final refreshResponse = await _dio.post(
-            '/api/v1/auth/sessions/current/refresh',
+            'https://auth-api.dev.jarvis.cx/api/v1/auth/sessions/current/refresh',
             options: Options(
               headers: {
                 'X-Stack-Access-Type': 'client',
@@ -45,6 +45,7 @@ class AuthInterceptor extends Interceptor {
           );
 
           final newAccessToken = refreshResponse.data['access_token'];
+          print('get new access token through refresh token');
 
           await prefs.setString('accessToken', newAccessToken);
 
@@ -53,6 +54,7 @@ class AuthInterceptor extends Interceptor {
           final cloneReq = await _dio.fetch(opts);
           return handler.resolve(cloneReq);
         } catch (e) {
+          print('invalid refresh token');
           await prefs.remove('accessToken');
           await prefs.remove('refreshToken');
 

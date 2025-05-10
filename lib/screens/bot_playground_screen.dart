@@ -181,7 +181,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
     setState(() {
       if (botModel != null && !_fetchFirstTime) {
         _botModel = botModel;
-        _personaController.text = botModel.instructions!;
+        _personaController.text = botModel.instructions ?? '';
         _fetchFirstTime = true;
       }
     });

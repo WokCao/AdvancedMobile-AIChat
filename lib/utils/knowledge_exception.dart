@@ -5,5 +5,5 @@ class KnowledgeException implements Exception {
   KnowledgeException(this.message, {this.statusCode});
 
   @override
-  String toString() => 'AuthException: $message (status: $statusCode)';
+  String toString() => 'KnowledgeException: $message (status: $statusCode)';
 }
