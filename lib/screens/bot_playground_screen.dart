@@ -401,9 +401,12 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
               ],
             ),
           ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.2,
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: 400
+            ),
             child: ListView.builder(
+              shrinkWrap: true,
               padding: const EdgeInsets.only(
                 top: 16.0,
                 left: 16.0,
