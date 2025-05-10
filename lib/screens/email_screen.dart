@@ -1,5 +1,6 @@
 import 'package:ai_chat/utils/get_api_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/selector_menu/selector_item.dart';
 import '../widgets/selector_menu/selector_menu_helper.dart';
@@ -241,6 +242,18 @@ class _EmailScreenState extends State<EmailScreen> {
     return _modelData.firstWhere((m) => m['name'] == _selectedModel, orElse: () => _modelData[0]);
   }
 
+  void _copyMessage() {
+    Clipboard.setData(ClipboardData(text: _generatedResponse!));
+
+    // Show a SnackBar to confirm copy
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Response copied to clipboard'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   void _toggleSidebar() {
     setState(() {
       _isSidebarVisible = !_isSidebarVisible;
@@ -258,290 +271,377 @@ class _EmailScreenState extends State<EmailScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Sidebar button
-          Container(
-            padding: EdgeInsets.all(5.0),
-            child: IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: _toggleSidebar,
-              tooltip: 'Toggle sidebar',
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 56.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Email Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-
-                // Original email
-                TextField(
-                  controller: _emailController,
-                  maxLines: 8,
-                  decoration: const InputDecoration(
-                    labelText: 'Original Email Content (required)',
-                    border: OutlineInputBorder(),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 32.0, bottom: 32.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
                   ),
-                ),
-                const SizedBox(height: 12),
-
-                // Subject, Sender, Receiver
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _subjectController,
-                        decoration: const InputDecoration(
-                          labelText: 'Subject',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _senderController,
-                        decoration: const InputDecoration(
-                          labelText: 'Sender',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _receiverController,
-                        decoration: const InputDecoration(
-                          labelText: 'Receiver',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Main idea
-                TextField(
-                  controller: _mainIdeaController,
-                  decoration: const InputDecoration(
-                    labelText: 'Main Idea (required)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Suggest idea
-                Row(
-                  children: [
-                    Expanded(
-                      child: MouseRegion(
-                        onEnter: (_) => setState(() => _isSuggestFocused = true),
-                        onExit: (_) => setState(() => _isSuggestFocused = false),
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  _isSuggestFocused
-                                      ? Colors.pink.shade400
-                                      : Colors.pink.shade300,
-                                  _isSuggestFocused
-                                      ? Colors.purple.shade400
-                                      : Colors.purple.shade300,
-                                ], // Gradient colors
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: InkWell(
-                              onTap: _loadingIdeas ? null : _fetchMainIdeas,
-                              child:
-                              _loadingIdeas
-                                  ? const Center(
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                    ),
-                                  )
-                                  : Text('Suggest Reply Ideas', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
-                            )
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                const Text('Customization', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-
-                // Style options
-                Row(
-                  children: [
-                    _buildDropdown('Length', _length, [
-                      {'value': 'short', 'label': 'Short'},
-                      {'value': 'medium', 'label': 'Medium'},
-                      {'value': 'long', 'label': 'Long'}
-                    ], (value) => _length = value),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    _buildDropdown('Formality', _formality, [
-                      {'value': 'casual', 'label': '👍🏻 Casual'},
-                      {'value': 'neutral', 'label': '📄 Neutral'},
-                      {'value': 'formal', 'label': '💼 Formal'},
-                    ], (value) => _formality = value),
-                    const SizedBox(width: 8),
-                    _buildDropdown('Tone', _tone, [
-                      {'value': 'witty', 'label': '😜 Witty'},
-                      {'value': 'direct', 'label': '😳 Direct'},
-                      {'value': 'personable', 'label': '😋 Personable'},
-                      {'value': 'informational', 'label': '🤓 Informational'},
-                      {'value': 'friendly', 'label': '😀 Friendly'},
-                      {'value': 'confident', 'label': '😎 Confident'},
-                      {'value': 'sincere', 'label': '😔 Sincere'},
-                      {'value': 'enthusiastic', 'label': '🤩 Enthusiastic'},
-                      {'value': 'optimistic', 'label': '😇 Optimistic'},
-                      {'value': 'concerned', 'label': '😟 Concerned'},
-                      {'value': 'empathetic', 'label': '😢 Empathetic'},
-                    ], (value) => _tone = value),
-                  ]
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    _buildDropdown('Language', _language, [
-                      {'value': '', 'label': 'Auto'},
-                      {'value': 'Vietnamese', 'label': 'Vietnamese'},
-                      {'value': 'English', 'label': 'English'},
-                    ], (value) => _language = value),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Generate area
-                Row(
-                  // Model selector
-                  children: [
-                    MouseRegion(
-                      onEnter: (_) => setState(() => _isAISelectorFocused = true),
-                      onExit: (_) => setState(() => _isAISelectorFocused = false),
-                      child: Container(
-                        key: _modelSelectorKey,
-                        margin: const EdgeInsets.only(right: 8.0),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                          _isAISelectorFocused
-                              ? Colors.purple.shade100.withValues(alpha: 0.5)
-                              : Colors.purple.shade50,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: InkWell(
-                          onTap: _showModelSelector,
-                          hoverColor: Colors.transparent,
-                          borderRadius: BorderRadius.circular(24),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                _currentModel['icon'],
-                                size: 20,
-                                color: _currentModel['iconColor'],
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                _currentModel['name'],
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.expand_more, size: 20),
-                            ],
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Sidebar button
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 16.0),
+                          child: IconButton(
+                            icon: const Icon(Icons.menu),
+                            onPressed: _toggleSidebar,
+                            tooltip: 'Toggle sidebar',
+                            padding: EdgeInsets.zero,
+                            constraints: BoxConstraints(),
                           ),
                         ),
-                      ),
-                    ),
 
-                    // Generate button
-                    Expanded(
-                      child: MouseRegion(
-                        onEnter: (_) => setState(() => _isGenerateFocused = true),
-                        onExit: (_) => setState(() => _isGenerateFocused = false),
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  _isGenerateFocused
-                                      ? Colors.pink.shade400
-                                      : Colors.pink.shade300,
-                                  _isGenerateFocused
-                                      ? Colors.purple.shade400
-                                      : Colors.purple.shade300,
-                                ], // Gradient colors
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
+                        const Text('Email Details', style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 12),
+
+                        // Original email
+                        TextField(
+                          controller: _emailController,
+                          maxLines: 6,
+                          decoration: const InputDecoration(
+                            labelText: 'Original Email Content (required)',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Subject, Sender, Receiver
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _subjectController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Subject',
+                                  border: OutlineInputBorder(),
+                                ),
                               ),
-                              borderRadius: BorderRadius.circular(24),
                             ),
-                            child: InkWell(
-                              onTap: _loading ? null : _generateEmail,
-                              child:
-                                _loading
-                                  ? const Center(
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                    ),
-                                  )
-                                  : Text('Generate Email Response', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
-                            )
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextField(
+                                controller: _senderController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Sender',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextField(
+                                controller: _receiverController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Receiver',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
+                        const SizedBox(height: 12),
 
-                // Output
-                if (_generatedResponse != null)
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(8),
+                        // Main idea
+                        TextField(
+                          controller: _mainIdeaController,
+                          decoration: const InputDecoration(
+                            labelText: 'Main Idea (required)',
+                            border: OutlineInputBorder(),
+                          ),
                         ),
-                        child: Text(
-                          _generatedResponse!,
-                          style: const TextStyle(fontSize: 16),
+                        const SizedBox(height: 12),
+
+                        // Suggest idea
+                        Row(
+                          children: [
+                            Expanded(
+                              child: MouseRegion(
+                                onEnter: (_) =>
+                                    setState(() =>
+                                    _isSuggestFocused = true),
+                                onExit: (_) =>
+                                    setState(() =>
+                                    _isSuggestFocused = false),
+                                child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 18,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          _isSuggestFocused
+                                              ? Colors.pink.shade400
+                                              : Colors.pink.shade300,
+                                          _isSuggestFocused
+                                              ? Colors.purple.shade400
+                                              : Colors.purple.shade300,
+                                        ], // Gradient colors
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(
+                                          24),
+                                    ),
+                                    child: InkWell(
+                                      onTap: _loadingIdeas
+                                          ? null
+                                          : _fetchMainIdeas,
+                                      child:
+                                      _loadingIdeas
+                                          ? const Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white),
+                                        ),
+                                      )
+                                          : Text('Suggest Reply Ideas',
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                              color: Colors.white)),
+                                    )
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                        const SizedBox(height: 24),
+
+                        const Text('Customization', style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 12),
+
+                        // Style options
+                        Row(
+                          children: [
+                            _buildDropdown('Length', _length, [
+                              {'value': 'short', 'label': 'Short'},
+                              {'value': 'medium', 'label': 'Medium'},
+                              {'value': 'long', 'label': 'Long'}
+                            ], (value) => _length = value),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                            children: [
+                              _buildDropdown('Formality', _formality, [
+                                {'value': 'casual', 'label': '👍🏻 Casual'},
+                                {'value': 'neutral', 'label': '📄 Neutral'},
+                                {'value': 'formal', 'label': '💼 Formal'},
+                              ], (value) => _formality = value),
+                              const SizedBox(width: 8),
+                              _buildDropdown('Tone', _tone, [
+                                {'value': 'witty', 'label': '😜 Witty'},
+                                {'value': 'direct', 'label': '😳 Direct'},
+                                {
+                                  'value': 'personable',
+                                  'label': '😋 Personable'
+                                },
+                                {
+                                  'value': 'informational',
+                                  'label': '🤓 Informational'
+                                },
+                                {
+                                  'value': 'friendly',
+                                  'label': '😀 Friendly'
+                                },
+                                {
+                                  'value': 'confident',
+                                  'label': '😎 Confident'
+                                },
+                                {'value': 'sincere', 'label': '😔 Sincere'},
+                                {
+                                  'value': 'enthusiastic',
+                                  'label': '🤩 Enthusiastic'
+                                },
+                                {
+                                  'value': 'optimistic',
+                                  'label': '😇 Optimistic'
+                                },
+                                {
+                                  'value': 'concerned',
+                                  'label': '😟 Concerned'
+                                },
+                                {
+                                  'value': 'empathetic',
+                                  'label': '😢 Empathetic'
+                                },
+                              ], (value) => _tone = value),
+                            ]
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            _buildDropdown('Language', _language, [
+                              {'value': '', 'label': 'Auto'},
+                              {
+                                'value': 'Vietnamese',
+                                'label': 'Vietnamese'
+                              },
+                              {'value': 'English', 'label': 'English'},
+                            ], (value) => _language = value),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Generate area
+                        Row(
+                          // Model selector
+                          children: [
+                            // MouseRegion(
+                            //   onEnter: (_) => setState(() => _isAISelectorFocused = true),
+                            //   onExit: (_) => setState(() => _isAISelectorFocused = false),
+                            //   child: Container(
+                            //     key: _modelSelectorKey,
+                            //     margin: const EdgeInsets.only(right: 8.0),
+                            //     padding: const EdgeInsets.symmetric(
+                            //       horizontal: 12,
+                            //       vertical: 8,
+                            //     ),
+                            //     decoration: BoxDecoration(
+                            //       color:
+                            //       _isAISelectorFocused
+                            //           ? Colors.purple.shade100.withValues(alpha: 0.5)
+                            //           : Colors.purple.shade50,
+                            //       borderRadius: BorderRadius.circular(24),
+                            //     ),
+                            //     child: InkWell(
+                            //       onTap: _showModelSelector,
+                            //       hoverColor: Colors.transparent,
+                            //       borderRadius: BorderRadius.circular(24),
+                            //       child: Row(
+                            //         mainAxisSize: MainAxisSize.min,
+                            //         children: [
+                            //           Icon(
+                            //             _currentModel['icon'],
+                            //             size: 20,
+                            //             color: _currentModel['iconColor'],
+                            //           ),
+                            //           const SizedBox(width: 8),
+                            //           Text(
+                            //             _currentModel['name'],
+                            //             style: const TextStyle(
+                            //               fontSize: 14,
+                            //               fontWeight: FontWeight.w500,
+                            //             ),
+                            //           ),
+                            //           const SizedBox(width: 4),
+                            //           const Icon(Icons.expand_more, size: 20),
+                            //         ],
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+
+                            // Generate button
+                            Expanded(
+                              child: MouseRegion(
+                                onEnter: (_) =>
+                                    setState(() =>
+                                    _isGenerateFocused = true),
+                                onExit: (_) =>
+                                    setState(() =>
+                                    _isGenerateFocused = false),
+                                child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 18,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          _isGenerateFocused
+                                              ? Colors.pink.shade400
+                                              : Colors.pink.shade300,
+                                          _isGenerateFocused
+                                              ? Colors.purple.shade400
+                                              : Colors.purple.shade300,
+                                        ], // Gradient colors
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(
+                                          24),
+                                    ),
+                                    child: InkWell(
+                                      onTap: _loading
+                                          ? null
+                                          : _generateEmail,
+                                      child:
+                                      _loading
+                                          ? const Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white),
+                                        ),
+                                      )
+                                          : Text('Generate Email Response',
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                              color: Colors.white)),
+                                    )
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Output
+                        if (_generatedResponse != null)
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.purple.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  children: [
+                                    SelectableText(
+                                      _generatedResponse!,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: IconButton(
+                                          icon: const Icon(Icons.copy, size: 24),
+                                          onPressed: _copyMessage,
+                                          tooltip: 'Copy',
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(
+                                            minWidth: 24,
+                                            minHeight: 24,
+                                          ),
+                                          color: Colors.grey.shade500,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-              ],
-            ),
+                )
+              );
+            }
           ),
 
           // Floating sidebar

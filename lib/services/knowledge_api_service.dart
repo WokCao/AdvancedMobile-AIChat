@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:ai_chat/models/bot_model.dart';
 import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import '../main.dart';
 import '../utils/auth_interceptor.dart';
 
@@ -64,8 +66,6 @@ class KnowledgeApiService {
       final response = await _dio.get(
         '/kb-core/v1/ai-assistant/$assistantId/knowledges'
       );
-
-      print(response.data);
       return response.data;
     } on DioException catch (e) {
       throw Exception(e.response?.data['error'] ?? 'Cannot get bot with id: $assistantId');
@@ -129,24 +129,44 @@ class KnowledgeApiService {
     }
   }
 
-  Future<Map<String, dynamic>> askBot({
+  Future<void> askBotStream({
     required String assistantId,
     required String message,
-    required String openAiThreadId,
-    String additionalInstruction = "",
+    required String authToken,
+    required void Function(Map<String, dynamic>) onData,
+    void Function()? onDone,
+    void Function(Object)? onError,
   }) async {
+    final uri = Uri.parse('https://knowledge-api.dev.jarvis.cx/kb-core/v1/ai-assistant/$assistantId/ask');
+
+    final request = http.Request('POST', uri)
+      ..headers['Content-Type'] = 'application/json'
+      ..headers['Authorization'] = 'Bearer $authToken'
+      ..headers['Accept'] = 'text/event-stream'
+      ..body = jsonEncode({'message': message});
+
     try {
-      final response = await _dio.post(
-        '/kb-core/v1/ai-assistant/$assistantId/ask',
-        data: {
-          "message": message,
-          "openAiThreadId": openAiThreadId,
-          "additionalInstruction": additionalInstruction,
-        },
-      );
-      return response.data;
-    } on DioException catch (e) {
-      throw Exception('Bot ask failed: ${e.response?.data ?? e.message}');
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final stream = response.stream
+            .transform(utf8.decoder)
+            .transform(const LineSplitter());
+
+        await for (final line in stream) {
+          if (line.startsWith('data:')) {
+            final jsonStr = line.replaceFirst('data:', '').trim();
+            final data = json.decode(jsonStr);
+            onData(data);
+          }
+        }
+
+        onDone?.call();
+      } else {
+        throw Exception('Failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      onError?.call(e);
     }
   }
 }
