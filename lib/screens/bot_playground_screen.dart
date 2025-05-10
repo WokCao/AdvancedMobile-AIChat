@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/get_api_utils.dart';
+import '../widgets/bot/publish_bot_dialog.dart';
 import '../widgets/chat_message.dart';
 import '../widgets/knowledge/remove_knowledge.dart';
 
@@ -243,7 +244,10 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                 const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: () {
-                    // Handle publish bot
+                    showDialog(
+                      context: context,
+                      builder: (_) => const PublishBotDialog(),
+                    );
                   },
                   icon: const Icon(Icons.upload, size: 16, color: Colors.white),
                   label: const Text('Publish', style: TextStyle(fontSize: 12)),
@@ -347,7 +351,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.3,
+            height: MediaQuery.of(context).size.height * 0.2,
             child: ListView.builder(
               padding: const EdgeInsets.only(
                 top: 16.0,
@@ -476,6 +480,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 8,),
 
           // Chat Area
           Expanded(

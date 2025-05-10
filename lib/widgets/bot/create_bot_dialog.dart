@@ -42,9 +42,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: SingleChildScrollView(
         child: Container(
           width: 480,
@@ -86,9 +84,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                       children: [
                         const Text(
                           'Name',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -104,7 +100,8 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                     TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration(
-                        hintText: 'Enter a name for your bot (e.g \'Customer Support Bot\')',
+                        hintText:
+                            'Enter a name for your bot (e.g \'Customer Support Bot\')',
                         hintStyle: TextStyle(color: Colors.grey),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -128,9 +125,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                       children: [
                         const Text(
                           'Instructions',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -146,7 +141,8 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                     TextFormField(
                       controller: _instructionsController,
                       decoration: InputDecoration(
-                        hintText: 'Describe how your bot should behave and respond. Add guidelines or specific rules if needed. (e.g \'Always respond with a pirate accent\')',
+                        hintText:
+                            'Describe how your bot should behave and respond. Add guidelines or specific rules if needed. (e.g \'Always respond with a pirate accent\')',
                         hintStyle: TextStyle(color: Colors.grey),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -163,9 +159,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                         children: [
                           Text(
                             'Knowledge base',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.w500),
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -180,31 +174,28 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                       const SizedBox(height: 4),
                       Text(
                         'Enhance your bot\'s responses by adding custom knowledge.',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                       const SizedBox(height: 12),
                       SizedBox(
-                          width: double.infinity, // Make button full width
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              /// Handle adding knowledge source
-                              Navigator.pushNamed(context, '/source');
-                            },
-                            icon: Icon(Icons.add, color: Colors.purple.shade700),
-                            label: const Text('Add knowledge source'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.purple.shade700,
-                              side: BorderSide(color: Colors.purple.shade200),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              alignment: Alignment.center,
+                        width: double.infinity, // Make button full width
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            /// Handle adding knowledge source
+                            Navigator.pushNamed(context, '/source');
+                          },
+                          icon: Icon(Icons.add, color: Colors.purple.shade700),
+                          label: const Text('Add knowledge source'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.purple.shade700,
+                            side: BorderSide(color: Colors.purple.shade200),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
                             ),
-                          )
+                            alignment: Alignment.center,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 24),
                     ],
@@ -214,9 +205,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                       children: [
                         const Text(
                           'Description',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -232,7 +221,8 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                     TextFormField(
                       controller: _descriptionController,
                       decoration: InputDecoration(
-                        hintText: 'Enter a description for your bot (e.g \'A helpful customer support assistant\')',
+                        hintText:
+                            'Enter a description for your bot (e.g \'A helpful customer support assistant\')',
                         hintStyle: TextStyle(color: Colors.grey),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -259,68 +249,97 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                         ),
                         const SizedBox(width: 12),
                         MouseRegion(
-                          onEnter: (_) => setState(() => _isCreateFocused = true),
-                          onExit: (_) => setState(() => _isCreateFocused = false),
+                          onEnter:
+                              (_) => setState(() => _isCreateFocused = true),
+                          onExit:
+                              (_) => setState(() => _isCreateFocused = false),
                           child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 6,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  _isCreateFocused
+                                      ? Colors.pink.shade400
+                                      : Colors.pink.shade300,
+                                  _isCreateFocused
+                                      ? Colors.purple.shade400
+                                      : Colors.purple.shade300,
+                                ], // Gradient colors
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
                               ),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    _isCreateFocused
-                                        ? Colors.pink.shade400
-                                        : Colors.pink.shade300,
-                                    _isCreateFocused
-                                        ? Colors.purple.shade400
-                                        : Colors.purple.shade300,
-                                  ], // Gradient colors
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                ),
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              child: InkWell(
-                                onTap: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    setState(() => _loading = true);
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: InkWell(
+                              onTap: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() => _loading = true);
 
-                                    final api = getKBApiService(context);
-                                    final success = widget.isEditing
-                                        ? await api.updateBot(
-                                      id: widget.botId!,
-                                      assistantName: _nameController.text.trim(),
-                                      instructions: _instructionsController.text.trim(),
-                                      description: _descriptionController.text.trim(),
-                                    )
-                                        : await api.createBot(
-                                      assistantName: _nameController.text.trim(),
-                                      instructions: _instructionsController.text.trim(),
-                                      description: _descriptionController.text.trim(),
+                                  final api = getKBApiService(context);
+                                  final success =
+                                      widget.isEditing
+                                          ? await api.updateBot(
+                                            id: widget.botId!,
+                                            assistantName:
+                                                _nameController.text.trim(),
+                                            instructions:
+                                                _instructionsController.text
+                                                    .trim(),
+                                            description:
+                                                _descriptionController.text
+                                                    .trim(),
+                                          )
+                                          : await api.createBot(
+                                            assistantName:
+                                                _nameController.text.trim(),
+                                            instructions:
+                                                _instructionsController.text
+                                                    .trim(),
+                                            description:
+                                                _descriptionController.text
+                                                    .trim(),
+                                          );
+
+                                  if (success) {
+                                    Navigator.of(context).pop(true);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Bot ${widget.isEditing ? "saved" : "created"} successfully",
+                                        ),
+                                      ),
                                     );
-
-                                    if (success) {
-                                      Navigator.of(context).pop(true);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text("Bot ${widget.isEditing ? "saved" : "created"} successfully")),
-                                      );
-                                    } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text("Failed to ${widget.isEditing ? "save" : "create"} bot")),
-                                      );
-                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Failed to ${widget.isEditing ? "save" : "create"} bot",
+                                        ),
+                                      ),
+                                    );
                                   }
-                                },
-                                child:
-                                _loading
-                                    ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                )
-                                    : Text(widget.isEditing ? 'Save' : 'Create', style: const TextStyle(color: Colors.white)),
-                              )
+                                }
+                              },
+                              child:
+                                  _loading
+                                      ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                      : Text(
+                                        widget.isEditing ? 'Save' : 'Create',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                            ),
                           ),
                         ),
                       ],
@@ -331,7 +350,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
             ],
           ),
         ),
-      )
+      ),
     );
   }
 }
