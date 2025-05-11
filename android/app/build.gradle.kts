@@ -31,6 +31,19 @@ android {
         versionName = flutter.versionName
     }
 
+    flavorDimensions "default"
+    productFlavors {
+        dev {
+            dimension "default"
+            applicationIdSuffix ".dev"
+            resValue "string", "chat_gem", "ChatGEM Dev"
+        }
+        prod {
+            dimension "default"
+            resValue "string", "chat_gem", "ChatGEM"
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

@@ -10,12 +10,18 @@ import 'package:ai_chat/services/knowledge_base_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'flavor_config.dart';
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  const flavorString = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
+  FlavorConfig.appFlavor = flavorString == 'prod' ? Flavor.prod : Flavor.dev;
+
   runApp(
     MultiProvider(
       providers: [
