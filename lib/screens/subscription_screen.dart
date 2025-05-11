@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../widgets/ads/banner_ad_widget.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/subscription/account_section.dart';
 import '../widgets/subscription/plan_section.dart';
@@ -109,7 +110,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             onClose: _closeSidebar,
           ),
         ],
-      )
+      ),
+      bottomNavigationBar: BannerAdWidget(),
     );
   }
 }

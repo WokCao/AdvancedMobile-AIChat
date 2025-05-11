@@ -8,14 +8,21 @@ import 'package:ai_chat/services/bot_integration_service.dart';
 import 'package:ai_chat/services/data_source_service.dart';
 import 'package:ai_chat/services/knowledge_base_service.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await MobileAds.instance.initialize();
+  MobileAds.instance.updateRequestConfiguration(
+    RequestConfiguration(
+      testDeviceIds: ['36DD0BC0864B33507315B75FD1AF276F'], // Replace with your actual test device ID
+    ),
+  );
   runApp(
     MultiProvider(
       providers: [

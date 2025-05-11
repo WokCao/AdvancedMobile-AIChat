@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../models/knowledge_model.dart';
 import '../../providers/knowledge_provider.dart';
 import '../../services/data_source_service.dart';
+import '../../widgets/ads/banner_ad_widget.dart';
 
 class SlackScreen extends StatefulWidget {
   const SlackScreen({super.key});
@@ -269,6 +270,7 @@ class _SlackScreenState extends State<SlackScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: BannerAdWidget(),
     );
   }
 }

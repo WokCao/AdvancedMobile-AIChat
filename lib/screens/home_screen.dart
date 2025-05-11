@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ai_chat/providers/subscription_provider.dart';
+import 'package:ai_chat/widgets/ads/banner_ad_widget.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -1078,6 +1079,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
+              BannerAdWidget()
             ],
           ),
 

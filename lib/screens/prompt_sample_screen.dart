@@ -7,6 +7,7 @@ import 'package:ai_chat/widgets/prompt/segmented_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../utils/get_api_utils.dart';
+import '../widgets/ads/banner_ad_widget.dart';
 import '../widgets/prompt/personal_prompt_item.dart';
 
 class PromptSampleScreen extends StatefulWidget {
@@ -529,6 +530,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: BannerAdWidget(),
     );
   }
 }

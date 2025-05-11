@@ -10,6 +10,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/knowledge_provider.dart';
+import '../../widgets/ads/banner_ad_widget.dart';
 import '../../widgets/knowledge/file_item.dart';
 
 class LocalFileScreen extends StatefulWidget {
@@ -340,6 +341,7 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: BannerAdWidget(),
     );
   }
 }

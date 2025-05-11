@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_chat/models/bot_model.dart';
+import 'package:ai_chat/widgets/ads/banner_ad_widget.dart';
 import 'package:ai_chat/widgets/bot/single_bot.dart';
 import 'package:ai_chat/widgets/bot/type_drop_down.dart';
 import 'package:flutter/material.dart';
@@ -177,6 +178,7 @@ class _BotListState extends State<BotList> {
                         },
                       ),
           ),
+          BannerAdWidget()
         ],
       ),
     );

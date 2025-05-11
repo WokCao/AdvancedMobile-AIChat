@@ -1,6 +1,7 @@
 import 'package:ai_chat/utils/get_api_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../widgets/ads/banner_ad_widget.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/selector_menu/selector_item.dart';
 import '../widgets/selector_menu/selector_menu_helper.dart';
@@ -655,6 +656,7 @@ class _EmailScreenState extends State<EmailScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: BannerAdWidget(),
     );
   }
 

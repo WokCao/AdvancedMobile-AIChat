@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../models/knowledge_model.dart';
 import '../../providers/knowledge_provider.dart';
 import '../../services/data_source_service.dart';
+import '../../widgets/ads/banner_ad_widget.dart';
 
 class WebsiteScreen extends StatefulWidget {
   const WebsiteScreen({super.key});
@@ -263,6 +264,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: BannerAdWidget(),
     );
   }
 }
