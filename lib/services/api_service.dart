@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../flavor_config.dart';
 import '../main.dart';
 import '../utils/auth_interceptor.dart';
 
@@ -8,7 +9,7 @@ class ApiService {
   ApiService({required String authToken})
     : _dio = Dio(
         BaseOptions(
-          baseUrl: 'https://api.dev.jarvis.cx',
+          baseUrl: 'https://api${FlavorConfig.baseUrl}.jarvis.cx',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $authToken',

@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../flavor_config.dart';
+
 class AuthInterceptor extends Interceptor {
   final Dio _dio;
   final GlobalKey<NavigatorState> navigatorKey;
@@ -32,7 +34,7 @@ class AuthInterceptor extends Interceptor {
       if (refreshToken != null) {
         try {
           final refreshResponse = await _dio.post(
-            'https://auth-api.dev.jarvis.cx/api/v1/auth/sessions/current/refresh',
+            'https://auth-api${FlavorConfig.baseUrl}.jarvis.cx/api/v1/auth/sessions/current/refresh',
             options: Options(
               headers: {
                 'X-Stack-Access-Type': 'client',

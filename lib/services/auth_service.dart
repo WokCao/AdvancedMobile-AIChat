@@ -1,12 +1,13 @@
 import 'package:ai_chat/utils/auth_interceptor.dart';
 import 'package:dio/dio.dart';
 
+import '../flavor_config.dart';
 import '../main.dart';
 import '../utils/auth_exception.dart';
 
 class AuthService {
-  final Dio _dioAuthApi = Dio(BaseOptions(baseUrl: "https://auth-api.dev.jarvis.cx"));
-  final Dio _dioApi = Dio(BaseOptions(baseUrl: "https://api.dev.jarvis.cx"));
+  final Dio _dioAuthApi = Dio(BaseOptions(baseUrl: "https://auth-api${FlavorConfig.baseUrl}.jarvis.cx"));
+  final Dio _dioApi = Dio(BaseOptions(baseUrl: "https://api${FlavorConfig.baseUrl}.jarvis.cx"));
 
   AuthService() {
     _dioAuthApi.interceptors.add(AuthInterceptor(_dioAuthApi, navigatorKey));
@@ -21,7 +22,7 @@ class AuthService {
           "email": email,
           "password": password,
           "verification_callback_url":
-              "https://auth.dev.jarvis.cx/handler/email-verification?after_auth_return_to=%2Fauth%2Fsignin%3Fclient_id%3Djarvis_chat%26redirect%3Dhttps%253A%252F%252Fchat.dev.jarvis.cx%252Fauth%252Foauth%252Fsuccess",
+              "https://auth${FlavorConfig.baseUrl}.jarvis.cx/handler/email-verification?after_auth_return_to=%2Fauth%2Fsignin%3Fclient_id%3Djarvis_chat%26redirect%3Dhttps%253A%252F%252Fchat${FlavorConfig.baseUrl}.jarvis.cx%252Fauth%252Foauth%252Fsuccess",
         },
         options: Options(headers: headers),
       );

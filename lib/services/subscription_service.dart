@@ -2,11 +2,12 @@ import 'package:ai_chat/utils/auth_interceptor.dart';
 import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:dio/dio.dart';
 
+import '../flavor_config.dart';
 import '../main.dart';
 
 class SubscriptionService {
   final Dio _dioSubscription = Dio(
-    BaseOptions(baseUrl: "https://api.dev.jarvis.cx"),
+    BaseOptions(baseUrl: "https://api${FlavorConfig.baseUrl}.jarvis.cx"),
   );
 
   SubscriptionService() {

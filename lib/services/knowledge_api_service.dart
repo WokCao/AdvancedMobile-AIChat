@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:ai_chat/models/bot_model.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+import '../flavor_config.dart';
 import '../main.dart';
 import '../utils/auth_interceptor.dart';
 
@@ -11,7 +12,7 @@ class KnowledgeApiService {
   KnowledgeApiService({required String authToken})
       : _dio = Dio(
       BaseOptions(
-        baseUrl: 'https://knowledge-api.dev.jarvis.cx',
+        baseUrl: 'https://knowledge-api${FlavorConfig.baseUrl}.jarvis.cx',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $authToken',
@@ -137,7 +138,7 @@ class KnowledgeApiService {
     void Function()? onDone,
     void Function(Object)? onError,
   }) async {
-    final uri = Uri.parse('https://knowledge-api.dev.jarvis.cx/kb-core/v1/ai-assistant/$assistantId/ask');
+    final uri = Uri.parse('https://knowledge-api${FlavorConfig.baseUrl}.jarvis.cx/kb-core/v1/ai-assistant/$assistantId/ask');
 
     final request = http.Request('POST', uri)
       ..headers['Content-Type'] = 'application/json'

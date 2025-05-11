@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 
+import 'flavor_config.dart';
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
@@ -23,6 +25,10 @@ Future<void> main() async {
       testDeviceIds: ['36DD0BC0864B33507315B75FD1AF276F'], // Replace with your actual test device ID
     ),
   );
+
+  const flavorString = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
+  FlavorConfig.appFlavor = flavorString == 'prod' ? Flavor.prod : Flavor.dev;
+
   runApp(
     MultiProvider(
       providers: [
