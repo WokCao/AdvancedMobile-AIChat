@@ -169,7 +169,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
                           child: Row(
                             children: [
                               Image.network(
-                                'https://www.gstatic.com/adsense/images/AdMobLogo.svg',
+                                '',
                                 height: 30,
                                 errorBuilder:
                                     (context, error, stackTrace) => const Icon(
@@ -230,25 +230,25 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
         ),
 
         // Spacing
-        // const SizedBox(height: 16),
-        //
-        // // Interstitial Button
-        // ElevatedButton.icon(
-        //   onPressed: _showInterstitialAd,
-        //   style: ElevatedButton.styleFrom(
-        //     backgroundColor: Colors.blue[600],
-        //     foregroundColor: Colors.white,
-        //     shape: RoundedRectangleBorder(
-        //       borderRadius: BorderRadius.circular(8),
-        //     ),
-        //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        //   ),
-        //   icon: const Icon(Icons.ad_units, size: 18),
-        //   label: const Text(
-        //     "Show Full-Screen Ad",
-        //     style: TextStyle(fontWeight: FontWeight.bold),
-        //   ),
-        // ),
+        const SizedBox(height: 16),
+
+        // Interstitial Button
+        ElevatedButton.icon(
+          onPressed: () => _showInterstitialAd(),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue[600],
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+          icon: const Icon(Icons.ad_units, size: 18),
+          label: const Text(
+            "Show Full-Screen Ads",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
       ],
     );
   }

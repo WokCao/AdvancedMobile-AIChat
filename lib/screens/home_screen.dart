@@ -389,9 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _messages.add(botMessage(loadingMessageId, 'Typing...'));
 
         // Scroll to bottom
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) => _scrollToBottom(),
-        );
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
         // Clear input
         _textController.clear();
@@ -679,32 +677,32 @@ class _HomeScreenState extends State<HomeScreen> {
               // Chat messages
               Expanded(
                 child:
-                    _loadingConversation
-                        ? Center(
-                          child: SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
-                        : _messages.isEmpty
-                        ? Welcome()
-                        : ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.only(top: 16, bottom: 16),
-                          itemCount: _messages.length,
-                          itemBuilder: (context, index) {
-                            final message = _messages[index];
-                            // Adds a gap below each item
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: ChatMessageWidget(
-                                message: message,
-                                onEditMessage: _handleEditMessage,
-                              ),
-                            );
-                          },
-                        ),
+                _loadingConversation
+                    ? Center(
+                  child: SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+                    : _messages.isEmpty
+                    ? Welcome()
+                    : ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.only(top: 16, bottom: 16),
+                  itemCount: _messages.length,
+                  itemBuilder: (context, index) {
+                    final message = _messages[index];
+                    // Adds a gap below each item
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: ChatMessageWidget(
+                        message: message,
+                        onEditMessage: _handleEditMessage,
+                      ),
+                    );
+                  },
+                ),
               ),
 
               // Above input
@@ -712,8 +710,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   // AI model selector
                   MouseRegion(
-                    onEnter: (_) => setState(() => _isAISelectorFocused = true),
-                    onExit: (_) => setState(() => _isAISelectorFocused = false),
+                    onEnter:
+                        (_) => setState(() => _isAISelectorFocused = true),
+                    onExit:
+                        (_) => setState(() => _isAISelectorFocused = false),
                     child: Container(
                       key: _modelSelectorKey,
                       margin: const EdgeInsets.only(left: 16.0),
@@ -723,9 +723,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       decoration: BoxDecoration(
                         color:
-                            _isAISelectorFocused
-                                ? Colors.purple.shade100.withValues(alpha: 0.5)
-                                : Colors.purple.shade50,
+                        _isAISelectorFocused
+                            ? Colors.purple.shade100.withValues(
+                          alpha: 0.5,
+                        )
+                            : Colors.purple.shade50,
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: InkWell(
@@ -751,12 +753,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(width: 4),
                             _fetchingBots
                                 ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
                                 : const Icon(Icons.expand_more, size: 20),
                           ],
                         ),
@@ -765,8 +767,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   // Create bot button
                   MouseRegion(
-                    onEnter: (_) => setState(() => _isBotCreateFocused = true),
-                    onExit: (_) => setState(() => _isBotCreateFocused = false),
+                    onEnter:
+                        (_) => setState(() => _isBotCreateFocused = true),
+                    onExit:
+                        (_) => setState(() => _isBotCreateFocused = false),
                     child: Container(
                       margin: const EdgeInsets.only(left: 16.0),
                       padding: const EdgeInsets.symmetric(
@@ -802,7 +806,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.smart_toy_outlined, color: Colors.white),
+                            Icon(
+                              Icons.smart_toy_outlined,
+                              color: Colors.white,
+                            ),
                             const SizedBox(width: 4),
                             Icon(Icons.add, color: Colors.white),
                           ],
@@ -820,12 +827,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       final result = await Navigator.pushNamed(
                         context,
                         "/history",
-                        arguments: {'lastConversationId': _lastConversationId},
+                        arguments: {
+                          'lastConversationId': _lastConversationId,
+                        },
                       );
                       if (result != null && result is Map) {
                         final messages = result['messages'];
                         final conversationId =
-                            result['conversationId'] as String;
+                        result['conversationId'] as String;
 
                         final parsed = parseConversationHistory(messages);
 
@@ -835,7 +844,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
 
                         WidgetsBinding.instance.addPostFrameCallback(
-                          (_) => _scrollToBottom(),
+                              (_) => _scrollToBottom(),
                         );
                       }
                     },
@@ -886,9 +895,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   decoration: BoxDecoration(
                     color:
-                        _isInputFocused
-                            ? Colors.transparent
-                            : Colors.purple.shade50,
+                    _isInputFocused
+                        ? Colors.transparent
+                        : Colors.purple.shade50,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.02),
@@ -898,7 +907,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                     border: Border.all(
                       color:
-                          _isInputFocused ? Colors.purple : Colors.transparent,
+                      _isInputFocused
+                          ? Colors.purple
+                          : Colors.transparent,
                     ),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
@@ -913,7 +924,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 controller: _textController,
                                 decoration: InputDecoration(
                                   hintText:
-                                      'Ask me anything, press \'/\' for prompts...',
+                                  'Ask me anything, press \'/\' for prompts...',
                                   hintStyle: TextStyle(color: Colors.grey),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(24),
@@ -927,7 +938,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 maxLines: 5,
                                 minLines: 2,
                                 textCapitalization:
-                                    TextCapitalization.sentences,
+                                TextCapitalization.sentences,
                                 onSubmitted: (_) => _handleSendMessage(),
                               ),
                             ),
@@ -940,7 +951,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: FilePreviewList(
                               files: _selectedFiles,
                               onRemove: (index) {
-                                setState(() => _selectedFiles.removeAt(index));
+                                setState(
+                                      () => _selectedFiles.removeAt(index),
+                                );
                               },
                             ),
                           ),
@@ -973,26 +986,28 @@ class _HomeScreenState extends State<HomeScreen> {
                               const Spacer(),
                               _uploadingFile
                                   ? Padding(
-                                    padding: const EdgeInsets.only(right: 16.0),
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.purple,
-                                      ),
-                                    ),
-                                  )
-                                  : IconButton(
-                                    icon: const Icon(Icons.send),
-                                    iconSize: 20,
+                                padding: const EdgeInsets.only(
+                                  right: 16.0,
+                                ),
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
                                     color: Colors.purple,
-                                    onPressed:
-                                        _isInputHasText
-                                            ? _handleSendMessage
-                                            : null,
-                                    tooltip: 'Send message',
                                   ),
+                                ),
+                              )
+                                  : IconButton(
+                                icon: const Icon(Icons.send),
+                                iconSize: 20,
+                                color: Colors.purple,
+                                onPressed:
+                                _isInputHasText
+                                    ? _handleSendMessage
+                                    : null,
+                                tooltip: 'Send message',
+                              ),
                             ],
                           ),
                         ),
@@ -1004,7 +1019,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Below input
               Container(
-                padding: EdgeInsets.only(bottom: 16.0, left: 16.0, right: 16.0),
+                padding: EdgeInsets.only(
+                  bottom: 16.0,
+                  left: 16.0,
+                  right: 16.0,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1021,31 +1040,31 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Row(
                         children:
-                            _remainingTokens == -1
-                                ? [
-                                  SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                ]
-                                : [
-                                  Icon(
-                                    Icons.diamond,
-                                    color: Colors.purple,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    "$_remainingTokens",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                        _remainingTokens == -1
+                            ? [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ]
+                            : [
+                          Icon(
+                            Icons.diamond,
+                            color: Colors.purple,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            "$_remainingTokens",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
 
@@ -1079,7 +1098,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              BannerAdWidget()
+              BannerAdWidget(),
             ],
           ),
 
