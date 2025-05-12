@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/knowledge_provider.dart';
 import '../../widgets/ads/banner_ad_widget.dart';
@@ -189,13 +190,26 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
                       child: Tooltip(
                         message: 'How to connect to local file',
                         child: GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             /// Move to instruction page
+                            final Uri url = Uri.parse(
+                              'https://jarvis.cx/help/knowledge-base/connectors/file',
+                            );
+
+                            if (!await launchUrl(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            )) {
+                              throw Exception('Could not launch $url');
+                            }
                           },
                           child: Container(
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey, width: 0.5),
+                              border: Border.all(
+                                color: Colors.grey,
+                                width: 0.5,
+                              ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: FaIcon(
@@ -317,25 +331,25 @@ class _LocalFileScreenState extends State<LocalFileScreen> {
                         ),
                       ),
                       child:
-                      _isLoading
-                          ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                          strokeWidth: 2,
-                        ),
-                      )
-                          : Text(
-                        'Connect',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                          _isLoading
+                              ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                  strokeWidth: 2,
+                                ),
+                              )
+                              : Text(
+                                'Connect',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                     ),
                   ),
                 ),
