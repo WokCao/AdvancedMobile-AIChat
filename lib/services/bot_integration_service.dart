@@ -14,7 +14,7 @@ class BotIntegrationService {
     _dioKnowledgeApi.interceptors.add(AuthInterceptor(_dioKnowledgeApi, navigatorKey));
   }
 
-  Future<Map<String, dynamic>> messengerVerify({required String botToken, required String pageId, required String appSecret}) async {
+  Future<dynamic> messengerVerify({required String botToken, required String pageId, required String appSecret}) async {
     try {
       final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/bot-integration/messenger/validation",
@@ -36,7 +36,7 @@ class BotIntegrationService {
   Future<dynamic> messengerPublish({required String assistantId, required String botToken, required String pageId, required String appSecret}) async {
     try {
       await messengerVerify(botToken: botToken, pageId: pageId, appSecret: appSecret);
-      final response = await _dioKnowledgeApi.patch(
+      final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/bot-integration/messenger/publish/$assistantId",
         data: {
           "botToken": botToken,
