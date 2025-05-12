@@ -21,7 +21,7 @@ class _WelcomeState extends State<Welcome> {
     final apiService = getApiService(context);
     final data = await apiService.getPublicPrompts(
       offset: 0,
-      limit: 5
+      limit: 3
     );
 
     if (!mounted) return;
@@ -125,9 +125,9 @@ class _WelcomeState extends State<Welcome> {
               ),
             ),
 
-            const Spacer(),
+            const SizedBox(height: 24),
 
-          // Prompts Section
+            // Prompts Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -140,7 +140,6 @@ class _WelcomeState extends State<Welcome> {
                 ),
                 TextButton(
                   onPressed: () {
-                    /// Handle view all prompts
                     Navigator.pushNamed(context, '/prompts');
                   },
                   style: TextButton.styleFrom(
@@ -150,25 +149,28 @@ class _WelcomeState extends State<Welcome> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
             SizedBox(
-              height: 90,
-              child: ListView(
-                children: _suggestedPrompts.map((PromptModel prompt) => _buildSectionWithArrow(
-                  title: prompt.title,
-                  onTap: () {
-                    context.read<PromptProvider>().setSelectedPromptModel(promptModel: prompt);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomeScreen(),
-                      ),
-                    );
-                  },
-                  compact: true,
-                )).toList(),
+              height: 130,
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                itemCount: _suggestedPrompts.length,
+                itemBuilder: (context, index) {
+                  final prompt = _suggestedPrompts[index];
+                  return _buildSectionWithArrow(
+                    title: prompt.title,
+                    onTap: () {
+                      context.read<PromptProvider>().setSelectedPromptModel(promptModel: prompt);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                      );
+                    },
+                    compact: true,
+                  );
+                },
               ),
-            )
+            ),
           ],
         ),
       ),

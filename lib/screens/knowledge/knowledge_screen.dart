@@ -314,97 +314,95 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
             ],
           ),
           SizedBox(height: 16),
-          Expanded(
-            child: FutureBuilder<List<KnowledgeModel>>(
-              future: _dataFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
+          FutureBuilder<List<KnowledgeModel>>(
+            future: _dataFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
 
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          'binoculars.png',
-                          width: 128,
-                          height: 128,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "No knowledge found",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: MediaQuery.of(context).size.width,
-                  ),
-                  child: PaginatedDataTable(
-                    onPageChanged: (int rowIndex) {
-                      _fetchMoreData(rowIndex);
-                    },
-                    columnSpacing: 0,
-                    showFirstLastButtons: true,
-                    showCheckboxColumn: false,
-                    columns: [
-                      if(context.read<BotProvider>().botModel != null)
-                        DataColumn(label: Text(
-                          "Status",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )),
-                      DataColumn(
-                        label: Text(
-                          "Knowledge",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        'assets/binoculars.png',
+                        width: 128,
+                        height: 128,
                       ),
-                      DataColumn(
-                        label: Text(
-                          "Units",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          "Size",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          "Edit time",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          "Action",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                      const SizedBox(height: 16),
+                      Text(
+                        "No knowledge found",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 16,
                         ),
                       ),
                     ],
-                    source: MyDataWithActions(context, _data, total, _handleDeleteKnowledge),
-                    rowsPerPage: 7,
-                    dividerThickness: 0.2,
                   ),
                 );
-              },
-            ),
+              }
+
+              return ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: MediaQuery.of(context).size.width,
+                ),
+                child: PaginatedDataTable(
+                  onPageChanged: (int rowIndex) {
+                    _fetchMoreData(rowIndex);
+                  },
+                  columnSpacing: 0,
+                  showFirstLastButtons: true,
+                  showCheckboxColumn: false,
+                  columns: [
+                    if(context.read<BotProvider>().botModel != null)
+                      DataColumn(label: Text(
+                        "Status",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )),
+                    DataColumn(
+                      label: Text(
+                        "Knowledge",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        "Units",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        "Size",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        "Edit time",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        "Action",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                  source: MyDataWithActions(context, _data, total, _handleDeleteKnowledge),
+                  rowsPerPage: 7,
+                  dividerThickness: 0.2,
+                ),
+              );
+            },
           ),
           BannerAdWidget()
         ],

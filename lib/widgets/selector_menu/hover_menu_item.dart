@@ -20,51 +20,58 @@ class HoverMenuItem<T> extends StatefulWidget {
 
 class HoverMenuItemState<T> extends State<HoverMenuItem<T>> {
   bool _isHovering = false;
+  bool _isHolding = false;
+
+  bool get _shouldShowSubtitle => _isHovering || _isHolding;
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovering = true),
-      onExit: (_) => setState(() => _isHovering = false),
-      child: InkWell(
-        onTap: widget.onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color:
-            widget.isSelected ? Colors.blue.withValues(alpha: 0.1) : null,
-          ),
-          child: Row(
-            children: [
-              if (widget.item.leading != null) ...[
-                widget.item.leading!,
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.item.title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onLongPressStart: (_) => setState(() => _isHolding = true),
+      onLongPressEnd: (_) => setState(() => _isHolding = false),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovering = true),
+        onExit: (_) => setState(() => _isHovering = false),
+        child: InkWell(
+          onTap: widget.onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color:
+              widget.isSelected ? Colors.blue.withValues(alpha: 0.1) : null,
+            ),
+            child: Row(
+              children: [
+                if (widget.item.leading != null) ...[
+                  widget.item.leading!,
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.item.title,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    // Only show subtitle and trailing when hovering
-                    AnimatedCrossFade(
-                      firstChild: const SizedBox(height: 0),
-                      secondChild: _buildSubtitleAndTrailing(),
-                      crossFadeState:
-                      _isHovering
-                          ? CrossFadeState.showSecond
-                          : CrossFadeState.showFirst,
-                      duration: const Duration(milliseconds: 200),
-                    ),
-                  ],
+                      // Only show subtitle and trailing when hovering
+                      AnimatedCrossFade(
+                        firstChild: const SizedBox(height: 0),
+                        secondChild: _buildSubtitleAndTrailing(),
+                        crossFadeState:
+                        _shouldShowSubtitle
+                            ? CrossFadeState.showSecond
+                            : CrossFadeState.showFirst,
+                        duration: const Duration(milliseconds: 200),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

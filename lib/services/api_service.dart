@@ -291,7 +291,6 @@ class ApiService {
         return false;
       }
     } on DioException catch (e) {
-      print(e);
       return false;
     }
   }

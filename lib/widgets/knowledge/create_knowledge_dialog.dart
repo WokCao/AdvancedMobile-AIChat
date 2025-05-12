@@ -70,66 +70,16 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      contentPadding: const EdgeInsets.all(12),
-                    ),
-                    maxLines: 4,
-                  ),
-                  SizedBox(height: 16,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                        child: const Text('Cancel'),
-                      ),
-                      const SizedBox(width: 12),
-                      MouseRegion(
-                        onEnter: (_) => setState(() => _isCreateFocused = true),
-                        onExit: (_) => setState(() => _isCreateFocused = false),
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  _isCreateFocused
-                                      ? Colors.pink.shade400
-                                      : Colors.pink.shade300,
-                                  _isCreateFocused
-                                      ? Colors.purple.shade400
-                                      : Colors.purple.shade300,
-                                ], // Gradient colors
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: InkWell(
-                              onTap: _handleSubmit,
-                              child: const Text('Confirm', style: TextStyle(color: Colors.white)),
-                            )
-                        ),
-                      ),
-                    ],
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    color: Colors.grey,
+                    onPressed: () => Navigator.of(context).pop(),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -251,9 +201,7 @@ class _CreateKnowledgeDialogState extends State<CreateKnowledgeDialog> {
                                 borderRadius: BorderRadius.circular(24),
                               ),
                               child: InkWell(
-                                onTap: () {
-                                  // Handle create bot
-                                },
+                                onTap: _handleSubmit,
                                 child: const Text('Confirm', style: TextStyle(color: Colors.white)),
                               )
                           ),

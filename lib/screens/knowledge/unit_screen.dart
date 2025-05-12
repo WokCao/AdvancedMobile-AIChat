@@ -412,7 +412,7 @@ class _UnitScreenState extends State<UnitScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Image.asset(
-                              'binoculars.png',
+                              'assets/binoculars.png',
                               width: 128,
                               height: 128,
                             ),

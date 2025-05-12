@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:ai_chat/providers/subscription_provider.dart';
@@ -53,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Selector items
   int _offset = 0;
   bool _hasMore = true;
+  Timer? _promptSelectorDebounce;
 
   List<ChatMessage> _messages = [];
   int _remainingTokens = -1;
@@ -105,8 +107,8 @@ class _HomeScreenState extends State<HomeScreen> {
       'tokenCount': 'Cost 1 Token',
     },
     {
-      'name': 'Claude 3 Sonnet',
-      'apiId': 'claude-3-sonnet-20240229',
+      'name': 'Claude 3.5 Sonnet',
+      'apiId': 'claude-3-5-sonnet-20240620',
       'icon': Icons.psychology_outlined,
       'iconColor': Colors.brown,
       'description':
@@ -216,11 +218,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<List<PromptModel>> _fetchPublicPrompts() async {
+  Future<List<PromptModel>> _fetchPublicPrompts(String query) async {
     if (!_hasMore) return [];
 
     final apiService = getApiService(context);
-    final data = await apiService.getPublicPrompts(offset: _offset, limit: 10);
+    final data = await apiService.getPublicPrompts(offset: _offset, limit: 10, query: query);
 
     final List<PromptModel> fetched =
         (data['items'] as List)
@@ -235,10 +237,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return fetched;
   }
 
-  Future<void> _showPromptSelector() async {
+  Future<void> _showPromptSelector(String query) async {
     final scrollController = ScrollController();
 
-    final initialPrompts = await _fetchPublicPrompts();
+    final initialPrompts = await _fetchPublicPrompts(query);
     List<SelectorItem<PromptModel>> promptItems =
         initialPrompts
             .map((p) => SelectorItem<PromptModel>(title: p.title, value: p))
@@ -269,11 +271,11 @@ class _HomeScreenState extends State<HomeScreen> {
         title: 'Suggested Prompts',
         offset: Offset(
           offset.dx + 16,
-          offset.dy - 300,
+          offset.dy - 170,
         ), // Position above the input
         scrollController: scrollController,
         onLoadMore: () async {
-          final newPrompts = await _fetchPublicPrompts();
+          final newPrompts = await _fetchPublicPrompts('');
           return newPrompts
               .map((p) => SelectorItem<PromptModel>(title: p.title, value: p))
               .toList();
@@ -312,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final id = _selectedModel.split(":")[1];
       return _botData.firstWhere(
         (b) => b['apiId'] == id,
-        orElse: () => _botData[0],
+        orElse: () => _botData[0] as Map<String, Object>,
       );
     } else {
       return _modelData.firstWhere(
@@ -325,7 +327,15 @@ class _HomeScreenState extends State<HomeScreen> {
   void _handleTextChange() {
     final text = _textController.text;
     if (text.startsWith('/')) {
-      _showPromptSelector();
+      // Cancel any existing debounce timer
+      _promptSelectorDebounce?.cancel();
+
+      // Start a new timer that fires after 300ms of inactivity
+      _promptSelectorDebounce = Timer(const Duration(milliseconds: 1000), () {
+        _showPromptSelector(text.replaceAll('/', ''));
+      });
+    } else {
+      _promptSelectorDebounce?.cancel(); // Cancel if not starting with /
     }
     if (text.isNotEmpty) {
       setState(() {
@@ -404,7 +414,7 @@ class _HomeScreenState extends State<HomeScreen> {
         modelId: isUsingBot ? assistantId : modelId,
         modelType: isUsingBot ? 'kb' : 'dify',
         modelName: modelName,
-        conversationId: _lastConversationId,
+        conversationId: isUsingBot ? null : _lastConversationId,
         files: uploadedUrls,
       );
 
@@ -537,6 +547,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
+      withData: true,
       type: FileType.custom,
       allowedExtensions: [
         'txt',
@@ -653,6 +664,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _textController.dispose();
     _scrollController.dispose();
+    _promptSelectorDebounce?.cancel();
     super.dispose();
   }
 

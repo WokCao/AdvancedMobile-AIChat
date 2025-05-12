@@ -431,7 +431,7 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Image.asset(
-                                    'binoculars.png',
+                                    'assets/binoculars.png',
                                     width: 128,
                                     height: 128,
                                   ),

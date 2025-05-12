@@ -125,6 +125,8 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // return SizedBox();
+
     final adInfo = _bannerAd?.responseInfo;
     final adSource =
         adInfo?.adapterResponses?.firstOrNull?.adSourceInstanceName;

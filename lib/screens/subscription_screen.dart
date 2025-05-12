@@ -54,7 +54,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       body: Stack(
         children: [
           Container(
-            padding: EdgeInsets.all(5.0),
+            padding: EdgeInsets.only(left: 5.0, right: 5.0, bottom: 5.0, top: 30.0),
             child: IconButton(
               icon: const Icon(Icons.menu),
               onPressed: _toggleSidebar,

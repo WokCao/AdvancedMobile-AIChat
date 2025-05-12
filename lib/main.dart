@@ -22,16 +22,15 @@ Future<void> main() async {
   await MobileAds.instance.initialize();
 
   const flavorString = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
+  FlavorConfig.appFlavor = flavorString == 'prod' ? Flavor.prod : Flavor.dev;
 
-  if (flavorString == 'dev') {
+  if (FlavorConfig.appFlavor == Flavor.dev) {
     MobileAds.instance.updateRequestConfiguration(
       RequestConfiguration(
-        testDeviceIds: [], // Replace with your actual test device ID
+        testDeviceIds: [],
       ),
     );
   }
-
-  FlavorConfig.appFlavor = flavorString == 'prod' ? Flavor.prod : Flavor.dev;
 
   runApp(
     MultiProvider(

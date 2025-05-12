@@ -51,52 +51,7 @@ class _BotListState extends State<BotList> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    TypeDropdown(),
-                    // SizedBox(width: 8),
-                    // ConstrainedBox(
-                    //   constraints: BoxConstraints(
-                    //     maxWidth: MediaQuery.of(context).size.width * 0.3,
-                    //   ),
-                    //   child: TextField(
-                    //     controller: _searchController,
-                    //     onChanged: (value) {
-                    //       if (_debounce?.isActive ?? false) _debounce!.cancel();
-                    //       _debounce = Timer(const Duration(milliseconds: 400), () {
-                    //         setState(() => _searchQuery = value.trim());
-                    //         _fetchBots();
-                    //       });
-                    //     },
-                    //     style: TextStyle(fontSize: 14),
-                    //     decoration: InputDecoration(
-                    //       prefixIcon: const Icon(Icons.search_sharp, size: 24),
-                    //       hintText: "Search...",
-                    //       hintStyle: TextStyle(color: Colors.grey),
-                    //       border: OutlineInputBorder(
-                    //         borderRadius: BorderRadius.circular(12),
-                    //       ),
-                    //       enabledBorder: OutlineInputBorder(
-                    //         borderRadius: BorderRadius.circular(12),
-                    //         borderSide: const BorderSide(
-                    //           color: Colors.grey,
-                    //           width: 1.0,
-                    //         ),
-                    //       ),
-                    //       focusedBorder: OutlineInputBorder(
-                    //         borderRadius: BorderRadius.circular(12),
-                    //         borderSide: const BorderSide(
-                    //           color: Colors.purpleAccent,
-                    //           width: 2.0,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                  ],
-                ),
-              ),
+              TypeDropdown(),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -137,9 +92,16 @@ class _BotListState extends State<BotList> {
           ),
           SizedBox(height: 16),
           TextField(
+            controller: _searchController,
+            onChanged: (value) {
+              if (_debounce?.isActive ?? false) _debounce!.cancel();
+              _debounce = Timer(const Duration(milliseconds: 400), () {
+                setState(() => _searchQuery = value.trim());
+                _fetchBots();
+              });
+            },
             style: TextStyle(fontSize: 14),
             decoration: InputDecoration(
-              isDense: true,
               prefixIcon: const Icon(Icons.search_sharp, size: 24),
               hintText: "Search...",
               hintStyle: TextStyle(color: Colors.grey),
@@ -172,7 +134,7 @@ class _BotListState extends State<BotList> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Image.asset(
-                              'binoculars.png',
+                              'assets/binoculars.png',
                               width: 128,
                               height: 128,
                             ),

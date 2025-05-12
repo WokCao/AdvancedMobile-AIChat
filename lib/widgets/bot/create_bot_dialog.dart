@@ -181,7 +181,6 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                         width: double.infinity, // Make button full width
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            /// Handle adding knowledge source
                             Navigator.pushNamed(context, '/source');
                           },
                           icon: Icon(Icons.add, color: Colors.purple.shade700),
@@ -242,7 +241,6 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
-                              vertical: 12,
                             ),
                           ),
                           child: const Text('Cancel'),
@@ -256,7 +254,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 18,
-                              vertical: 6,
+                              vertical: 8,
                             ),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
