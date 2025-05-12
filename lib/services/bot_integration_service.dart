@@ -66,6 +66,8 @@ class BotIntegrationService {
         options: Options(headers: headers),
       );
 
+      print(response.data);
+
       return response.data;
     } on DioException catch (e) {
       final errorMessage = e.response?.data['error'] ?? "Failed to verify slack data";
@@ -125,6 +127,34 @@ class BotIntegrationService {
       return response.data;
     } on DioException catch (e) {
       final errorMessage = e.response?.data['error'] ?? "Failed to publish telegram bot";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  Future<List<dynamic>> getConfig({required String assistantId}) async {
+    try {
+      final response = await _dioKnowledgeApi.get(
+        "/kb-core/v1/bot-integration/$assistantId/configurations",
+        options: Options(headers: headers),
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data['error'] ?? "Failed to get bot's configuration";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  Future<dynamic> disconnectIntegration({required String assistantId, required String type}) async {
+    try {
+      final response = await _dioKnowledgeApi.delete(
+        "/kb-core/v1/bot-integration/$assistantId/$type",
+        options: Options(headers: headers),
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data['error'] ?? "Failed to disconnect integration";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }

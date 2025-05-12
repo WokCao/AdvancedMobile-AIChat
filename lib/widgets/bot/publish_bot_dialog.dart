@@ -27,6 +27,8 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
   bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
 
+  bool containSlack = false, containMessenger = false, containTelegram = false;
+
   void _clearAllControllers() {
     botTokenController.clear();
     pageIdController.clear();
@@ -34,6 +36,84 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
     clientIdController.clear();
     clientSecretController.clear();
     signingSecretController.clear();
+  }
+
+  Future<void> getConfiguration() async {
+    final BotModel? botModel = context.read<BotProvider>().botModel;
+    try {
+      final List<dynamic> data = await Provider.of<BotIntegrationService>(
+        context,
+        listen: false,
+      ).getConfig(assistantId: botModel!.id);
+
+      for (dynamic config in data) {
+        if (config['type'] == 'slack') {
+          setState(() {
+            containSlack = true;
+          });
+        } else if (config['type'] == 'messenger') {
+          setState(() {
+            containMessenger = true;
+          });
+        } else if (config['type'] == 'telegram') {
+          setState(() {
+            containTelegram = true;
+          });
+        }
+      }
+    } on KnowledgeException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    getConfiguration();
+    super.initState();
+  }
+
+  Future<void> handleDisconnect() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final BotModel? botModel = context.read<BotProvider>().botModel;
+
+    if (botModel == null) return;
+
+    try {
+      String type = _selectedPlatform.name;
+      await Provider.of<BotIntegrationService>(
+        context,
+        listen: false,
+      ).disconnectIntegration(assistantId: botModel.id, type: type);
+
+      setState(() {
+        _isLoading = false;
+        if (type == 'slack') {
+          containSlack = false;
+        } else if (type == 'messenger') {
+          containMessenger = false;
+        } else if (type == 'telegram') {
+          containTelegram = false;
+        }
+      });
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Disconnected successfully'), duration: Duration(seconds: 2)),
+      );
+    } on KnowledgeException catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
+      );
+    }
   }
 
   Future<void> handlePublish() async {
@@ -204,422 +284,458 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
 
     switch (_selectedPlatform) {
       case PlatformOption.messenger:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: Colors.blue.shade500,
-                  ),
-                  child: Text('1', style: TextStyle(color: Colors.white)),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Messenger copy link',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Copy the following content to your Messenger app configuration page.',
-              style: TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Callback URL',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            Row(
+        return !containMessenger
+            ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: SelectableText(
-                    'https://knowledge-api.jarvis.cx/kb-core/v1/hook/messenger/${botModel?.id ?? ''}',
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy, size: 12),
-                  tooltip: 'Copy Callback URL',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 24,
-                    minHeight: 24,
-                  ),
-                  onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(
-                        text:
-                            'https://knowledge-api.jarvis.cx/kb-core/v1/hook/messenger/${botModel?.id ?? ''}',
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.blue.shade500,
                       ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Callback URL copied')),
-                    );
-                  },
+                      child: Text('1', style: TextStyle(color: Colors.white)),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Messenger copy link',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Verify Token',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Expanded(
-                  child: SelectableText(
-                    'knowledge',
-                    style: TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy, size: 12),
-                  tooltip: 'Copy Verify Token',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 24,
-                    minHeight: 24,
-                  ),
-                  onPressed: () {
-                    Clipboard.setData(const ClipboardData(text: 'knowledge'));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Verify Token copied')),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: Colors.blue.shade500,
-                  ),
-                  child: Text('2', style: TextStyle(color: Colors.white)),
-                ),
-                const SizedBox(width: 8),
+                const SizedBox(height: 4),
                 const Text(
-                  'Messenger information',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  'Copy the following content to your Messenger app configuration page.',
+                  style: TextStyle(fontSize: 13),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Callback URL',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: SelectableText(
+                        'https://knowledge-api.jarvis.cx/kb-core/v1/hook/messenger/${botModel?.id ?? ''}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 12),
+                      tooltip: 'Copy Callback URL',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight: 24,
+                      ),
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(
+                            text:
+                                'https://knowledge-api.jarvis.cx/kb-core/v1/hook/messenger/${botModel?.id ?? ''}',
+                          ),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Callback URL copied')),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Verify Token',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Expanded(
+                      child: SelectableText(
+                        'knowledge',
+                        style: TextStyle(fontSize: 13, color: Colors.black87),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 12),
+                      tooltip: 'Copy Verify Token',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight: 24,
+                      ),
+                      onPressed: () {
+                        Clipboard.setData(
+                          const ClipboardData(text: 'knowledge'),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Verify Token copied')),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.blue.shade500,
+                      ),
+                      child: Text('2', style: TextStyle(color: Colors.white)),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Messenger information',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      label('Bot Token', isRequired: true),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: botTokenController,
+                        decoration: inputDecoration,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Field Bot Token is required';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      label('Page ID', isRequired: true),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: pageIdController,
+                        decoration: inputDecoration,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Field Page Id is required';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      label('App Secret', isRequired: true),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: appSecretController,
+                        decoration: inputDecoration,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Field App Secret is required';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  label('Bot Token', isRequired: true),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: botTokenController,
-                    decoration: inputDecoration,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Field Bot Token is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  label('Page ID', isRequired: true),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: pageIdController,
-                    decoration: inputDecoration,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Field Page Id is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  label('App Secret', isRequired: true),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: appSecretController,
-                    decoration: inputDecoration,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Field App Secret is required';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+            )
+            : SizedBox(
+              child: Text(
+                'Bot has been integrated to Messenger',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
-        );
+            );
 
       case PlatformOption.slack:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        return !containSlack
+            ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: Colors.blue.shade500,
-                  ),
-                  child: Text('1', style: TextStyle(color: Colors.white)),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.blue.shade500,
+                      ),
+                      child: Text('1', style: TextStyle(color: Colors.white)),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Slack copy link',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(height: 4),
                 const Text(
-                  'Slack copy link',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  'Copy the following content to your Slack app configuration page.',
+                  style: TextStyle(fontSize: 13),
                 ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Copy the following content to your Slack app configuration page.',
-              style: TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'OAuth2 Redirect URLs',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: SelectableText(
-                    'https://knowledge-api.jarvis.cx/kb-core/v1/bot-integration/slack/auth/${botModel?.id ?? ''}',
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy, size: 12),
-                  tooltip: 'OAuth2 Redirect URLs',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 24,
-                    minHeight: 24,
-                  ),
-                  onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(
-                        text:
-                            'https://knowledge-api.jarvis.cx/kb-core/v1/bot-integration/slack/auth/${botModel?.id ?? ''}',
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('OAuth2 Redirect URLs copied'),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Event Request URL',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: SelectableText(
-                    'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/${botModel?.id ?? ''}',
-                    style: TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy, size: 12),
-                  tooltip: 'Event Request URL',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 24,
-                    minHeight: 24,
-                  ),
-                  onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(
-                        text:
-                            'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/${botModel?.id ?? ''}',
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Event Request URL copied')),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Slash Request URL',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: SelectableText(
-                    'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/slash/${botModel?.id ?? ''}',
-                    style: TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy, size: 12),
-                  tooltip: 'Slash Request URL',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 24,
-                    minHeight: 24,
-                  ),
-                  onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(
-                        text:
-                            'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/slash/${botModel?.id ?? ''}',
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Slash Request URL copied')),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: Colors.blue.shade500,
-                  ),
-                  child: Text('2', style: TextStyle(color: Colors.white)),
-                ),
-                const SizedBox(width: 8),
+                const SizedBox(height: 12),
                 const Text(
-                  'Slack information',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  'OAuth2 Redirect URLs',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: SelectableText(
+                        'https://knowledge-api.jarvis.cx/kb-core/v1/bot-integration/slack/auth/${botModel?.id ?? ''}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 12),
+                      tooltip: 'OAuth2 Redirect URLs',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight: 24,
+                      ),
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(
+                            text:
+                                'https://knowledge-api.jarvis.cx/kb-core/v1/bot-integration/slack/auth/${botModel?.id ?? ''}',
+                          ),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('OAuth2 Redirect URLs copied'),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Event Request URL',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: SelectableText(
+                        'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/${botModel?.id ?? ''}',
+                        style: TextStyle(fontSize: 13, color: Colors.black87),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 12),
+                      tooltip: 'Event Request URL',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight: 24,
+                      ),
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(
+                            text:
+                                'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/${botModel?.id ?? ''}',
+                          ),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Event Request URL copied'),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Slash Request URL',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: SelectableText(
+                        'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/slash/${botModel?.id ?? ''}',
+                        style: TextStyle(fontSize: 13, color: Colors.black87),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 12),
+                      tooltip: 'Slash Request URL',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight: 24,
+                      ),
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(
+                            text:
+                                'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/slash/${botModel?.id ?? ''}',
+                          ),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Slash Request URL copied'),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.blue.shade500,
+                      ),
+                      child: Text('2', style: TextStyle(color: Colors.white)),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Slack information',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      label('Bot Token', isRequired: true),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: botTokenController,
+                        decoration: inputDecoration,
+                        validator:
+                            (value) =>
+                                value == null || value.trim().isEmpty
+                                    ? 'Field Bot Token is required'
+                                    : null,
+                      ),
+                      const SizedBox(height: 16),
+                      label('Client ID', isRequired: true),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: clientIdController,
+                        decoration: inputDecoration,
+                        validator:
+                            (value) =>
+                                value == null || value.trim().isEmpty
+                                    ? 'Field Client ID is required'
+                                    : null,
+                      ),
+                      const SizedBox(height: 16),
+                      label('Client Secret', isRequired: true),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: clientSecretController,
+                        decoration: inputDecoration,
+                        validator:
+                            (value) =>
+                                value == null || value.trim().isEmpty
+                                    ? 'Field Client Secret is required'
+                                    : null,
+                      ),
+                      const SizedBox(height: 16),
+                      label('Signing Secret', isRequired: true),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: signingSecretController,
+                        decoration: inputDecoration,
+                        validator:
+                            (value) =>
+                                value == null || value.trim().isEmpty
+                                    ? 'Field Signing Secret is required'
+                                    : null,
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  label('Bot Token', isRequired: true),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: botTokenController,
-                    decoration: inputDecoration,
-                    validator:
-                        (value) =>
-                            value == null || value.trim().isEmpty
-                                ? 'Field Bot Token is required'
-                                : null,
-                  ),
-                  const SizedBox(height: 16),
-                  label('Client ID', isRequired: true),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: clientIdController,
-                    decoration: inputDecoration,
-                    validator:
-                        (value) =>
-                            value == null || value.trim().isEmpty
-                                ? 'Field Client ID is required'
-                                : null,
-                  ),
-                  const SizedBox(height: 16),
-                  label('Client Secret', isRequired: true),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: clientSecretController,
-                    decoration: inputDecoration,
-                    validator:
-                        (value) =>
-                            value == null || value.trim().isEmpty
-                                ? 'Field Client Secret is required'
-                                : null,
-                  ),
-                  const SizedBox(height: 16),
-                  label('Signing Secret', isRequired: true),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: signingSecretController,
-                    decoration: inputDecoration,
-                    validator:
-                        (value) =>
-                            value == null || value.trim().isEmpty
-                                ? 'Field Signing Secret is required'
-                                : null,
-                  ),
-                ],
+            )
+            : SizedBox(
+              child: Text(
+                'Bot has been integrated to Slack',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
-        );
+            );
 
       case PlatformOption.telegram:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        return !containTelegram
+            ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: Colors.blue.shade500,
-                  ),
-                  child: Text('1', style: TextStyle(color: Colors.white)),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.blue.shade500,
+                      ),
+                      child: Text('1', style: TextStyle(color: Colors.white)),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Telegram information',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Telegram information',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                const SizedBox(height: 8),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      label('Bot Token', isRequired: true),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: botTokenController,
+                        decoration: inputDecoration,
+                        validator:
+                            (value) =>
+                                value == null || value.trim().isEmpty
+                                    ? 'Field Bot Token is required'
+                                    : null,
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  label('Bot Token', isRequired: true),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: botTokenController,
-                    decoration: inputDecoration,
-                    validator:
-                        (value) =>
-                            value == null || value.trim().isEmpty
-                                ? 'Field Bot Token is required'
-                                : null,
-                  ),
-                ],
+            )
+            : SizedBox(
+              child: Text(
+                'Bot has been integrated to Telegram',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
-        );
+            );
     }
   }
 
@@ -713,7 +829,15 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
                   ),
                   const SizedBox(width: 12),
                   GestureDetector(
-                    onTap: handlePublish,
+                    onTap:
+                        _selectedPlatform == PlatformOption.slack &&
+                                    containSlack ||
+                                _selectedPlatform == PlatformOption.messenger &&
+                                    containMessenger ||
+                                _selectedPlatform == PlatformOption.telegram &&
+                                    containTelegram
+                            ? handleDisconnect
+                            : handlePublish,
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: Container(
@@ -743,7 +867,16 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
                                   ),
                                 )
                                 : Text(
-                                  'Publish',
+                                  _selectedPlatform == PlatformOption.slack &&
+                                              containSlack ||
+                                          _selectedPlatform ==
+                                                  PlatformOption.messenger &&
+                                              containMessenger ||
+                                          _selectedPlatform ==
+                                                  PlatformOption.telegram &&
+                                              containTelegram
+                                      ? 'Disconnect'
+                                      : 'Publish',
                                   style: const TextStyle(color: Colors.white),
                                 ),
                       ),
