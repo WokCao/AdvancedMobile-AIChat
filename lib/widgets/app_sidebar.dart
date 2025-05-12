@@ -65,6 +65,8 @@ class AppSidebar extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 28),
+
                   // App Name Section
                   Container(
                     padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 10.0),

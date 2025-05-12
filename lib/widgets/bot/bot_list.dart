@@ -134,6 +134,33 @@ class _BotListState extends State<BotList> {
             ],
           ),
           SizedBox(height: 16),
+          TextField(
+            style: TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              isDense: true,
+              prefixIcon: const Icon(Icons.search_sharp, size: 24),
+              hintText: "Search...",
+              hintStyle: TextStyle(color: Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Colors.purpleAccent,
+                  width: 2.0,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())

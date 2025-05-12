@@ -32,7 +32,7 @@ class AuthInterceptor extends Interceptor {
       if (refreshToken != null) {
         try {
           final refreshResponse = await _dio.post(
-            '/api/v1/auth/sessions/current/refresh',
+            'https://auth-api.dev.jarvis.cx/api/v1/auth/sessions/current/refresh',
             options: Options(
               headers: {
                 'X-Stack-Access-Type': 'client',

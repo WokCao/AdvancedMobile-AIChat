@@ -13,11 +13,12 @@ class KnowledgeScreen extends StatefulWidget {
 class _KnowledgeScreenState extends State<KnowledgeScreen> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -26,14 +27,15 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                   children: [
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.3,
+                        maxWidth: MediaQuery.of(context).size.width * 0.5,
                       ),
                       child: TextField(
-                        style: TextStyle(fontSize: 14),
+                        style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
+                          isDense: true,
                           prefixIcon: const Icon(Icons.search_sharp, size: 24),
                           hintText: "Search...",
-                          hintStyle: TextStyle(color: Colors.grey),
+                          hintStyle: const TextStyle(color: Colors.grey),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -81,13 +83,13 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Row(
-                    children: [
+                    children: const [
                       Icon(Icons.add_circle_outline, color: Colors.white),
                       SizedBox(width: 5),
                       Text("Create Knowledge", style: TextStyle(color: Colors.white)),
@@ -97,26 +99,26 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
               ),
             ],
           ),
-          SizedBox(height: 16),
-          Expanded(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-              child: PaginatedDataTable(
-                columnSpacing: 0,
-                showFirstLastButtons: true,
-                showCheckboxColumn: false,
-                columns: [
-                  DataColumn(label: Text("Knowledge", style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text("Units", style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text("Size", style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text("Edit time", style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text("Action", style: TextStyle(fontWeight: FontWeight.bold))),
-                ],
-                source: MyDataWithActions(context),
-                rowsPerPage: 7,
-                dividerThickness: 0.2,
-              ),
-            )
+          const SizedBox(height: 16),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: MediaQuery.of(context).size.width,
+            ),
+            child: PaginatedDataTable(
+              columnSpacing: 0,
+              showFirstLastButtons: true,
+              showCheckboxColumn: false,
+              columns: const [
+                DataColumn(label: Text("Knowledge", style: TextStyle(fontWeight: FontWeight.bold))),
+                DataColumn(label: Text("Units", style: TextStyle(fontWeight: FontWeight.bold))),
+                DataColumn(label: Text("Size", style: TextStyle(fontWeight: FontWeight.bold))),
+                DataColumn(label: Text("Edit time", style: TextStyle(fontWeight: FontWeight.bold))),
+                DataColumn(label: Text("Action", style: TextStyle(fontWeight: FontWeight.bold))),
+              ],
+              source: MyDataWithActions(context),
+              rowsPerPage: 7,
+              dividerThickness: 0.2,
+            ),
           ),
         ],
       ),
