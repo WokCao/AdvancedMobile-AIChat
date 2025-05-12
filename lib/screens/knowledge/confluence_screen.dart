@@ -61,6 +61,7 @@ class _ConfluenceScreenState extends State<ConfluenceScreen> {
         setState(() {
           _isLoading = false;
         });
+        context.read<KnowledgeProvider>().updated();
         Navigator.popUntil(context, ModalRoute.withName('/units'));
       }
     } on KnowledgeException catch (e) {

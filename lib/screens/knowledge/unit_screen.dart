@@ -8,6 +8,7 @@ import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import '../../main.dart';
 import '../../models/meta_model.dart';
 import '../../services/knowledge_base_service.dart';
 import '../../widgets/knowledge/create_knowledge_dialog.dart';
@@ -20,10 +21,10 @@ class UnitScreen extends StatefulWidget {
   State<UnitScreen> createState() => _UnitScreenState();
 }
 
-class _UnitScreenState extends State<UnitScreen> {
+class _UnitScreenState extends State<UnitScreen> with RouteAware {
   late Future<List<BaseUnitModel>> _dataFuture;
   final TextEditingController _textEditingController = TextEditingController();
-  final List<BaseUnitModel> _data = [];
+  // final List<BaseUnitModel> _data = [];
   Timer? _debounce;
   String _lastQuery = '';
   int offset = 0, total = 0;
@@ -50,7 +51,8 @@ class _UnitScreenState extends State<UnitScreen> {
       );
 
       setState(() {
-        _data.addAll(newItems);
+        context.read<KnowledgeProvider>().addUnitData(newItems);
+        // _data.addAll(newItems);
         total = metaData.total;
         hasNext = metaData.hasNext;
         offset += newItems.length;
@@ -63,11 +65,11 @@ class _UnitScreenState extends State<UnitScreen> {
       }
     }
 
-    return _data;
+    return context.read<KnowledgeProvider>().getUnitData;
   }
 
   void _fetchMoreData(int firstIndexOfPage) async {
-    if (firstIndexOfPage < _data.length) return;
+    if (firstIndexOfPage < context.read<KnowledgeProvider>().getUnitData.length) return;
 
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
     final selectedKnowledgeModel = context.read<KnowledgeProvider>().selectedKnowledge;
@@ -87,7 +89,7 @@ class _UnitScreenState extends State<UnitScreen> {
       );
 
       setState(() {
-        _data.addAll(newItems);
+        context.read<KnowledgeProvider>().addUnitData(newItems);
         offset += newItems.length;
       });
     } on KnowledgeException catch (e) {
@@ -108,7 +110,7 @@ class _UnitScreenState extends State<UnitScreen> {
         _lastQuery = newQuery;
 
         setState(() {
-          _data.clear();
+          context.read<KnowledgeProvider>().clearUnitData();
           offset = 0;
           _dataFuture = _loadData();
         });
@@ -116,10 +118,50 @@ class _UnitScreenState extends State<UnitScreen> {
     });
   }
 
-  void _handleDeleteUnit(String id) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Delete action is not now available"), duration: Duration(seconds: 2)),
-    );
+  void _handleDeleteUnit(BaseUnitModel baseUnitModel) async {
+    final selectedKnowledgeModel = context.read<KnowledgeProvider>().selectedKnowledge;
+
+    if (selectedKnowledgeModel == null) return;
+    final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
+
+    try {
+      await kbService.deleteAUnitOfKnowledge(knowledgeModel: selectedKnowledgeModel, baseUnitModel: baseUnitModel);
+      context.read<KnowledgeProvider>().removeAUnit(baseUnitModel.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unit: ${baseUnitModel.name} has been removed from knowledge!'), duration: Duration(seconds: 2)),
+        );
+      }
+    } on KnowledgeException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
+        );
+      }
+    }
+  }
+
+  void _handleDisableUnit(BaseUnitModel baseUnitModel, bool value) async {
+    final selectedKnowledgeModel = context.read<KnowledgeProvider>().selectedKnowledge;
+
+    if (selectedKnowledgeModel == null) return;
+    final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
+
+    try {
+      await kbService.disableAUnitOfKnowledge(knowledgeModel: selectedKnowledgeModel, baseUnitModel: baseUnitModel, status: value);
+      context.read<KnowledgeProvider>().updateStatusOfAUnit(baseUnitModel.id, value);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unit: ${baseUnitModel.name} has been ${value ? 'enabled' : 'disabled'}!'), duration: Duration(seconds: 2)),
+        );
+      }
+    } on KnowledgeException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
+        );
+      }
+    }
   }
 
   void _handleUpdateKnowledge(String knowledgeName, String description) async {
@@ -176,7 +218,28 @@ class _UnitScreenState extends State<UnitScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    final provider = Provider.of<KnowledgeProvider>(context, listen: false);
+    if (provider.wasUpdated) {
+      provider.clearUnitData();
+      setState(() {
+        offset = 0;
+        total = 0;
+        hasNext = true;
+      });
+      _dataFuture = _loadData();
+    }
+  }
+
+  @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     _debounce?.cancel();
     _textEditingController.dispose();
     super.dispose();
@@ -185,6 +248,7 @@ class _UnitScreenState extends State<UnitScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedKnowledgeModel = context.watch<KnowledgeProvider>().selectedKnowledge;
+    final List<BaseUnitModel> data = context.watch<KnowledgeProvider>().getUnitData;
 
     return Scaffold(
       appBar: AppBar(
@@ -365,7 +429,7 @@ class _UnitScreenState extends State<UnitScreen> {
                             onPressed: () {
                               _textEditingController.clear();
                               setState(() {
-                                _data.clear();
+                                context.read<KnowledgeProvider>().clearUnitData();
                                 offset = 0;
                                 _dataFuture = _loadData();
                               });
@@ -486,9 +550,10 @@ class _UnitScreenState extends State<UnitScreen> {
                         ],
                         source: MyUnitDataWithActions(
                           context,
-                          _data,
+                          data,
                           total,
                           _handleDeleteUnit,
+                            _handleDisableUnit
                         ),
                         rowsPerPage: 7,
                         dividerThickness: 0.2,

@@ -59,6 +59,8 @@ class _SlackScreenState extends State<SlackScreen> {
           _isLoading = false;
         });
 
+        context.read<KnowledgeProvider>().updated();
+
         Navigator.popUntil(context, ModalRoute.withName('/units'));
       }
     } on KnowledgeException catch (e) {

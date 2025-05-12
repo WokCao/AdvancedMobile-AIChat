@@ -1,7 +1,10 @@
+import 'package:ai_chat/models/base_unit_model.dart';
 import 'package:flutter/material.dart';
 
 class RemoveUnit extends StatefulWidget {
-  const RemoveUnit({super.key});
+  final BaseUnitModel baseUnitModel;
+  final void Function(BaseUnitModel) handleDeleteUnit;
+  const RemoveUnit({super.key, required this.baseUnitModel, required this.handleDeleteUnit});
 
   @override
   State<RemoveUnit> createState() => _RemoveUnitState();
@@ -117,6 +120,7 @@ class _RemoveUnitState extends State<RemoveUnit> {
                 onExit: (_) => (setState(() => isDeleteHovered = false)),
                 child: GestureDetector(
                   onTap: () {
+                    widget.handleDeleteUnit(widget.baseUnitModel);
                     Navigator.of(context).pop();
                   },
                   child: Container(

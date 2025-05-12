@@ -398,7 +398,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
           ),
           ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: 400
+              maxHeight: 100
             ),
             child: ListView.builder(
               shrinkWrap: true,
@@ -510,7 +510,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
           ),
 
           Container(
-            margin: const EdgeInsets.all(16.0),
+            margin: const EdgeInsets.all(8.0),
             child: SizedBox(
               width: double.infinity, // Make button full width
               child: OutlinedButton.icon(
@@ -531,7 +531,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 8,),
+          const SizedBox(height: 4,),
 
           // Chat Area
           Expanded(

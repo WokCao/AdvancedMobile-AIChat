@@ -55,6 +55,7 @@ class DataSourceService {
 
       return response.data;
     } on DioException catch (e) {
+      print(e);
       final errorMessage = e.response?.data['error'] ?? "Failed to create unit (File) - Path: ${file.path.split("/").last}";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }

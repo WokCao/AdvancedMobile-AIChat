@@ -56,6 +56,9 @@ class MyDataWithActions extends DataTableSource {
 
     return DataRow.byIndex(
       onSelectChanged: (selected) {
+        if (botModel != null) {
+          return;
+        }
         Provider.of<KnowledgeProvider>(
           context,
           listen: false,
@@ -135,25 +138,26 @@ class MyDataWithActions extends DataTableSource {
             ),
           ),
         ),
-        DataCell(
-          Tooltip(
-            message: "Delete",
-            child: IconButton(
-              icon: Icon(Icons.delete_outline_outlined),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return RemoveKnowledge(
-                      handleDeleteKnowledge: _handleDeleteKnowledge,
-                      id: item.id,
-                    );
-                  },
-                );
-              },
+        if (botModel == null)
+          DataCell(
+            Tooltip(
+              message: "Delete",
+              child: IconButton(
+                icon: Icon(Icons.delete_outline_outlined),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return RemoveKnowledge(
+                        handleDeleteKnowledge: _handleDeleteKnowledge,
+                        id: item.id,
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
-        ),
       ],
     );
   }

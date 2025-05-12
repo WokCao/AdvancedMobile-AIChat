@@ -15,7 +15,7 @@ import '../../services/knowledge_base_service.dart';
 import '../../widgets/knowledge/create_knowledge_dialog.dart';
 import '../../widgets/knowledge/knowledge_table.dart';
 
-class KnowledgeScreen extends StatefulWidget  {
+class KnowledgeScreen extends StatefulWidget {
   const KnowledgeScreen({super.key});
 
   @override
@@ -63,10 +63,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
     } on KnowledgeException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message),
-            duration: Duration(seconds: 2),
-          ),
+          SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
         );
       }
     }
@@ -96,10 +93,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
     } on KnowledgeException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message),
-            duration: Duration(seconds: 2),
-          ),
+          SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
         );
       }
     }
@@ -125,10 +119,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
     } on KnowledgeException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message),
-            duration: Duration(seconds: 2),
-          ),
+          SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
         );
       }
     }
@@ -142,7 +133,10 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
   void _handleCreateKnowledge(String knowledgeName, String description) async {
     final kbService = Provider.of<KnowledgeBaseService>(context, listen: false);
     try {
-      await kbService.createKnowledge(knowledgeName: knowledgeName, description: description,);
+      await kbService.createKnowledge(
+        knowledgeName: knowledgeName,
+        description: description,
+      );
       _resetAndReloadData();
 
       if (mounted) {
@@ -156,10 +150,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
     } on KnowledgeException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message),
-            duration: Duration(seconds: 2),
-          ),
+          SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
         );
       }
     }
@@ -173,7 +164,6 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
       });
     }
   }
-
 
   @override
   void initState() {
@@ -201,10 +191,11 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
     final provider = Provider.of<KnowledgeProvider>(context, listen: false);
 
     if (provider.wasUpdated) {
-      final updated = provider.selectedKnowledge;
-      if (updated != null) {
-        _updateKnowledgeItem(updated);
-      }
+      // final updated = provider.selectedKnowledge;
+      // if (updated != null) {
+      //   _updateKnowledgeItem(updated);
+      // }
+      _resetAndReloadData();
       provider.clearUpdateFlag();
     }
 
@@ -361,11 +352,13 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
                   showFirstLastButtons: true,
                   showCheckboxColumn: false,
                   columns: [
-                    if(context.read<BotProvider>().botModel != null)
-                      DataColumn(label: Text(
-                        "Status",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )),
+                    if (context.read<BotProvider>().botModel != null)
+                      DataColumn(
+                        label: Text(
+                          "Status",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     DataColumn(
                       label: Text(
                         "Knowledge",
@@ -390,21 +383,27 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    DataColumn(
-                      label: Text(
-                        "Action",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                    if (context.read<BotProvider>().botModel == null)
+                      DataColumn(
+                        label: Text(
+                          "Action",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
                   ],
-                  source: MyDataWithActions(context, _data, total, _handleDeleteKnowledge),
+                  source: MyDataWithActions(
+                    context,
+                    _data,
+                    total,
+                    _handleDeleteKnowledge,
+                  ),
                   rowsPerPage: 7,
                   dividerThickness: 0.2,
                 ),
               );
             },
           ),
-          BannerAdWidget()
+          BannerAdWidget(),
         ],
       ),
     );

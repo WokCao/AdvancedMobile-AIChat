@@ -1,7 +1,9 @@
+import 'package:ai_chat/providers/bot_provider.dart';
 import 'package:ai_chat/screens/knowledge/knowledge_screen.dart';
 import 'package:ai_chat/widgets/bot/bot_list.dart';
 import 'package:ai_chat/widgets/knowledge/knowledge_table.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/ads/banner_ad_widget.dart';
 import '../widgets/app_sidebar.dart';
@@ -35,6 +37,7 @@ class _BotsScreenState extends State<BotsScreen>
       String newRouteName = _tabController.index == 0 ? '/bots' : '/knowledge';
 
       if (ModalRoute.of(context)?.settings.name != newRouteName) {
+        context.read<BotProvider>().clearAll();
         Navigator.pushNamedAndRemoveUntil(
           context,
           newRouteName,

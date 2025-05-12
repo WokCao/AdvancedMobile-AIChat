@@ -9,9 +9,10 @@ class MyUnitDataWithActions extends DataTableSource {
   final BuildContext context;
   final List<BaseUnitModel> data;
   final int totalUnit;
-  final void Function(String) _handleDeleteKnowledge;
+  final void Function(BaseUnitModel) _handleDeleteUnit;
+  final void Function(BaseUnitModel, bool) _handleDisableUnit;
 
-  MyUnitDataWithActions(this.context, this.data, this.totalUnit, this._handleDeleteKnowledge);
+  MyUnitDataWithActions(this.context, this.data, this.totalUnit, this._handleDeleteUnit, this._handleDisableUnit);
 
   String _getReadableFileSize(int bytes) {
     if (bytes <= 0) return "0 B";
@@ -86,8 +87,7 @@ class MyUnitDataWithActions extends DataTableSource {
                 activeColor: Colors.green,
                 value: item.status,
                 onChanged: (bool newValue) {
-
-                  notifyListeners();
+                  _handleDisableUnit(item, newValue);
                 },
               ),
             ),
@@ -102,7 +102,7 @@ class MyUnitDataWithActions extends DataTableSource {
                 showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return RemoveUnit();
+                      return RemoveUnit(baseUnitModel: item, handleDeleteUnit: _handleDeleteUnit,);
                     }
                 );
               },

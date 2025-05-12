@@ -1,9 +1,11 @@
+import 'package:ai_chat/models/base_unit_model.dart';
 import 'package:ai_chat/utils/auth_interceptor.dart';
 import 'package:ai_chat/utils/knowledge_exception.dart';
 import 'package:dio/dio.dart';
 
 import '../flavor_config.dart';
 import '../main.dart';
+import '../models/knowledge_model.dart';
 
 class KnowledgeBaseService {
   final Dio _dioKnowledgeApi = Dio(
@@ -80,6 +82,33 @@ class KnowledgeBaseService {
       return response.data;
     } on DioException catch (e) {
       final errorMessage = e.response?.data['error'] ?? "Failed to load knowledge's units";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  Future<void> deleteAUnitOfKnowledge({required KnowledgeModel knowledgeModel, required BaseUnitModel baseUnitModel}) async {
+    try {
+      await _dioKnowledgeApi.delete(
+        "/kb-core/v1/knowledge/${knowledgeModel.id}/datasources/${baseUnitModel.id}",
+        options: Options(headers: headers),
+      );
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data['error'] ?? "Failed to delete a unit of knowledge";
+      throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  Future<void> disableAUnitOfKnowledge({required KnowledgeModel knowledgeModel, required BaseUnitModel baseUnitModel, required bool status}) async {
+    try {
+      await _dioKnowledgeApi.patch(
+        "/kb-core/v1/knowledge/${knowledgeModel.id}/datasources/${baseUnitModel.id}",
+        data: {
+          "status": status
+        },
+        options: Options(headers: headers),
+      );
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data['error'] ?? "Failed to delete a unit of knowledge";
       throw KnowledgeException(errorMessage, statusCode: e.response?.statusCode);
     }
   }
