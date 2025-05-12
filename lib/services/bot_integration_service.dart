@@ -14,7 +14,7 @@ class BotIntegrationService {
     _dioKnowledgeApi.interceptors.add(AuthInterceptor(_dioKnowledgeApi, navigatorKey));
   }
 
-  Future<Map<String, dynamic>> messengerVerify({required String botToken, required String pageId, required String appSecret}) async {
+  Future<dynamic> messengerVerify({required String botToken, required String pageId, required String appSecret}) async {
     try {
       final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/bot-integration/messenger/validation",
@@ -36,7 +36,7 @@ class BotIntegrationService {
   Future<dynamic> messengerPublish({required String assistantId, required String botToken, required String pageId, required String appSecret}) async {
     try {
       await messengerVerify(botToken: botToken, pageId: pageId, appSecret: appSecret);
-      final response = await _dioKnowledgeApi.patch(
+      final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/bot-integration/messenger/publish/$assistantId",
         data: {
           "botToken": botToken,
@@ -53,7 +53,7 @@ class BotIntegrationService {
     }
   }
 
-  Future<Map<String, dynamic>> slackVerify({required String botToken, required String clientId, required String clientSecret, required String signingSecret}) async {
+  Future<dynamic> slackVerify({required String botToken, required String clientId, required String clientSecret, required String signingSecret}) async {
     try {
       final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/bot-integration/slack/validation",
@@ -76,7 +76,7 @@ class BotIntegrationService {
   Future<dynamic> slackPublish({required String assistantId, required String botToken, required String clientId, required String clientSecret, required String signingSecret}) async {
     try {
       await slackVerify(botToken: botToken, clientId: clientId, clientSecret: clientSecret, signingSecret: signingSecret);
-      final response = await _dioKnowledgeApi.patch(
+      final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/bot-integration/slack/publish/$assistantId",
         data: {
           "botToken": botToken,
@@ -94,7 +94,7 @@ class BotIntegrationService {
     }
   }
 
-  Future<Map<String, dynamic>> telegramVerify({required String botToken}) async {
+  Future<dynamic> telegramVerify({required String botToken}) async {
     try {
       final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/bot-integration/telegram/validation",
@@ -114,7 +114,7 @@ class BotIntegrationService {
   Future<dynamic> telegramPublish({required String assistantId, required String botToken}) async {
     try {
       await telegramVerify(botToken: botToken);
-      final response = await _dioKnowledgeApi.patch(
+      final response = await _dioKnowledgeApi.post(
         "/kb-core/v1/bot-integration/telegram/publish/$assistantId",
         data: {
           "botToken": botToken

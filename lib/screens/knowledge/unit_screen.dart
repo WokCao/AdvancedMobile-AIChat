@@ -127,6 +127,7 @@ class _UnitScreenState extends State<UnitScreen> with RouteAware {
     try {
       await kbService.deleteAUnitOfKnowledge(knowledgeModel: selectedKnowledgeModel, baseUnitModel: baseUnitModel);
       context.read<KnowledgeProvider>().removeAUnit(baseUnitModel.id);
+      context.read<KnowledgeProvider>().updated();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Unit: ${baseUnitModel.name} has been removed from knowledge!'), duration: Duration(seconds: 2)),
