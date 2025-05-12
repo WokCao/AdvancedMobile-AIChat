@@ -157,12 +157,20 @@ class _UsePromptState extends State<UsePrompt> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Text(widget.promptModel.category),
-                            Text(' • '),
-                            Text(widget.promptModel.userName),
-                          ],
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          child: Row(
+                            children: [
+                              Text(widget.promptModel.category),
+                              Text(' • '),
+                              Expanded(
+                                child: Text(
+                                  widget.promptModel.userName,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
