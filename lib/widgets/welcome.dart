@@ -124,9 +124,10 @@ class _WelcomeState extends State<Welcome> {
                 ],
               ),
             ),
-            const SizedBox(height: 4),
 
-            // Prompts Section
+            const Spacer(),
+
+          // Prompts Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -149,52 +150,27 @@ class _WelcomeState extends State<Welcome> {
                 ),
               ],
             ),
-          ),
-          const Spacer(),
-
-          // Prompts Section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Don't know what to say? Use a prompt!",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 90,
+              child: ListView(
+                children: _suggestedPrompts.map((PromptModel prompt) => _buildSectionWithArrow(
+                  title: prompt.title,
+                  onTap: () {
+                    context.read<PromptProvider>().setSelectedPromptModel(promptModel: prompt);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomeScreen(),
+                      ),
+                    );
+                  },
+                  compact: true,
+                )).toList(),
               ),
-              TextButton(
-                onPressed: () {
-                  /// Handle view all prompts
-                  Navigator.pushNamed(context, '/prompts');
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.purple,
-                ),
-                child: const Text('View all'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 90,
-            child: ListView(
-              children: _suggestedPrompts.map((PromptModel prompt) => _buildSectionWithArrow(
-                title: prompt.title,
-                onTap: () {
-                  context.read<PromptProvider>().setSelectedPromptModel(promptModel: prompt);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HomeScreen(),
-                    ),
-                  );
-                },
-                compact: true,
-              )).toList(),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

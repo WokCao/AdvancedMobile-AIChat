@@ -856,11 +856,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               (_) => _scrollToBottom(),
                         );
                       }
-                      // =======
-                      //                     iconSize: 24,
-                      //                     onPressed: () {
-                      //                       Navigator.pushNamed(context, "/history");
-                      // >>>>>>> mock-ui
                     },
                     tooltip: 'Chat history',
                   ),
