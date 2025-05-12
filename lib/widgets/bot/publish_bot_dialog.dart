@@ -41,6 +41,9 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
   Future<void> getConfiguration() async {
     final BotModel? botModel = context.read<BotProvider>().botModel;
     try {
+      setState(() {
+        _isLoading = true;
+      });
       final List<dynamic> data = await Provider.of<BotIntegrationService>(
         context,
         listen: false,
@@ -61,7 +64,14 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
           });
         }
       }
+
+      setState(() {
+        _isLoading = false;
+      });
     } on KnowledgeException catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.message), duration: Duration(seconds: 2)),
@@ -103,7 +113,10 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Disconnected successfully'), duration: Duration(seconds: 2)),
+        SnackBar(
+          content: Text('Disconnected successfully'),
+          duration: Duration(seconds: 2),
+        ),
       );
     } on KnowledgeException catch (e) {
       setState(() {
@@ -284,7 +297,16 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
 
     switch (_selectedPlatform) {
       case PlatformOption.messenger:
-        return !containMessenger
+        return _isLoading
+            ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+            : !containMessenger
             ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -458,7 +480,16 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
             );
 
       case PlatformOption.slack:
-        return !containSlack
+        return _isLoading
+            ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+            : !containSlack
             ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -686,7 +717,16 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
             );
 
       case PlatformOption.telegram:
-        return !containTelegram
+        return _isLoading
+            ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+            : !containTelegram
             ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
