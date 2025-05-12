@@ -122,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
       _loadTokenCount();
-			_loadLastConversation();
+      _loadLastConversation();
       _fetchBots();
     });
   }
@@ -150,39 +150,38 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _showModelSelector() async {
-    final modelItems = _modelData.map((model) {
-      return SelectorItem<String>(
-        title: model['name'],
-        leading: Icon(model['icon'], size: 20, color: model['iconColor']),
-        subtitle: model['description'],
-        trailing: model['tokenCount'],
-        value: model['name'],
-      );
-    }).toList();
+    final modelItems =
+        _modelData.map((model) {
+          return SelectorItem<String>(
+            title: model['name'],
+            leading: Icon(model['icon'], size: 20, color: model['iconColor']),
+            subtitle: model['description'],
+            trailing: model['tokenCount'],
+            value: model['name'],
+          );
+        }).toList();
 
-    final botItems = _botData.map((bot) {
-      return SelectorItem<String>(
-        title: bot['name'],
-        leading: Icon(bot['icon'], size: 20, color: bot['iconColor']),
-        subtitle: bot['description'],
-        value: 'bot:${bot['apiId']}',
-      );
-    }).toList();
+    final botItems =
+        _botData.map((bot) {
+          return SelectorItem<String>(
+            title: bot['name'],
+            leading: Icon(bot['icon'], size: 20, color: bot['iconColor']),
+            subtitle: bot['description'],
+            value: 'bot:${bot['apiId']}',
+          );
+        }).toList();
 
     final items = [
-      SelectorItem<String>(
-        title: 'title:Base AI Models',
-      ),
+      SelectorItem<String>(title: 'title:Base AI Models'),
       ...modelItems,
       if (botItems.isNotEmpty) ...[
-        SelectorItem<String>(
-          title: 'title:Your Bots',
-        ),
+        SelectorItem<String>(title: 'title:Your Bots'),
         ...botItems,
       ],
     ];
 
-    final renderBox = _modelSelectorKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        _modelSelectorKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
     final offset = renderBox.localToGlobal(Offset.zero);
@@ -207,9 +206,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final apiService = getApiService(context);
     final data = await apiService.getPublicPrompts(offset: _offset, limit: 10);
 
-    final List<PromptModel> fetched = (data['items'] as List)
-        .map((item) => PromptModel.fromJson(item))
-        .toList();
+    final List<PromptModel> fetched =
+        (data['items'] as List)
+            .map((item) => PromptModel.fromJson(item))
+            .toList();
 
     setState(() {
       _offset += fetched.length;
@@ -223,7 +223,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final scrollController = ScrollController();
 
     final initialPrompts = await _fetchPublicPrompts();
-    List<SelectorItem<PromptModel>> promptItems = initialPrompts.map((p) => SelectorItem<PromptModel>(title: p.title, value: p)).toList();
+    List<SelectorItem<PromptModel>> promptItems =
+        initialPrompts
+            .map((p) => SelectorItem<PromptModel>(title: p.title, value: p))
+            .toList();
 
     // Get the position of the input
     final RenderBox? renderBox =
@@ -239,6 +242,8 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedValue: _selectedPrompt,
       onItemSelected: (value) {
         setState(() {
+          print(value.title);
+          print(value.userName);
           _selectedPrompt = value;
           _isUsePromptVisible = true;
         });
@@ -252,7 +257,9 @@ class _HomeScreenState extends State<HomeScreen> {
       scrollController: scrollController,
       onLoadMore: () async {
         final newPrompts = await _fetchPublicPrompts();
-        return newPrompts.map((p) => SelectorItem<PromptModel>(title: p.title, value: p)).toList();
+        return newPrompts
+            .map((p) => SelectorItem<PromptModel>(title: p.title, value: p))
+            .toList();
       },
     );
   }
@@ -264,14 +271,19 @@ class _HomeScreenState extends State<HomeScreen> {
     final bots = await api.getBots();
 
     setState(() {
-      _botData = bots.map((bot) => {
-        'apiId': bot['id'],
-        'name': bot['assistantName'],
-        'description': bot['description'] ?? '',
-        'type': 'bot',
-        'icon': Icons.smart_toy_outlined,
-        'iconColor': Colors.blue,
-      }).toList();
+      _botData =
+          bots
+              .map(
+                (bot) => {
+                  'apiId': bot['id'],
+                  'name': bot['assistantName'],
+                  'description': bot['description'] ?? '',
+                  'type': 'bot',
+                  'icon': Icons.smart_toy_outlined,
+                  'iconColor': Colors.blue,
+                },
+              )
+              .toList();
       _fetchingBots = false;
     });
   }
@@ -280,9 +292,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic> get _currentModel {
     if (_selectedModel.startsWith("bot:")) {
       final id = _selectedModel.split(":")[1];
-      return _botData.firstWhere((b) => b['apiId'] == id, orElse: () => _botData[0]);
+      return _botData.firstWhere(
+        (b) => b['apiId'] == id,
+        orElse: () => _botData[0],
+      );
     } else {
-      return _modelData.firstWhere((m) => m['name'] == _selectedModel, orElse: () => _modelData[0]);
+      return _modelData.firstWhere(
+        (m) => m['name'] == _selectedModel,
+        orElse: () => _modelData[0],
+      );
     }
   }
 
@@ -302,8 +320,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _handleSendMessage() async {
-    final text = _textController.text.trim();
+  Future<void> _handleSendMessage({String textFromPrompt = ''}) async {
+    final text =
+        textFromPrompt.isNotEmpty
+            ? textFromPrompt
+            : _textController.text.trim();
     if (text.isEmpty) return;
 
     final isUsingBot = _selectedModel.startsWith("bot:");
@@ -353,39 +374,46 @@ class _HomeScreenState extends State<HomeScreen> {
         result = await api.askBot(
           assistantId: assistantId,
           message: text,
-          openAiThreadId: "thread_ewcmtpDJwtDPcCeoDjtydmcW", // generate one if not set
+          openAiThreadId:
+              "thread_ewcmtpDJwtDPcCeoDjtydmcW", // generate one if not set
           additionalInstruction: "",
         );
-      }
+      } else {
+        final modelId =
+            _currentModel['apiId']; // ensure this is mapped correctly to API model
+        final modelName = _currentModel['name'];
 
-      else {
-        final modelId = _currentModel['apiId']; // ensure this is mapped correctly to API model
-				final modelName = _currentModel['name'];
-
-				final api = getApiService(context);
-				result = await api.sendMessage(
-					content: text,
-					modelId: modelId,
-					modelName: modelName,
-					conversationId: _lastConversationId,
-				);
+        final api = getApiService(context);
+        result = await api.sendMessage(
+          content: text,
+          modelId: modelId,
+          modelName: modelName,
+          conversationId: _lastConversationId,
+        );
       }
 
       final reply = result['message'];
       final remaining = result['remainingUsage'];
-      
+
       setState(() {
         // Remove loading message
         _messages.removeWhere((msg) => msg.id == loadingMessageId);
-        _messages.add(botMessage(DateTime.now().millisecondsSinceEpoch.toString(), reply));
+        _messages.add(
+          botMessage(DateTime.now().millisecondsSinceEpoch.toString(), reply),
+        );
         _lastConversationId = result['conversationId'];
       });
-      
+
       _remainingTokens = remaining ?? _remainingTokens;
     } on Exception catch (e) {
       setState(() {
         _messages.removeWhere((msg) => msg.id == loadingMessageId);
-        _messages.add(botMessage(DateTime.now().millisecondsSinceEpoch.toString(), '⚠️ Failed to get response: $e'));
+        _messages.add(
+          botMessage(
+            DateTime.now().millisecondsSinceEpoch.toString(),
+            '⚠️ Failed to get response: $e',
+          ),
+        );
       });
     }
 
@@ -412,6 +440,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _hideUsePrompt() {
     setState(() {
+      _selectedPrompt = null;
       _isUsePromptVisible = false;
     });
   }
@@ -430,6 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void addToChatInput(String content) {
     _textController.text = content;
     setState(() {
+      _selectedPrompt = null;
       _isUsePromptVisible = false;
     });
   }
@@ -440,13 +470,20 @@ class _HomeScreenState extends State<HomeScreen> {
     final api = getApiService(context);
 
     // Get most recent conversation ID
-    final conversations = await api.getConversations(modelId: _currentModel['apiId'], limit: 1);
-    if (conversations.isEmpty) return setState(() => _loadingConversation = false);
+    final conversations = await api.getConversations(
+      modelId: _currentModel['apiId'],
+      limit: 1,
+    );
+    if (conversations.isEmpty)
+      return setState(() => _loadingConversation = false);
 
     final conversationId = conversations[0]['id'];
 
     // Get messages for that conversation
-    final messages = await api.getConversationHistory(conversationId: conversationId, modelId: _currentModel['apiId']);
+    final messages = await api.getConversationHistory(
+      conversationId: conversationId,
+      modelId: _currentModel['apiId'],
+    );
 
     // Parse into chat model
     final parsed = parseConversationHistory(messages);
@@ -460,15 +497,25 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollToBottom();
   }
 
-  List<ChatMessage> parseConversationHistory(List<Map<String, dynamic>> messages) {
+  List<ChatMessage> parseConversationHistory(
+    List<Map<String, dynamic>> messages,
+  ) {
     return messages.expand((msg) {
       final createdAt = msg['createdAt'].toString();
       return [
-        ChatMessage(id: '$createdAt-user', message: msg['query'], type: MessageType.user),
-        ChatMessage(id: '$createdAt-bot', message: msg['answer'], type: MessageType.ai,
-            senderName: _currentModel['name'],
-            senderIcon: _currentModel['icon'],
-            iconColor: _currentModel['iconColor']),
+        ChatMessage(
+          id: '$createdAt-user',
+          message: msg['query'],
+          type: MessageType.user,
+        ),
+        ChatMessage(
+          id: '$createdAt-bot',
+          message: msg['answer'],
+          type: MessageType.ai,
+          senderName: _currentModel['name'],
+          senderIcon: _currentModel['icon'],
+          iconColor: _currentModel['iconColor'],
+        ),
       ];
     }).toList();
   }
@@ -504,34 +551,32 @@ class _HomeScreenState extends State<HomeScreen> {
               // Chat messages
               Expanded(
                 child:
-                  _loadingConversation
-                    ? Center(
-                      child: SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                    : _messages.isEmpty
-                      ? Welcome()
-                      : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.only(top: 16, bottom: 16),
-                        itemCount: _messages.length,
-                        itemBuilder: (context, index) {
-                          final message = _messages[index];
-                          // Adds a gap below each item
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: 10,
-                            ),
-                            child: ChatMessageWidget(
-                              message: message,
-                              onEditMessage: _handleEditMessage,
-                            ),
-                          );
-                        },
-                      ),
+                    _loadingConversation
+                        ? Center(
+                          child: SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                        : _messages.isEmpty
+                        ? Welcome()
+                        : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.only(top: 16, bottom: 16),
+                          itemCount: _messages.length,
+                          itemBuilder: (context, index) {
+                            final message = _messages[index];
+                            // Adds a gap below each item
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: ChatMessageWidget(
+                                message: message,
+                                onEditMessage: _handleEditMessage,
+                              ),
+                            );
+                          },
+                        ),
               ),
 
               // Above input
@@ -569,18 +614,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                 size: 20,
                                 color: _currentModel['iconColor'],
                               ),
-// <<<<<<< HEAD
-//                             ),
-//                             const SizedBox(width: 4),
-//                             _fetchingBots
-//                                 ? const SizedBox(
-//                                   width: 20,
-//                                   height: 20,
-//                                   child: CircularProgressIndicator(strokeWidth: 2),
-//                                 )
-//                                 : const Icon(Icons.expand_more, size: 20),
-//                           ],
-// =======
+                              // <<<<<<< HEAD
+                              //                             ),
+                              //                             const SizedBox(width: 4),
+                              //                             _fetchingBots
+                              //                                 ? const SizedBox(
+                              //                                   width: 20,
+                              //                                   height: 20,
+                              //                                   child: CircularProgressIndicator(strokeWidth: 2),
+                              //                                 )
+                              //                                 : const Icon(Icons.expand_more, size: 20),
+                              //                           ],
+                              // =======
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -654,12 +699,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(Icons.history),
                     iconSize: 32,
                     onPressed: () async {
-                      final result = await Navigator.pushNamed(context, "/history", arguments: {
-                        'lastConversationId': _lastConversationId,
-                      });
+                      final result = await Navigator.pushNamed(
+                        context,
+                        "/history",
+                        arguments: {'lastConversationId': _lastConversationId},
+                      );
                       if (result != null && result is Map) {
                         final messages = result['messages'];
-                        final conversationId = result['conversationId'] as String;
+                        final conversationId =
+                            result['conversationId'] as String;
 
                         final parsed = parseConversationHistory(messages);
 
@@ -670,11 +718,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         _scrollToBottom();
                       }
-// =======
-//                     iconSize: 24,
-//                     onPressed: () {
-//                       Navigator.pushNamed(context, "/history");
-// >>>>>>> mock-ui
+                      // =======
+                      //                     iconSize: 24,
+                      //                     onPressed: () {
+                      //                       Navigator.pushNamed(context, "/history");
+                      // >>>>>>> mock-ui
                     },
                     tooltip: 'Chat history',
                   ),
@@ -702,6 +750,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       // ),
                       child: IconButton(
                         icon: const Icon(Icons.add),
+                        padding: EdgeInsets.zero,
                         color: Colors.white,
                         onPressed: () {
                           setState(() {
@@ -712,9 +761,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         tooltip: 'New chat',
                       ),
                     ),
-
                   ),
-
                 ],
               ),
 
@@ -765,7 +812,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 controller: _textController,
                                 decoration: InputDecoration(
                                   hintText:
-                                  'Ask me anything, press \'/\' for prompts...',
+                                      'Ask me anything, press \'/\' for prompts...',
                                   hintStyle: TextStyle(color: Colors.grey),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(24),
@@ -778,7 +825,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 maxLines: 5,
                                 minLines: 2,
                                 textCapitalization:
-                                TextCapitalization.sentences,
+                                    TextCapitalization.sentences,
                                 onSubmitted: (_) => _handleSendMessage(),
                               ),
                             ),
@@ -840,25 +887,32 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
-                        children: _remainingTokens == -1
-                            ? [
-                                SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              ]
-                            : [
-                                Icon(Icons.diamond, color: Colors.purple, size: 16),
-                                const SizedBox(width: 2),
-                                Text(
-                                  "$_remainingTokens",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                        children:
+                            _remainingTokens == -1
+                                ? [
+                                  SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   ),
-                                )
-                              ],
+                                ]
+                                : [
+                                  Icon(
+                                    Icons.diamond,
+                                    color: Colors.purple,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    "$_remainingTokens",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                       ),
                     ),
 
@@ -904,7 +958,23 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // Use Prompt panel
-          if (_isUsePromptVisible && (widget.promptModel != null || _selectedPrompt != null)) UsePrompt(onClose: _hideUsePrompt, promptModel: widget.promptModel ?? _selectedPrompt!, addToChatInput: addToChatInput, quickPrompt: widget.promptModel != null ? false : true,),
+          if (_isUsePromptVisible &&
+              (widget.promptModel != null || _selectedPrompt != null))
+            Builder(
+              builder: (_) {
+                final promptModel = _selectedPrompt ?? widget.promptModel;
+                final isQuickPrompt = widget.promptModel == null;
+                if (promptModel == null) return SizedBox();
+
+                return UsePrompt(
+                  onClose: _hideUsePrompt,
+                  promptModel: promptModel,
+                  addToChatInput: addToChatInput,
+                  quickPrompt: isQuickPrompt,
+                  handleSendMessage: _handleSendMessage,
+                );
+              },
+            ),
         ],
       ),
     );

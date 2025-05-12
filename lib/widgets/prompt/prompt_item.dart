@@ -67,7 +67,7 @@ class _PromptItemState extends State<PromptItem> {
                   children: [
                     Expanded(
                       child: Container(
-                        padding: EdgeInsets.only(right: 100),
+                        padding: EdgeInsets.only(right: 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

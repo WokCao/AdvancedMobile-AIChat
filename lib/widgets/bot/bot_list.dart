@@ -53,45 +53,45 @@ class _BotListState extends State<BotList> {
                 child: Row(
                   children: [
                     TypeDropdown(),
-                    SizedBox(width: 8),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.3,
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) {
-                          if (_debounce?.isActive ?? false) _debounce!.cancel();
-                          _debounce = Timer(const Duration(milliseconds: 400), () {
-                            setState(() => _searchQuery = value.trim());
-                            _fetchBots();
-                          });
-                        },
-                        style: TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.search_sharp, size: 24),
-                          hintText: "Search...",
-                          hintStyle: TextStyle(color: Colors.grey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Colors.grey,
-                              width: 1.0,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Colors.purpleAccent,
-                              width: 2.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // SizedBox(width: 8),
+                    // ConstrainedBox(
+                    //   constraints: BoxConstraints(
+                    //     maxWidth: MediaQuery.of(context).size.width * 0.3,
+                    //   ),
+                    //   child: TextField(
+                    //     controller: _searchController,
+                    //     onChanged: (value) {
+                    //       if (_debounce?.isActive ?? false) _debounce!.cancel();
+                    //       _debounce = Timer(const Duration(milliseconds: 400), () {
+                    //         setState(() => _searchQuery = value.trim());
+                    //         _fetchBots();
+                    //       });
+                    //     },
+                    //     style: TextStyle(fontSize: 14),
+                    //     decoration: InputDecoration(
+                    //       prefixIcon: const Icon(Icons.search_sharp, size: 24),
+                    //       hintText: "Search...",
+                    //       hintStyle: TextStyle(color: Colors.grey),
+                    //       border: OutlineInputBorder(
+                    //         borderRadius: BorderRadius.circular(12),
+                    //       ),
+                    //       enabledBorder: OutlineInputBorder(
+                    //         borderRadius: BorderRadius.circular(12),
+                    //         borderSide: const BorderSide(
+                    //           color: Colors.grey,
+                    //           width: 1.0,
+                    //         ),
+                    //       ),
+                    //       focusedBorder: OutlineInputBorder(
+                    //         borderRadius: BorderRadius.circular(12),
+                    //         borderSide: const BorderSide(
+                    //           color: Colors.purpleAccent,
+                    //           width: 2.0,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
