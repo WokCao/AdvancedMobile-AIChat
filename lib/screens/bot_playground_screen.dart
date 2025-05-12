@@ -194,11 +194,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
 
           // Top Header
           Container(
-            padding: const EdgeInsets.only(
-              top: 12.0,
-              bottom: 16.0,
-              right: 12.0,
-            ),
+            padding: const EdgeInsets.only(top: 12.0, bottom: 16.0, right: 12.0),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
@@ -320,7 +316,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
             ),
           ),
           Container(
-            padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0, top: 4.0),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -357,8 +353,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                   decoration: InputDecoration(
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
-                    hintText:
-                        'Design the bot\'s persona, features and workflow using natural language.',
+                    hintText: 'Design the bot\'s persona, features and workflow using natural language.',
                     hintStyle: const TextStyle(
                       color: Colors.grey,
                       fontSize: 12,
@@ -622,13 +617,13 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                             itemBuilder: (context, index) {
                               final message = _messages[index];
                               return Padding(
-                                padding: const EdgeInsets.only(
-                                  bottom: 16,
-                                ), // Adds a gap below each item
-                                child: ChatMessageWidget(message: message),
+                                padding: const EdgeInsets.only(bottom: 16), // Adds a gap below each item
+                                child: ChatMessageWidget(
+                                  message: message,
+                                ),
                               );
                             },
-                          ),
+                          )
                 ),
               ],
             ),
@@ -638,9 +633,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 child: Row(

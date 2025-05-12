@@ -338,8 +338,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _handleSendMessage() async {
-    final text = _textController.text.trim();
+  Future<void> _handleSendMessage({String textFromPrompt = ''}) async {
+    final text =
+        textFromPrompt.isNotEmpty
+            ? textFromPrompt
+            : _textController.text.trim();
     if (text.isEmpty) return;
 
     final isUsingBot = _selectedModel.startsWith("bot:");
@@ -664,6 +667,8 @@ class _HomeScreenState extends State<HomeScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 28),
+
               // Sidebar button
               Container(
                 padding: EdgeInsets.all(5.0),
@@ -734,33 +739,37 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: _showModelSelector,
                         hoverColor: Colors.transparent,
                         borderRadius: BorderRadius.circular(24),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              _currentModel['icon'],
-                              size: 20,
-                              color: _currentModel['iconColor'],
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _currentModel['name'],
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                        child: SizedBox(
+                          width: 120,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _currentModel['icon'],
+                                size: 20,
+                                color: _currentModel['iconColor'],
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            _fetchingBots
-                                ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  _currentModel['name'],
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ),
-                            )
-                                : const Icon(Icons.expand_more, size: 20),
-                          ],
+                              const SizedBox(width: 4),
+                              _fetchingBots
+                                  ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                  : const Icon(Icons.expand_more, size: 20),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -772,7 +781,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onExit:
                         (_) => setState(() => _isBotCreateFocused = false),
                     child: Container(
-                      margin: const EdgeInsets.only(left: 16.0),
+                      margin: const EdgeInsets.only(left: 2.0),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 6,
@@ -847,31 +856,48 @@ class _HomeScreenState extends State<HomeScreen> {
                               (_) => _scrollToBottom(),
                         );
                       }
+                      // =======
+                      //                     iconSize: 24,
+                      //                     onPressed: () {
+                      //                       Navigator.pushNamed(context, "/history");
+                      // >>>>>>> mock-ui
                     },
                     tooltip: 'Chat history',
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    margin: const EdgeInsets.only(right: 16.0),
-                    padding: const EdgeInsets.all(0.0),
-                    decoration: BoxDecoration(
-                      color: Colors.purple.shade300,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        topRight: Radius.circular(30.0),
-                        bottomRight: Radius.circular(30.0),
+                  const SizedBox(width: 2),
+                  SizedBox(
+                    height: 32,
+                    width: 48,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.shade300,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30.0),
+                          topRight: Radius.circular(30.0),
+                          bottomRight: Radius.circular(30.0),
+                        ),
                       ),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.add),
-                      color: Colors.white,
-                      onPressed: () {
-                        setState(() {
-                          _messages = [];
-                          _lastConversationId = null;
-                        });
-                      },
-                      tooltip: 'New chat',
+                      // child: IconButton(
+                      //   icon: const Icon(Icons.add),
+                      //   color: Colors.white,
+                      //   padding: EdgeInsets.zero,
+                      //   constraints: const BoxConstraints(),
+                      //   onPressed: () {},
+                      //   tooltip: 'New chat',
+                      // ),
+                      child: IconButton(
+                        icon: const Icon(Icons.add),
+                        padding: EdgeInsets.zero,
+                        color: Colors.white,
+                        onPressed: () {
+                          setState(() {
+                            _messages = [];
+                            _lastConversationId = null;
+                          });
+                        },
+                        tooltip: 'New chat',
+                      ),
                     ),
                   ),
                 ],
@@ -889,9 +915,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     left: 16.0,
                     right: 16.0,
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 4.0,
-                    horizontal: 4.0,
+                  padding: const EdgeInsets.only(
+                    left: 4.0,
+                    right: 4.0,
+                    top: 12.0,
                   ),
                   decoration: BoxDecoration(
                     color:
@@ -914,6 +941,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: SafeArea(
+                    top: false,
                     child: Column(
                       children: [
                         // Input row
@@ -924,7 +952,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 controller: _textController,
                                 decoration: InputDecoration(
                                   hintText:
-                                  'Ask me anything, press \'/\' for prompts...',
+                                      'Ask me anything, press \'/\' for prompts...',
                                   hintStyle: TextStyle(color: Colors.grey),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(24),
@@ -932,13 +960,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 14,
-                                    vertical: 12,
                                   ),
                                 ),
                                 maxLines: 5,
                                 minLines: 2,
                                 textCapitalization:
-                                TextCapitalization.sentences,
+                                    TextCapitalization.sentences,
                                 onSubmitted: (_) => _handleSendMessage(),
                               ),
                             ),
@@ -1118,6 +1145,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onClose: _hideUsePrompt,
               promptModel: selectedPromptModel,
               addToChatInput: addToChatInput,
+              handleSendMessage: _handleSendMessage,
             ),
         ],
       ),

@@ -213,11 +213,12 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -226,7 +227,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
                   children: [
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.6,
+                        maxWidth: MediaQuery.of(context).size.width * 0.5,
                       ),
                       child: TextField(
                         controller: _textEditingController,
@@ -246,7 +247,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
                                   )
                                   : null,
                           hintText: "Search...",
-                          hintStyle: TextStyle(color: Colors.grey),
+                          hintStyle: const TextStyle(color: Colors.grey),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -293,13 +294,13 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Row(
-                    children: [
+                    children: const [
                       Icon(Icons.add_circle_outline, color: Colors.white),
                       SizedBox(width: 5),
                       Text(

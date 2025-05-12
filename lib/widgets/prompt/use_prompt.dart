@@ -6,12 +6,16 @@ class UsePrompt extends StatefulWidget {
   final VoidCallback onClose;
   final PromptModel promptModel;
   final void Function(String) addToChatInput;
+  final Future<void> Function({String textFromPrompt}) handleSendMessage;
+  final bool? quickPrompt;
 
   const UsePrompt({
     super.key,
     required this.onClose,
     required this.promptModel,
     required this.addToChatInput,
+    this.quickPrompt,
+    required this.handleSendMessage,
   });
 
   @override
@@ -110,7 +114,10 @@ class _UsePromptState extends State<UsePrompt> {
                           iconSize: 20,
                           onPressed: () {
                             widget.onClose();
-                            Navigator.of(context).pop();
+                            if (widget.quickPrompt != null &&
+                                widget.quickPrompt == false) {
+                              Navigator.of(context).pop();
+                            }
                           },
                           padding: EdgeInsets.zero,
                           constraints: BoxConstraints(),
@@ -150,12 +157,20 @@ class _UsePromptState extends State<UsePrompt> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Text(widget.promptModel.category),
-                            Text(' • '),
-                            Text(widget.promptModel.userName),
-                          ],
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          child: Row(
+                            children: [
+                              Text(widget.promptModel.category),
+                              Text(' • '),
+                              Expanded(
+                                child: Text(
+                                  widget.promptModel.userName,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -268,8 +283,11 @@ class _UsePromptState extends State<UsePrompt> {
                               child: TextField(
                                 controller: controllers[index],
                                 decoration: InputDecoration(
-                                  hintText: '${(index + 1)}. ${placeholders[index]}',
-                                  hintStyle: TextStyle(color: Colors.grey.shade400),
+                                  hintText:
+                                      '${(index + 1)}. ${placeholders[index]}',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey.shade400,
+                                  ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: BorderSide(
@@ -307,27 +325,43 @@ class _UsePromptState extends State<UsePrompt> {
                     child: MouseRegion(
                       onEnter: (_) => setState(() => _isSendFocused = true),
                       onExit: (_) => setState(() => _isSendFocused = false),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              _isSendFocused
-                                  ? Colors.pink.shade400
-                                  : Colors.pink.shade300,
-                              _isSendFocused
-                                  ? Colors.purple.shade400
-                                  : Colors.purple.shade300,
-                            ], // Gradient colors
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                      child: Material(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.transparent,
                         child: InkWell(
-                          onTap: () {
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () async {
                             // Handle send prompt
+                            String modifiedPrompt = prompt;
+
+                            for (int i = 0; i < placeholders.length; i++) {
+                              if (controllers[i].text.isNotEmpty) {
+                                modifiedPrompt = modifiedPrompt.replaceFirst(
+                                  "[${placeholders[i]}]",
+                                  controllers[i].text,
+                                );
+                              }
+                            }
+                            widget.onClose();
+
+                            await widget.handleSendMessage(textFromPrompt: modifiedPrompt);
                           },
-                          child: Padding(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  _isSendFocused
+                                      ? Colors.pink.shade400
+                                      : Colors.pink.shade300,
+                                  _isSendFocused
+                                      ? Colors.purple.shade400
+                                      : Colors.purple.shade300,
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                             padding: const EdgeInsets.all(8.0),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,

@@ -43,82 +43,109 @@ class _WelcomeState extends State<Welcome> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(18.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Greetings
-          Icon(Icons.waving_hand, color: Colors.purple.shade300, size: 40),
-          const SizedBox(height: 4),
-          Text(
-            'Hi, good afternoon!',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.only(left: 18.0, right: 18.0, bottom: 18.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Greetings
+            Icon(Icons.waving_hand, color: Colors.purple.shade300, size: 40),
+            const SizedBox(height: 4),
+            Text(
+              'Hi, good afternoon!',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "I'm ChatGEM, your personal assistant.",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
+            const SizedBox(height: 8),
+            Text(
+              "I'm ChatGEM, your personal assistant.",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // Pro Version Banner
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.purple.shade50,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Upgrade to the Pro version for unlimited access with a 1-month free trial!',
-                  style: TextStyle(
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: MouseRegion(
-                    onEnter: (_) => setState(() => _isTrialFocused = true),
-                    onExit: (_) => setState(() => _isTrialFocused = false),
-                    child: Container(
-                        margin: const EdgeInsets.only(left: 16.0),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              _isTrialFocused
-                                  ? Colors.pink.shade400
-                                  : Colors.pink.shade300,
-                              _isTrialFocused
-                                  ? Colors.purple.shade400
-                                  : Colors.purple.shade300,
-                            ], // Gradient colors
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            // Handle upgrade
-                          },
-                          child: const Text('Start Free Trial', style: TextStyle(color: Colors.white)),
-                        )
+            // Pro Version Banner
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.purple.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Upgrade to the Pro version for unlimited access with a 1-month free trial!',
+                    style: TextStyle(
+                      fontSize: 15,
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: MouseRegion(
+                      onEnter: (_) => setState(() => _isTrialFocused = true),
+                      onExit: (_) => setState(() => _isTrialFocused = false),
+                      child: Container(
+                          margin: const EdgeInsets.only(left: 16.0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                _isTrialFocused
+                                    ? Colors.pink.shade400
+                                    : Colors.pink.shade300,
+                                _isTrialFocused
+                                    ? Colors.purple.shade400
+                                    : Colors.purple.shade300,
+                              ], // Gradient colors
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              // Handle upgrade
+                            },
+                            child: const Text('Start Free Trial', style: TextStyle(color: Colors.white)),
+                          )
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+
+            // Prompts Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Don't know what to say? Use a prompt!",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    /// Handle view all prompts
+                    Navigator.pushNamed(context, '/prompts');
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.purple,
+                  ),
+                  child: const Text('View all'),
                 ),
               ],
             ),
@@ -197,7 +224,7 @@ class _WelcomeState extends State<Welcome> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.8,
+                width: MediaQuery.of(context).size.width * 0.6,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
