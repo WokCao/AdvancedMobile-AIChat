@@ -19,18 +19,18 @@ final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<v
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await MobileAds.instance.initialize();
+  // await MobileAds.instance.initialize();
 
   const flavorString = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
   FlavorConfig.appFlavor = flavorString == 'prod' ? Flavor.prod : Flavor.dev;
 
-  if (FlavorConfig.appFlavor == Flavor.dev) {
-    MobileAds.instance.updateRequestConfiguration(
-      RequestConfiguration(
-        testDeviceIds: [],
-      ),
-    );
-  }
+  // if (FlavorConfig.appFlavor == Flavor.dev) {
+  //   MobileAds.instance.updateRequestConfiguration(
+  //     RequestConfiguration(
+  //       testDeviceIds: [],
+  //     ),
+  //   );
+  // }
 
   runApp(
     MultiProvider(
