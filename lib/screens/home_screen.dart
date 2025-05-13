@@ -214,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         });
       },
-      offset: Offset(offset.dx + 16, offset.dy - 320 - (botItems.length * 28)),
+      offset: Offset(offset.dx + 16, offset.dy - 320 - (botItems.length * 16)),
     );
   }
 

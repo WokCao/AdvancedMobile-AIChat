@@ -417,7 +417,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
             ),
           ),
           ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: 100),
+            constraints: BoxConstraints(maxHeight: 60),
             child: ListView.builder(
               shrinkWrap: true,
               padding: const EdgeInsets.only(
