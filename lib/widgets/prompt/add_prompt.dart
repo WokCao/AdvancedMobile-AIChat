@@ -73,7 +73,7 @@ class _AddPrompt extends State<AddPrompt> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.prompt!.title.isEmpty ? "New Prompt" : "Update Prompt",
+                widget.prompt == null ? "New Prompt" : "Update Prompt",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -265,7 +265,7 @@ class _AddPrompt extends State<AddPrompt> {
                       return;
                     }
 
-                    if (title == widget.prompt?.title || content == widget.prompt?.content) {
+                    if (title == widget.prompt?.title && content == widget.prompt?.content) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text("Title or Prompt is unchanged"),
@@ -277,7 +277,7 @@ class _AddPrompt extends State<AddPrompt> {
                     final apiService = getApiService(context);
                     bool success = false;
 
-                    if (widget.prompt?.title != "") {
+                    if (widget.prompt != null) {
                       success = await apiService.updatePrivatePrompt(
                         title: title,
                         content: content,
@@ -297,11 +297,11 @@ class _AddPrompt extends State<AddPrompt> {
                         widget.updatePrivatePromptCallback!(widget.prompt!.id, title, content);
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Prompt ${widget.prompt?.title != "" ? "updated" : "created"} successfully")),
+                        SnackBar(content: Text("Prompt ${widget.prompt != null ? "updated" : "created"} successfully")),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Failed to ${widget.prompt?.title != "" ? "update" : "create"} prompt")),
+                        SnackBar(content: Text("Failed to ${widget.prompt != null ? "update" : "create"} prompt")),
                       );
                     }
                   },
@@ -324,7 +324,7 @@ class _AddPrompt extends State<AddPrompt> {
                       ),
                     ),
                     child: Text(
-                      widget.prompt?.title != '' ? 'Update' : 'Create',
+                      widget.prompt != null ? 'Update' : 'Create',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
