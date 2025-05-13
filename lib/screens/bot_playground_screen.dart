@@ -349,7 +349,7 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                         ? SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.purple.shade200),
                         )
                         : IconButton(
                           onPressed: updateInstructions,

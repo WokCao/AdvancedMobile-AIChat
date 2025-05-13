@@ -699,7 +699,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: SizedBox(
                     width: 16,
                     height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.purple.shade200),
                   ),
                 )
                     : _messages.isEmpty
@@ -774,10 +774,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(width: 4),
                               _fetchingBots
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.purple.shade200),
                                   )
                                   : const Icon(Icons.expand_more, size: 20),
                             ],
@@ -1081,6 +1081,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
+                                color: Colors.purple.shade200
                             ),
                           ),
                         ]

@@ -83,7 +83,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
               ),
               SizedBox(height: 20),
               _loading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Center(child: CircularProgressIndicator(color: Colors.purple.shade200))
                   : Expanded(
                       child: ListView.separated(
                         itemCount: _chatItems.length,

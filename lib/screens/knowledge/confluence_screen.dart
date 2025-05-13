@@ -342,7 +342,7 @@ class _ConfluenceScreenState extends State<ConfluenceScreen> {
                               height: 20,
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
+                                  Colors.purple.shade200,
                                 ),
                                 strokeWidth: 2,
                               ),

@@ -127,7 +127,7 @@ class _BotListState extends State<BotList> {
           SizedBox(height: 16),
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator(color: Colors.purple.shade200))
                 : _bots.isEmpty
                     ? Center(
                         child: Column(

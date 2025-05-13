@@ -241,7 +241,9 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
+                              vertical: 8
                             ),
+                            minimumSize: Size(0, 0)
                           ),
                           child: const Text('Cancel'),
                         ),

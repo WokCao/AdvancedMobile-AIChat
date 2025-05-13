@@ -400,13 +400,13 @@ class _EmailScreenState extends State<EmailScreen> {
                                                 : _fetchMainIdeas,
                                             child:
                                             _loadingIdeas
-                                                ? const Center(
+                                                ? Center(
                                               child: SizedBox(
                                                 width: 20,
                                                 height: 20,
                                                 child: CircularProgressIndicator(
                                                     strokeWidth: 2,
-                                                    color: Colors.white),
+                                                    color: Colors.purple.shade200),
                                               ),
                                             )
                                                 : Text('Suggest Reply Ideas',
@@ -587,13 +587,13 @@ class _EmailScreenState extends State<EmailScreen> {
                                                 : _generateEmail,
                                             child:
                                             _loading
-                                                ? const Center(
+                                                ? Center(
                                               child: SizedBox(
                                                 width: 20,
                                                 height: 20,
                                                 child: CircularProgressIndicator(
                                                     strokeWidth: 2,
-                                                    color: Colors.white),
+                                                    color: Colors.purple.shade200),
                                               ),
                                             )
                                                 : Text('Generate Email Response',

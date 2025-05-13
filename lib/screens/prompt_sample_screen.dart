@@ -408,11 +408,11 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                   children: [
                     ...(() {
                       if (_isLoading) {
-                        return const [
+                        return [
                           Center(
                             child: Padding(
                               padding: EdgeInsets.symmetric(vertical: 16.0),
-                              child: CircularProgressIndicator(),
+                              child: CircularProgressIndicator(color: Colors.purple.shade200),
                             ),
                           ),
                         ];
@@ -519,9 +519,9 @@ class _PromptSampleScreenState extends State<PromptSampleScreen> {
                     })(),
 
                     if (_isFetchingMore)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Center(child: CircularProgressIndicator()),
+                        child: Center(child: CircularProgressIndicator(color: Colors.purple.shade200)),
                       ),
                   ],
                 ),

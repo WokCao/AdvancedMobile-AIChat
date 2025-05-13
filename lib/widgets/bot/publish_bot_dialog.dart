@@ -298,12 +298,12 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
     switch (_selectedPlatform) {
       case PlatformOption.messenger:
         return _isLoading
-            ? const SizedBox(
+            ? SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Colors.white,
+                color: Colors.purple.shade200,
               ),
             )
             : !containMessenger
@@ -481,12 +481,12 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
 
       case PlatformOption.slack:
         return _isLoading
-            ? const SizedBox(
+            ? SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Colors.white,
+                color: Colors.purple.shade200,
               ),
             )
             : !containSlack
@@ -718,12 +718,12 @@ class _PublishBotDialogState extends State<PublishBotDialog> {
 
       case PlatformOption.telegram:
         return _isLoading
-            ? const SizedBox(
+            ? SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Colors.white,
+                color: Colors.purple.shade200,
               ),
             )
             : !containTelegram

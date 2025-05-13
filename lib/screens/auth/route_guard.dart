@@ -53,8 +53,8 @@ class RouteGuard {
 
             // Show loading while checking
             if (!snapshot.hasData) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
+              return Scaffold(
+                body: Center(child: CircularProgressIndicator(color: Colors.purple.shade200)),
               );
             }
 

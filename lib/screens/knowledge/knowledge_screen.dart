@@ -309,7 +309,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
             future: _dataFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return Center(child: CircularProgressIndicator(color: Colors.purple.shade200));
               }
 
               if (snapshot.hasError) {
