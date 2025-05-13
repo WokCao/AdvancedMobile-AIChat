@@ -35,10 +35,12 @@ class MyDataWithActions extends DataTableSource {
     BotModel botModel,
     KnowledgeModel knowledgeModel,
   ) async {
-    await getKBApiService(context).importKnowledgeToAssistant(
-      assistantId: botModel.id,
-      knowledgeId: knowledgeModel.id,
-    );
+    if (botModel.id != '-1. Temporary bot') {
+      await getKBApiService(context).importKnowledgeToAssistant(
+        assistantId: botModel.id,
+        knowledgeId: knowledgeModel.id,
+      );
+    }
 
     context.read<BotProvider>().addAKnowledge(knowledgeModel);
   }
