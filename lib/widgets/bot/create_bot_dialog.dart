@@ -1,5 +1,12 @@
+import 'package:ai_chat/models/knowledge_model.dart';
+import 'package:ai_chat/providers/bot_provider.dart';
 import 'package:ai_chat/utils/get_api_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../models/bot_model.dart';
+import '../../providers/knowledge_provider.dart';
+import '../knowledge/remove_knowledge.dart';
 
 class CreateBotDialog extends StatefulWidget {
   final bool isEditing;
@@ -29,6 +36,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
 
   bool _isCreateFocused = false;
   bool _loading = false;
+  bool _deleteKnowledgeLoading = false;
 
   @override
   void initState() {
@@ -38,8 +46,82 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
     _descriptionController.text = widget.initialDescription ?? '';
   }
 
+  Future<void> handleCreateUpdateBot() async {
+    bool success = true;
+    if (_formKey.currentState!.validate()) {
+      setState(() => _loading = true);
+
+      final api = getKBApiService(context);
+
+      if (widget.isEditing) {
+        try {
+          success = await api.updateBot(
+            id: widget.botId!,
+            assistantName: _nameController.text.trim(),
+            instructions: _instructionsController.text.trim(),
+            description: _descriptionController.text.trim(),
+          );
+        } catch (e) {
+          success = false;
+        }
+      } else {
+        try {
+          final response = await api.createBot(
+            assistantName: _nameController.text.trim(),
+            instructions: _instructionsController.text.trim(),
+            description: _descriptionController.text.trim(),
+          );
+
+          if (!mounted) return;
+
+          final botId = response['id'];
+          final List<KnowledgeModel> importedKnowledge = context.read<BotProvider>().importedKnowledge;
+
+          success = true;
+
+          for (KnowledgeModel knowledgeModel in importedKnowledge) {
+            try {
+              await api.importKnowledgeToAssistant(assistantId: botId, knowledgeId: knowledgeModel.id);
+            } catch (e) {
+              success = false;
+              break;
+            }
+          }
+
+          context.read<BotProvider>().clearAll();
+        } catch (e) {
+          success = false;
+        }
+      }
+
+      if (success) {
+        if (!mounted) return;
+        Navigator.of(context).pop(true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Bot ${widget.isEditing ? "saved" : "created"} successfully",
+            ),
+          ),
+        );
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Failed to ${widget.isEditing ? "save" : "create"} bot",
+            ),
+          ),
+        );
+      }
+    }
+    setState(() => _loading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<KnowledgeModel> importedKnowledge = context.watch<BotProvider>().importedKnowledge;
+
     return Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -177,11 +259,113 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                         style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                       const SizedBox(height: 12),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: 100),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: importedKnowledge.length,
+                          itemBuilder: (context, index) {
+                            final item = importedKnowledge[index];
+
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.yellow.shade300,
+                                          Colors.orange.shade300,
+                                        ],
+                                        begin: Alignment.bottomLeft,
+                                        end: Alignment.topRight,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.data_object_outlined,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      item.knowledgeName,
+                                      style: const TextStyle(fontSize: 12),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  IconButton(
+                                    onPressed: () {
+                                      context
+                                          .read<KnowledgeProvider>()
+                                          .setSelectedKnowledgeRow(item);
+                                      Navigator.pushNamed(context, '/units');
+                                    },
+                                    icon: const Icon(
+                                      Icons.remove_red_eye_outlined,
+                                      size: 18,
+                                    ),
+                                    padding: const EdgeInsets.all(4.0),
+                                    constraints: const BoxConstraints(),
+                                    tooltip: 'View',
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder:
+                                            (_) => RemoveKnowledge(
+                                          handleDeleteKnowledge: (String _) {
+                                            setState(() {
+                                              _deleteKnowledgeLoading = true;
+                                            });
+
+                                            context
+                                                .read<BotProvider>()
+                                                .removeAKnowledge(item);
+                                            setState(() {
+                                              _deleteKnowledgeLoading = false;
+                                            });
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    icon:
+                                    _deleteKnowledgeLoading
+                                        ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.grey,
+                                        ),
+                                      ),
+                                    )
+                                        : const Icon(Icons.delete_outline, size: 18),
+                                    padding: const EdgeInsets.all(4.0),
+                                    constraints: const BoxConstraints(),
+                                    tooltip: 'Remove',
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       SizedBox(
                         width: double.infinity, // Make button full width
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/source');
+                            context.read<BotProvider>().clearAll();
+                            context.read<BotProvider>().setSelectedBotModel(botModel: BotModel.empty(id: "-1. Temporary bot"));
+                            Navigator.pushNamed(context, '/knowledge');
                           },
                           icon: Icon(Icons.add, color: Colors.purple.shade700),
                           label: const Text('Add knowledge source'),
@@ -274,55 +458,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                               borderRadius: BorderRadius.circular(24),
                             ),
                             child: InkWell(
-                              onTap: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  setState(() => _loading = true);
-
-                                  final api = getKBApiService(context);
-                                  final success =
-                                      widget.isEditing
-                                          ? await api.updateBot(
-                                            id: widget.botId!,
-                                            assistantName:
-                                                _nameController.text.trim(),
-                                            instructions:
-                                                _instructionsController.text
-                                                    .trim(),
-                                            description:
-                                                _descriptionController.text
-                                                    .trim(),
-                                          )
-                                          : await api.createBot(
-                                            assistantName:
-                                                _nameController.text.trim(),
-                                            instructions:
-                                                _instructionsController.text
-                                                    .trim(),
-                                            description:
-                                                _descriptionController.text
-                                                    .trim(),
-                                          );
-
-                                  if (success) {
-                                    Navigator.of(context).pop(true);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          "Bot ${widget.isEditing ? "saved" : "created"} successfully",
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          "Failed to ${widget.isEditing ? "save" : "create"} bot",
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
+                              onTap: handleCreateUpdateBot,
                               child:
                                   _loading
                                       ? const SizedBox(

@@ -22,7 +22,7 @@ class KnowledgeApiService {
     _dio.interceptors.add(AuthInterceptor(_dio, navigatorKey));
   }
 
-  Future<bool> createBot({
+  Future<Map<String, dynamic>> createBot({
     required String assistantName,
     String? instructions,
     String? description,
@@ -36,7 +36,7 @@ class KnowledgeApiService {
           'description': description,
       });
 
-      return response.statusCode == 201;
+      return response.data;
     } on DioException catch (e) {
       throw Exception('Create bot error: ${e.response?.data ?? e.message}');
     }

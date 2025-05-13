@@ -348,7 +348,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> with RouteAware {
                   onPageChanged: (int rowIndex) {
                     _fetchMoreData(rowIndex);
                   },
-                  columnSpacing: 0,
+                  columnSpacing: total == 0 ? 50 : 0,
                   showFirstLastButtons: true,
                   showCheckboxColumn: false,
                   columns: [

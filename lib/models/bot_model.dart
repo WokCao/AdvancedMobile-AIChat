@@ -31,6 +31,23 @@ class BotModel {
     this.deletedAt,
   });
 
+  factory BotModel.empty({ required String id }) => BotModel(
+    id: id,
+    assistantName: '',
+    config: const {},
+    userId: '',
+    isDefault: false,
+    isFavorite: false,
+    permissions: const [],
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
+    description: null,
+    instructions: null,
+    createdBy: null,
+    updatedBy: null,
+    deletedAt: null,
+  );
+
   factory BotModel.fromJson(Map<String, dynamic> json) {
     return BotModel(
       id: json['id'],
