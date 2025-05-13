@@ -126,6 +126,10 @@ class _UnitScreenState extends State<UnitScreen> with RouteAware {
 
     try {
       await kbService.deleteAUnitOfKnowledge(knowledgeModel: selectedKnowledgeModel, baseUnitModel: baseUnitModel);
+      setState(() {
+        total = total - 1;
+        offset = offset - 1;
+      });
       context.read<KnowledgeProvider>().removeAUnit(baseUnitModel.id);
       context.read<KnowledgeProvider>().updated();
       if (mounted) {

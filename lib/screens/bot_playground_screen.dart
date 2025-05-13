@@ -233,11 +233,15 @@ class _BotPlaygroundScreenState extends State<BotPlaygroundScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          botModel?.assistantName ?? 'Unidentified bot',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        SizedBox(
+                          width: 80,
+                          child: Text(
+                            botModel?.assistantName ?? 'Unidentified bot',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Container(
